@@ -8,7 +8,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Routes>
-        <Route path="/" element={<Menu />} />
+        <Route path="/menu" element={<Menu />} />
         <Route path="/login" element={<Login />} />
         <Route path="/owner/dashboard" element={<Owner />} />
         <Route path="/login-success" element={<LoginSuccess />} />
