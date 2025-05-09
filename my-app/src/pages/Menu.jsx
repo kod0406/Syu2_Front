@@ -30,7 +30,7 @@ export default function CustomerMenuPage() {
     <div className="flex h-screen bg-gray-50">
       {/* 왼쪽 카테고리 */}
       <aside className="w-1/6 bg-white border-r p-4 flex flex-col h-full">
-        <h1 className="text-xl font-bold mb-4">menu.it</h1>
+        <h1 className="text-xl font-bold mb-4">menu</h1>
         <nav className="space-y-2">
           {categories.map((cat) => (
             <button
