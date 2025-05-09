@@ -15,7 +15,7 @@ export default function CustomerLogin() {
     };
   
     return (
-      <div className="flex items-center justify-center min-h-screen bg-black">
+      <div className="flex items-center justify-center min-h-screen bg-blue-100">
         <div className="w-full max-w-sm space-y-4">
           {/* Kakao */}
           <button
