@@ -3,10 +3,11 @@ export default function CustomerLogin() {
       let redirectUrl = '';
       switch (provider) {
         case 'kakao':
-          redirectUrl = `https://kauth.kakao.com/oauth/authorize?client_id=YOUR_KAKAO_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&response_type=code`;
+          redirectUrl = `https://kauth.kakao.com/oauth/authorize?client_id=7446b00bc519d478db550fd9a215f34c&redirect_uri=http://localhost:8080/api/oauth2/kakao/login`;
           break;
         case 'naver':
-            redirectUrl = `https://nid.naver.com/oauth2.0/authorize?client_id=YOUR_NAVER_CLIENT_ID&redirect_uri=http://localhost:3000/oauth/callback&response_type=code&state=SOME_RANDOM_STATE`;
+            const randomState = Math.random().toString(36).substring(2, 15);
+            redirectUrl = `https://nid.naver.com/oauth2.0/authorize?client_id=EaiAL_Y2T7PHYrYS7sSL&redirect_uri=http://localhost:8080/login/naver&response_type=code&state=${randomState}`;
           break;
         default:
           break;
