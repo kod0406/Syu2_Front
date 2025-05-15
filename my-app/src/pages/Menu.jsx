@@ -9,21 +9,50 @@ export default function CustomerMenuPage() {
   useEffect(() => {
     axios.get('http://localhost:8080/api/Store/Menu?StoreNumber=2')
       .then((res) => {
-        console.log('메뉴 응답:', res.data);
+        console.log('✅ 메뉴:', res.data);
         setMenus(res.data);
       })
-      .catch((err) => console.error('메뉴 불러오기 실패:', err));
+      .catch((err) => {
+        console.error('❌ 메뉴 불러오기 실패:', err.message);
+      });
   }, []);
 
   const handleAddToOrder = (item) => {
-    setOrderItems((prev) => [...prev, item]);
+    setOrderItems((prev) => {
+      const existing = prev.find((i) => i.name === item.name);
+      if (existing) {
+        return prev.map((i) =>
+          i.name === item.name ? { ...i, quantity: i.quantity + 1 } : i
+        );
+      } else {
+        return [...prev, { ...item, quantity: 1 }];
+      }
+    });
   };
 
   const handleRemoveFromOrder = (indexToRemove) => {
     setOrderItems((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
-  const totalAmount = orderItems.reduce((sum, item) => sum + item.price, 0);
+  const handleIncrease = (index) => {
+    setOrderItems((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    );
+  };
+
+  const handleDecrease = (index) => {
+    setOrderItems((prev) =>
+      prev
+        .map((item, i) =>
+          i === index ? { ...item, quantity: item.quantity - 1 } : item
+        )
+        .filter((item) => item.quantity > 0)
+    );
+  };
+
+  const totalAmount = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -66,16 +95,20 @@ export default function CustomerMenuPage() {
             <ul className="space-y-2">
               {orderItems.map((item, index) => (
                 <li key={index} className="flex justify-between items-center text-sm">
-                  <div>
-                    <span>{item.name}</span>
-                    <span className="ml-2 text-gray-500">₩{item.price.toLocaleString()}</span>
+                  <div className="flex flex-col">
+                    <span>{item.name} x{item.quantity}</span>
+                    <span className="text-gray-500 text-xs">₩{(item.price * item.quantity).toLocaleString()}</span>
                   </div>
-                  <button
-                    onClick={() => handleRemoveFromOrder(index)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    X
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleDecrease(index)} className="px-2 bg-gray-200 rounded">-</button>
+                    <button onClick={() => handleIncrease(index)} className="px-2 bg-gray-200 rounded">+</button>
+                    <button
+                      onClick={() => handleRemoveFromOrder(index)}
+                      className="text-red-500 hover:text-red-700 ml-2"
+                    >
+                      X
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
