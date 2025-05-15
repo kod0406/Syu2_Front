@@ -1,20 +1,19 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 export default function CustomerMenuPage() {
-  const categories = ['BEST', '메인요리', 'NEW', '튀김요리', '사이드', '주류, 음료'];
-
-  const menuItems = [
-    { id: 1, category: 'BEST', name: '스페셜 메뉴', price: 38000, description: '랍스터 테일, 부채살, 새우', image: '/images/special.jpg' },
-    { id: 2, category: 'BEST', name: '참치타다끼', price: 25000, description: '살짝 익힌 참치', image: '/images/tuna.jpg' },
-    { id: 3, category: '메인요리', name: '스테이크', price: 30000, description: '육즙 가득 스테이크', image: '/images/steak.jpg' },
-    { id: 4, category: '튀김요리', name: '새우튀김', price: 15000, description: '바삭한 새우튀김', image: '/images/shrimp.jpg' },
-  ];
-
-  const [selectedCategory, setSelectedCategory] = useState('BEST');
+  const [menus, setMenus] = useState([]);
   const [orderItems, setOrderItems] = useState([]);
 
-  const filteredMenu = menuItems.filter((item) => item.category === selectedCategory);
+  useEffect(() => {
+    axios.get('http://localhost:8080/api/Store/Menu?StoreNumber=2')
+      .then((res) => {
+        console.log('메뉴 응답:', res.data);
+        setMenus(res.data);
+      })
+      .catch((err) => console.error('메뉴 불러오기 실패:', err));
+  }, []);
 
   const handleAddToOrder = (item) => {
     setOrderItems((prev) => [...prev, item]);
@@ -28,30 +27,14 @@ export default function CustomerMenuPage() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* 왼쪽 카테고리 */}
-      <aside className="w-1/6 bg-white border-r p-4 flex flex-col h-full">
-        <h1 className="text-xl font-bold mb-4">menu</h1>
-        <nav className="space-y-2">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`block text-left px-2 py-1 rounded ${selectedCategory === cat ? 'bg-red-500 text-white' : 'text-red-500 hover:font-semibold'}`}
-            >
-              {cat}
-            </button>
-          ))}
-        </nav>
-      </aside>
-
-      {/* 중앙 메뉴 리스트 */}
-      <main className="w-3/6 p-6 overflow-y-auto h-full">
-        <h2 className="text-lg font-semibold mb-2">{selectedCategory} 메뉴</h2>
+      {/* 중앙 메뉴 영역 */}
+      <main className="w-3/4 p-6 overflow-y-auto h-full">
+        <h2 className="text-lg font-semibold mb-4">전체 메뉴</h2>
         <div className="space-y-6">
-          {filteredMenu.length > 0 ? (
-            filteredMenu.map((item) => (
-              <div key={item.id} className="flex gap-4 bg-white rounded shadow p-4">
-                <img src={item.image} alt={item.name} className="w-40 h-28 object-cover rounded" />
+          {menus.length > 0 ? (
+            menus.map((item, index) => (
+              <div key={index} className="flex gap-4 bg-white rounded shadow p-4">
+                <img src={item.imageUrl} alt={item.name} className="w-40 h-28 object-cover rounded" />
                 <div className="flex flex-col justify-between flex-1">
                   <div>
                     <h3 className="text-lg font-bold">{item.name}</h3>
@@ -68,13 +51,13 @@ export default function CustomerMenuPage() {
               </div>
             ))
           ) : (
-            <p className="text-gray-400">해당 카테고리 메뉴가 없습니다.</p>
+            <p className="text-gray-400">메뉴가 없습니다.</p>
           )}
         </div>
       </main>
 
       {/* 오른쪽 주문서 */}
-      <aside className="w-2/6 bg-white border-l p-4 flex flex-col justify-between h-full">
+      <aside className="w-1/4 bg-white border-l p-4 flex flex-col justify-between h-full">
         <div className="flex-1 overflow-y-auto">
           <h3 className="text-lg font-bold mb-2">주문서</h3>
           {orderItems.length === 0 ? (
