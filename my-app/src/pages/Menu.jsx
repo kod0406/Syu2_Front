@@ -5,10 +5,11 @@ import axios from 'axios';
 export default function CustomerMenuPage() {
   const [menus, setMenus] = useState([]);
   const [orderItems, setOrderItems] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('전체');
 
   useEffect(() => {
-    axios.get('http://localhost:8080/api/Store/Menu?StoreNumber=2')
-      .then((res) => {
+      axios.get('http://localhost:8080/api/Store/Menu?StoreNumber=7')
+        .then((res) => {
         console.log('✅ 메뉴:', res.data);
         setMenus(res.data);
       })
@@ -17,12 +18,16 @@ export default function CustomerMenuPage() {
       });
   }, []);
 
+  const categories = ['전체', ...Array.from(new Set(menus.map(item => item.category).filter(Boolean)))];
+
+  const filteredMenus = selectedCategory === '전체' ? menus : menus.filter(item => item.category === selectedCategory);
+
   const handleAddToOrder = (item) => {
     setOrderItems((prev) => {
-      const existing = prev.find((i) => i.name === item.name);
+      const existing = prev.find((i) => i.menuName === item.menuName);
       if (existing) {
         return prev.map((i) =>
-          i.name === item.name ? { ...i, quantity: i.quantity + 1 } : i
+          i.menuName === item.menuName ? { ...i, quantity: i.quantity + 1 } : i
         );
       } else {
         return [...prev, { ...item, quantity: 1 }];
@@ -56,17 +61,33 @@ export default function CustomerMenuPage() {
 
   return (
     <div className="flex h-screen bg-gray-50">
+      {/* 왼쪽 카테고리 사이드바 */}
+      <aside className="w-1/6 bg-white border-r p-4 flex flex-col h-full">
+        <h1 className="text-xl font-bold mb-4">menu</h1>
+        <nav className="space-y-2">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`block text-left px-2 py-1 rounded ${selectedCategory === cat ? 'bg-red-500 text-white' : 'text-red-500 hover:font-semibold'}`}
+            >
+              {cat}
+            </button>
+          ))}
+        </nav>
+      </aside>
+
       {/* 중앙 메뉴 영역 */}
-      <main className="w-3/4 p-6 overflow-y-auto h-full">
-        <h2 className="text-lg font-semibold mb-4">전체 메뉴</h2>
+      <main className="w-3/6 p-6 overflow-y-auto h-full">
+        <h2 className="text-lg font-semibold mb-4">{selectedCategory} 메뉴</h2>
         <div className="space-y-6">
-          {menus.length > 0 ? (
-            menus.map((item, index) => (
+          {filteredMenus.length > 0 ? (
+            filteredMenus.map((item, index) => (
               <div key={index} className="flex gap-4 bg-white rounded shadow p-4">
-                <img src={item.imageUrl} alt={item.name} className="w-40 h-28 object-cover rounded" />
+                <img src={item.imageUrl} alt={item.menuName} className="w-40 h-28 object-cover rounded" />
                 <div className="flex flex-col justify-between flex-1">
                   <div>
-                    <h3 className="text-lg font-bold">{item.name}</h3>
+                    <h3 className="text-lg font-bold">{item.menuName}</h3>
                     <p className="text-red-600 font-semibold">₩{item.price.toLocaleString()}</p>
                     <p className="text-gray-500 text-sm">{item.description}</p>
                   </div>
@@ -80,13 +101,13 @@ export default function CustomerMenuPage() {
               </div>
             ))
           ) : (
-            <p className="text-gray-400">메뉴가 없습니다.</p>
+            <p className="text-gray-400">해당 카테고리 메뉴가 없습니다.</p>
           )}
         </div>
       </main>
 
       {/* 오른쪽 주문서 */}
-      <aside className="w-1/4 bg-white border-l p-4 flex flex-col justify-between h-full">
+      <aside className="w-2/6 bg-white border-l p-4 flex flex-col justify-between h-full">
         <div className="flex-1 overflow-y-auto">
           <h3 className="text-lg font-bold mb-2">주문서</h3>
           {orderItems.length === 0 ? (
@@ -96,7 +117,7 @@ export default function CustomerMenuPage() {
               {orderItems.map((item, index) => (
                 <li key={index} className="flex justify-between items-center text-sm">
                   <div className="flex flex-col">
-                    <span>{item.name} x{item.quantity}</span>
+                    <span>{item.menuName} x{item.quantity}</span>
                     <span className="text-gray-500 text-xs">₩{(item.price * item.quantity).toLocaleString()}</span>
                   </div>
                   <div className="flex items-center gap-1">
