@@ -1,19 +1,20 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
 export default function CustomerMenuPage() {
   const [menus, setMenus] = useState([]);
   const [orderItems, setOrderItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('전체');
+  const storeId = 7; // 현재 StoreNumber와 일치
 
   useEffect(() => {
-      axios.get('http://localhost:8080/api/Store/Menu?StoreNumber=7')
-        .then((res) => {
-        console.log('✅ 메뉴:', res.data);
-        setMenus(res.data);
+    fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`)
+      .then(res => res.json())
+      .then(data => {
+        console.log('✅ 메뉴:', data);
+        setMenus(data);
       })
-      .catch((err) => {
+      .catch(err => {
         console.error('❌ 메뉴 불러오기 실패:', err.message);
       });
   }, []);
@@ -58,6 +59,37 @@ export default function CustomerMenuPage() {
   };
 
   const totalAmount = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const handleSubmitOrder = async () => {
+    if (orderItems.length === 0) {
+      alert('주문할 메뉴가 없습니다.');
+      return;
+    }
+
+    const payload = orderItems.map(item => ({
+      menuName: item.menuName,
+      menuAmount: item.quantity,
+      menuPrice: item.price
+    }));
+
+    try {
+      const res = await fetch(`http://localhost:8080/api/v1/kakao-pay/ready?storeId=${storeId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error('주문 실패');
+
+      alert('주문이 완료되었습니다!');
+      setOrderItems([]);
+    } catch (err) {
+      console.error('❌ 주문 실패:', err);
+      alert('주문에 실패했습니다.');
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -138,7 +170,7 @@ export default function CustomerMenuPage() {
         <div>
           <p className="text-right font-bold mb-2">합계 ₩{totalAmount.toLocaleString()}</p>
           <button className="w-full mb-2 px-4 py-2 bg-gray-300 rounded text-gray-600">주문내역 보기</button>
-          <button className="w-full px-4 py-2 bg-red-500 text-white rounded">주문하기</button>
+          <button className="w-full px-4 py-2 bg-red-500 text-white rounded" onClick={handleSubmitOrder}>주문하기</button>
         </div>
       </aside>
     </div>
