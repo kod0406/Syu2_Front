@@ -83,13 +83,21 @@ export default function CustomerMenuPage() {
 
       if (!res.ok) throw new Error('주문 실패');
 
-      alert('주문이 완료되었습니다!');
+      const data = await res.json();  // ✅ 응답 받기
+
+      if (data.next_redirect_pc_url) {
+        window.location.href = data.next_redirect_pc_url;  // ✅ 리디렉션
+      } else {
+        alert('결제 페이지 이동에 실패했습니다.');
+      }
+
       setOrderItems([]);
     } catch (err) {
       console.error('❌ 주문 실패:', err);
       alert('주문에 실패했습니다.');
     }
   };
+
 
   return (
     <div className="flex h-screen bg-gray-50">
