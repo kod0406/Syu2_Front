@@ -7,17 +7,20 @@ export default function CustomerMenuPage() {
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const storeId = 7; // 현재 StoreNumber와 일치
 
-  useEffect(() => {
-    fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`)
-      .then(res => res.json())
-      .then(data => {
-        console.log('✅ 메뉴:', data);
-        setMenus(data);
-      })
-      .catch(err => {
-        console.error('❌ 메뉴 불러오기 실패:', err.message);
-      });
-  }, []);
+useEffect(() => {
+  fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`, {
+    method: 'GET',
+    credentials: 'include', // ✅ 쿠키 포함
+  })
+    .then(res => res.json())
+    .then(data => {
+      console.log('✅ 메뉴:', data);
+      setMenus(data);
+    })
+    .catch(err => {
+      console.error('❌ 메뉴 불러오기 실패:', err.message);
+    });
+}, []);
 
   const categories = ['전체', ...Array.from(new Set(menus.map(item => item.category).filter(Boolean)))];
 
@@ -78,7 +81,8 @@ export default function CustomerMenuPage() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        credentials: 'include'
       });
 
       if (!res.ok) throw new Error('주문 실패');
