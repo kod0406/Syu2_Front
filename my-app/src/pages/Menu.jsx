@@ -5,34 +5,40 @@ export default function CustomerMenuPage() {
   const [menus, setMenus] = useState([]);
   const [orderItems, setOrderItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('전체');
-  const storeId = 7; // 현재 StoreNumber와 일치
+  const [showPointPopup, setShowPointPopup] = useState(false);
+  const [availablePoints, setAvailablePoints] = useState(0);
+  const [usedPoints, setUsedPoints] = useState(0);
+  const storeId = 1;
 
-useEffect(() => {
-  fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`, {
-    method: 'GET',
-    credentials: 'include', // ✅ 쿠키 포함
-  })
-    .then(res => res.json())
-    .then(data => {
-      console.log('✅ 메뉴:', data);
-      setMenus(data);
+  useEffect(() => {
+    fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`, {
+      method: 'GET',
+      credentials: 'include',
     })
-    .catch(err => {
-      console.error('❌ 메뉴 불러오기 실패:', err.message);
-    });
-}, []);
+      .then(res => res.json())
+      .then(data => setMenus(data))
+      .catch(err => console.error('❌ 메뉴 불러오기 실패:', err.message));
+
+    fetch('http://localhost:8080/pointCheck', {
+      method: 'POST',
+      credentials: 'include',
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('포인트 요청 실패');
+        return res.json();
+      })
+      .then(data => setAvailablePoints(data.point))
+      .catch(err => console.error('❌ 포인트 불러오기 실패:', err.message));
+  }, []);
 
   const categories = ['전체', ...Array.from(new Set(menus.map(item => item.category).filter(Boolean)))];
-
   const filteredMenus = selectedCategory === '전체' ? menus : menus.filter(item => item.category === selectedCategory);
 
   const handleAddToOrder = (item) => {
     setOrderItems((prev) => {
       const existing = prev.find((i) => i.menuName === item.menuName);
       if (existing) {
-        return prev.map((i) =>
-          i.menuName === item.menuName ? { ...i, quantity: i.quantity + 1 } : i
-        );
+        return prev.map((i) => i.menuName === item.menuName ? { ...i, quantity: i.quantity + 1 } : i);
       } else {
         return [...prev, { ...item, quantity: 1 }];
       }
@@ -44,20 +50,12 @@ useEffect(() => {
   };
 
   const handleIncrease = (index) => {
-    setOrderItems((prev) =>
-      prev.map((item, i) =>
-        i === index ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    );
+    setOrderItems((prev) => prev.map((item, i) => i === index ? { ...item, quantity: item.quantity + 1 } : item));
   };
 
   const handleDecrease = (index) => {
     setOrderItems((prev) =>
-      prev
-        .map((item, i) =>
-          i === index ? { ...item, quantity: item.quantity - 1 } : item
-        )
-        .filter((item) => item.quantity > 0)
+      prev.map((item, i) => i === index ? { ...item, quantity: item.quantity - 1 } : item).filter(item => item.quantity > 0)
     );
   };
 
@@ -69,43 +67,47 @@ useEffect(() => {
       return;
     }
 
-    const payload = orderItems.map(item => ({
+    const payload = [...orderItems.map(item => ({
       menuName: item.menuName,
       menuAmount: item.quantity,
       menuPrice: item.price
-    }));
+    }))];
+
+    if (usedPoints > 0) {
+      payload.push({
+        menuName: 'UserPointUsedOrNotUsed',
+        menuAmount: 1,
+        menuPrice: usedPoints
+      });
+    }
 
     try {
       const res = await fetch(`http://localhost:8080/api/v1/kakao-pay/ready?storeId=${storeId}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
         credentials: 'include'
       });
 
       if (!res.ok) throw new Error('주문 실패');
 
-      const data = await res.json();  // ✅ 응답 받기
-
+      const data = await res.json();
       if (data.next_redirect_pc_url) {
-        window.location.href = data.next_redirect_pc_url;  // ✅ 리디렉션
+        window.location.href = data.next_redirect_pc_url;
       } else {
         alert('결제 페이지 이동에 실패했습니다.');
       }
 
       setOrderItems([]);
+      setUsedPoints(0);
     } catch (err) {
       console.error('❌ 주문 실패:', err);
       alert('주문에 실패했습니다.');
     }
   };
 
-
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* 왼쪽 카테고리 사이드바 */}
       <aside className="w-1/6 bg-white border-r p-4 flex flex-col h-full">
         <h1 className="text-xl font-bold mb-4">menu</h1>
         <nav className="space-y-2">
@@ -121,7 +123,6 @@ useEffect(() => {
         </nav>
       </aside>
 
-      {/* 중앙 메뉴 영역 */}
       <main className="w-3/6 p-6 overflow-y-auto h-full">
         <h2 className="text-lg font-semibold mb-4">{selectedCategory} 메뉴</h2>
         <div className="space-y-6">
@@ -135,10 +136,7 @@ useEffect(() => {
                     <p className="text-red-600 font-semibold">₩{item.price.toLocaleString()}</p>
                     <p className="text-gray-500 text-sm">{item.description}</p>
                   </div>
-                  <button
-                    onClick={() => handleAddToOrder(item)}
-                    className="mt-2 px-3 py-1 bg-orange-500 text-white rounded"
-                  >
+                  <button onClick={() => handleAddToOrder(item)} className="mt-2 px-3 py-1 bg-orange-500 text-white rounded">
                     담기
                   </button>
                 </div>
@@ -150,7 +148,6 @@ useEffect(() => {
         </div>
       </main>
 
-      {/* 오른쪽 주문서 */}
       <aside className="w-2/6 bg-white border-l p-4 flex flex-col justify-between h-full">
         <div className="flex-1 overflow-y-auto">
           <h3 className="text-lg font-bold mb-2">주문서</h3>
@@ -167,12 +164,7 @@ useEffect(() => {
                   <div className="flex items-center gap-1">
                     <button onClick={() => handleDecrease(index)} className="px-2 bg-gray-200 rounded">-</button>
                     <button onClick={() => handleIncrease(index)} className="px-2 bg-gray-200 rounded">+</button>
-                    <button
-                      onClick={() => handleRemoveFromOrder(index)}
-                      className="text-red-500 hover:text-red-700 ml-2"
-                    >
-                      X
-                    </button>
+                    <button onClick={() => handleRemoveFromOrder(index)} className="text-red-500 hover:text-red-700 ml-2">X</button>
                   </div>
                 </li>
               ))}
@@ -180,10 +172,44 @@ useEffect(() => {
           )}
         </div>
         <div>
-          <p className="text-right font-bold mb-2">합계 ₩{totalAmount.toLocaleString()}</p>
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-2">
+              <button className="text-sm px-3 py-1 bg-yellow-300 rounded text-black" onClick={() => setShowPointPopup(true)}>
+                포인트 사용
+              </button>
+              {usedPoints > 0 && <span className="text-sm text-blue-600">-₩{usedPoints.toLocaleString()}</span>}
+            </div>
+            <p className="text-right font-bold">합계 ₩{totalAmount.toLocaleString()}</p>
+          </div>
           <button className="w-full mb-2 px-4 py-2 bg-gray-300 rounded text-gray-600">주문내역 보기</button>
           <button className="w-full px-4 py-2 bg-red-500 text-white rounded" onClick={handleSubmitOrder}>주문하기</button>
         </div>
+
+        {showPointPopup && (
+          <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-6 rounded shadow-md w-80">
+              <h2 className="text-lg font-bold mb-2">포인트 사용</h2>
+              <p className="mb-2">보유 포인트: <strong>{availablePoints.toLocaleString()}</strong>원</p>
+              <input
+                type="number"
+                min="0"
+                max={availablePoints}
+                value={usedPoints}
+                onChange={(e) => setUsedPoints(Math.min(availablePoints, Number(e.target.value)))}
+                className="w-full mb-4 p-2 border rounded"
+              />
+              <div className="flex justify-end gap-2">
+                <button onClick={() => setShowPointPopup(false)} className="px-4 py-2 bg-gray-200 rounded">취소</button>
+                <button
+                  onClick={() => setShowPointPopup(false)}
+                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                  사용하기
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </aside>
     </div>
   );
