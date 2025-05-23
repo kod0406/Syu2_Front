@@ -8,9 +8,21 @@ export default function CustomerMenuPage() {
   const [showPointPopup, setShowPointPopup] = useState(false);
   const [availablePoints, setAvailablePoints] = useState(0);
   const [usedPoints, setUsedPoints] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const storeId = 1;
 
   useEffect(() => {
+    fetch('http://localhost:8080/auth/me', {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.data) setIsLoggedIn(true);
+        else setIsLoggedIn(false);
+      })
+      .catch(() => setIsLoggedIn(false));
+
     fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`, {
       method: 'GET',
       credentials: 'include',
@@ -173,12 +185,14 @@ export default function CustomerMenuPage() {
         </div>
         <div>
           <div className="flex justify-between items-center mb-2">
-            <div className="flex items-center gap-2">
-              <button className="text-sm px-3 py-1 bg-yellow-300 rounded text-black" onClick={() => setShowPointPopup(true)}>
-                포인트 사용
-              </button>
-              {usedPoints > 0 && <span className="text-sm text-blue-600">-₩{usedPoints.toLocaleString()}</span>}
-            </div>
+            {isLoggedIn && (
+              <div className="flex items-center gap-2">
+                <button className="text-sm px-3 py-1 bg-yellow-300 rounded text-black" onClick={() => setShowPointPopup(true)}>
+                  포인트 사용
+                </button>
+                {usedPoints > 0 && <span className="text-sm text-blue-600">-₩{usedPoints.toLocaleString()}</span>}
+              </div>
+            )}
             <p className="text-right font-bold">합계 ₩{totalAmount.toLocaleString()}</p>
           </div>
           <button className="w-full mb-2 px-4 py-2 bg-gray-300 rounded text-gray-600">주문내역 보기</button>

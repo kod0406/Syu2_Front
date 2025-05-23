@@ -7,10 +7,9 @@ export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [storeNumber, setStoreNumber] = useState('');
   const [storeName, setStoreName] = useState('');
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -18,16 +17,31 @@ export default function Signup() {
       return;
     }
 
-    // TODO: 백엔드에 회원가입 POST 요청
-    console.log('회원가입 요청:', {
-      email,
-      password,
-      storeNumber,
-      storeName,
-    });
+    try {
+      const response = await fetch('http://localhost:8080/api/stores/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ownerEmail: email,
+          password: password,
+          storeName: storeName
+        })
+      });
 
-    // 회원가입 후 로그인 페이지로 이동
-    navigate('/login');
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(`회원가입 실패: ${data.error || '알 수 없는 오류'}`);
+        return;
+      }
+
+      alert('회원가입 성공! 로그인 페이지로 이동합니다.');
+      navigate('/owner/login');
+    } catch (err) {
+      alert('회원가입 중 오류 발생: ' + err.message);
+    }
   };
 
   return (
@@ -42,6 +56,7 @@ export default function Signup() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+            required
           />
 
           <input
@@ -50,6 +65,7 @@ export default function Signup() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+            required
           />
 
           <input
@@ -58,14 +74,7 @@ export default function Signup() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-          />
-
-          <input
-            type="text"
-            placeholder="가게 번호"
-            value={storeNumber}
-            onChange={(e) => setStoreNumber(e.target.value)}
-            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+            required
           />
 
           <input
@@ -74,6 +83,7 @@ export default function Signup() {
             value={storeName}
             onChange={(e) => setStoreName(e.target.value)}
             className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+            required
           />
 
           <button

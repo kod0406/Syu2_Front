@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function CustomerLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate(); // ✅ React Router 내장 훅
 
   const handleSocialLogin = (provider) => {
     let redirectUrl = '';
@@ -19,15 +21,39 @@ export default function CustomerLogin() {
     window.location.href = redirectUrl;
   };
 
-  const handleEmailLogin = (e) => {
+  const handleEmailLogin = async (e) => {
     e.preventDefault();
-    // TODO: 이메일/비밀번호 로그인 처리 (백엔드로 POST 요청) --> 수정해야 함
-    console.log('이메일 로그인 요청:', { email, password });
+
+    try {
+      const response = await fetch('http://localhost:8080/api/stores/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          ownerEmail: email,
+          password: password
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(`로그인 실패: ${data.error || '알 수 없는 오류'}`);
+        return;
+      }
+
+      alert('로그인 성공!');
+      // ✅ 쿼리 → 경로 파라미터 방식으로 수정
+      navigate(`/owner/dashboard/${data.storeId}`);
+    } catch (err) {
+      alert('로그인 중 오류 발생: ' + err.message);
+    }
   };
 
   const handleSignUp = () => {
-    // TODO: 회원가입 페이지로 이동
-    window.location.href = '/signup';
+    navigate('/signup'); // ✅ 이 부분도 SPA 방식으로 자연스럽게 처리
   };
 
   return (
@@ -35,7 +61,6 @@ export default function CustomerLogin() {
       <div className="w-full max-w-sm space-y-6 bg-white p-6 rounded shadow">
         <h1 className="text-2xl font-bold text-center">로그인</h1>
 
-        {/* 이메일 로그인 폼 */}
         <form onSubmit={handleEmailLogin} className="space-y-4">
           <input
             type="email"
@@ -43,6 +68,7 @@ export default function CustomerLogin() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
           />
           <input
             type="password"
@@ -50,6 +76,7 @@ export default function CustomerLogin() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
           />
           <button
             type="submit"
@@ -68,7 +95,6 @@ export default function CustomerLogin() {
           </button>
         </div>
 
-        {/* 소셜 로그인 버튼 */}
         <div className="space-y-2">
           <button
             onClick={() => handleSocialLogin('kakao')}

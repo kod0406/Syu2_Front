@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Menu from './pages/Menu';
-import Owner from './pages/Owner.jsx';
+import OwnerDashboard from './pages/Owner.jsx'; // 파일명은 실제 OwnerDashboard여도 jsx가 Owner로 되어 있다면 그대로 OK
 import SignUp from './pages/Signup.jsx';
 import OwnerLogin from './pages/Owner_Login.jsx';
 
@@ -11,9 +11,10 @@ function App() {
       <Routes>
         <Route path="/menu" element={<Menu />} />
         <Route path="/customer/login" element={<Login />} />
-        <Route path="/owner/dashboard" element={<Owner />} />
-        <Route path="/signup" element={<SignUp />} />
         <Route path="/owner/login" element={<OwnerLogin />} />
+        <Route path="/signup" element={<SignUp />} />
+        {/* ✅ 수정된 부분: storeId를 경로 파라미터로 전달 */}
+        <Route path="/owner/dashboard/:storeId" element={<OwnerDashboard />} />
       </Routes>
     </div>
   );
