@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function CustomerMenuPage() {
   const [menus, setMenus] = useState([]);
@@ -10,6 +11,8 @@ export default function CustomerMenuPage() {
   const [usedPoints, setUsedPoints] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const storeId = 1;
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     fetch('http://localhost:8080/auth/me', {
@@ -82,7 +85,8 @@ export default function CustomerMenuPage() {
     const payload = [...orderItems.map(item => ({
       menuName: item.menuName,
       menuAmount: item.quantity,
-      menuPrice: item.price
+      menuPrice: item.price,
+      reviewed : false
     }))];
 
     if (usedPoints > 0) {
@@ -120,19 +124,29 @@ export default function CustomerMenuPage() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <aside className="w-1/6 bg-white border-r p-4 flex flex-col h-full">
-        <h1 className="text-xl font-bold mb-4">menu</h1>
-        <nav className="space-y-2">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`block text-left px-2 py-1 rounded ${selectedCategory === cat ? 'bg-red-500 text-white' : 'text-red-500 hover:font-semibold'}`}
-            >
-              {cat}
-            </button>
-          ))}
-        </nav>
+      <aside className="w-1/6 bg-white border-r p-4 flex flex-col h-full justify-between">
+        <div>
+          <h1 className="text-xl font-bold mb-4">menu</h1>
+          <nav className="space-y-2">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`block text-left px-2 py-1 rounded ${selectedCategory === cat ? 'bg-red-500 text-white' : 'text-red-500 hover:font-semibold'}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </nav>
+        </div>
+        <div className="mt-4 p-2">
+          <button
+            onClick={() => navigate('/review')}  // ✅ 페이지 이동
+            className="w-full h-24 border-2 border-red-500 text-red-500 rounded"
+          >
+            리뷰
+          </button>
+        </div>
       </aside>
 
       <main className="w-3/6 p-6 overflow-y-auto h-full">

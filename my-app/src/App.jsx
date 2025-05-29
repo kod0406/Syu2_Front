@@ -4,6 +4,7 @@ import Menu from './pages/Menu';
 import OwnerDashboard from './pages/Owner.jsx'; // 파일명은 실제 OwnerDashboard여도 jsx가 Owner로 되어 있다면 그대로 OK
 import SignUp from './pages/Signup.jsx';
 import OwnerLogin from './pages/Owner_Login.jsx';
+import Review from './pages/Review.jsx';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         {/* ✅ 수정된 부분: storeId를 경로 파라미터로 전달 */}
         <Route path="/owner/dashboard/:storeId" element={<OwnerDashboard />} />
+        <Route path="/review" element={<Review />} />
       </Routes>
     </div>
   );
