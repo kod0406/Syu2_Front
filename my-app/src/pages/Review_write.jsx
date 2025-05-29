@@ -1,25 +1,43 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom'; // ✅ 쿼리 읽기용
+import { useLocation } from 'react-router-dom';
 
 export default function ReviewWritePage() {
   const [reviewText, setReviewText] = useState('');
   const [rating, setRating] = useState(0);
   const [images, setImages] = useState([]);
   const [statId, setStatId] = useState('');
+  // eslint-disable-next-line no-unused-vars
+  const [user, setUser] = useState(null);
 
   const location = useLocation();
 
-  // ✅ 쿼리에서 statId 추출
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const idFromQuery = params.get('statId');
     if (idFromQuery) setStatId(idFromQuery);
+
+    fetch('http://localhost:8080/auth/me', {
+      method: 'GET',
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.data) {
+          setUser(data.data);
+          console.log('🙋 유저 정보:', data.data);
+        } else {
+          console.warn('로그인되지 않음');
+        }
+      })
+      .catch(err => {
+        console.error('❌ 사용자 정보 불러오기 실패:', err);
+      });
   }, [location.search]);
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    setImages(files.slice(0, 5)); // 최대 5장 제한
+    setImages(files.slice(0, 5));
   };
 
   const handleSubmit = async () => {
@@ -29,16 +47,20 @@ export default function ReviewWritePage() {
     }
 
     const formData = new FormData();
-    formData.append('statId', statId);
-    formData.append('date', new Date().toISOString());
-    formData.append('rating', rating);
-    formData.append('reviewText', reviewText);
-    images.forEach((file) => {
-      formData.append('images', file);
-    });
+    formData.append('statisticsId', statId);
+    formData.append('date', new Date().toISOString().split('T')[0]);
+    formData.append('reviewRating', rating);
+    formData.append('comment', reviewText);
+    if (images.length > 0) {
+      formData.append('images', images[0]);
+    }
+
+    for (let [key, val] of formData.entries()) {
+      console.log('✅ 전송 중:', key, val);
+    }
 
     try {
-      const res = await fetch('http://localhost:8080/review/submit', {
+      const res = await fetch('http://localhost:8080/review/write', {
         method: 'POST',
         body: formData,
         credentials: 'include',
@@ -57,7 +79,6 @@ export default function ReviewWritePage() {
     <div className="max-w-xl mx-auto p-6 bg-white shadow rounded">
       <h2 className="text-2xl font-bold mb-4">리뷰 작성</h2>
 
-      {/* 통계번호는 숨김 */}
       <input type="hidden" value={statId} />
 
       <div className="mb-4">

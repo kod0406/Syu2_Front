@@ -16,9 +16,9 @@ export default function ReviewListPage() {
       .catch(err => console.error('❌ 리뷰 목록 불러오기 실패:', err));
   }, []);
 
-  const handleWriteReview = (statId) => {
-    navigate(`/review/write?statId=${statId}`);
-  };
+  const handleWriteReview = (statisticsId) => {
+  navigate(`/review/write?statId=${statisticsId}`); // 쿼리 파라미터로 넘김
+};
 
   return (
     <div className="p-6">
@@ -40,7 +40,7 @@ export default function ReviewListPage() {
               </div>
               <div>
                 <button
-                  onClick={() => handleWriteReview(item.statId)} // ✅ 여기가 핵심
+                  onClick={() => handleWriteReview(item.statisticsId)} // ✅ 여기가 핵심
                   className="ml-4 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 whitespace-nowrap"
                 >
                   리뷰 쓰기

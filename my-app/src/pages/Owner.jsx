@@ -2,20 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 export default function OwnerDashboard() {
-  const storeId = useStoreIdFromParams(); // ✅ 수정된 함수 사용
+  const storeId = useStoreIdFromParams();
   const [storeInfo, setStoreInfo] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [menus, setMenus] = useState([]);
 
   useEffect(() => {
     if (storeId) {
       fetch(`http://localhost:8080/api/stores/${storeId}`)
         .then(res => res.json())
-        .then(data => {
-          setStoreInfo(data);
-        })
-        .catch(err => {
-          console.error('가게 정보 불러오기 실패:', err);
-        });
+        .then(data => setStoreInfo(data))
+        .catch(err => console.error('가게 정보 불러오기 실패:', err));
+
+      fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`)
+        .then(res => res.json())
+        .then(data => setMenus(data))
+        .catch(err => console.error('❌ 메뉴 불러오기 실패:', err.message));
     }
   }, [storeId]);
 
@@ -28,7 +30,10 @@ export default function OwnerDashboard() {
         </div>
       )}
       <DashboardMenu onAddMenuClick={() => setShowAddModal(true)} />
-      {showAddModal && <AddMenuModal storeId={storeId} onClose={() => setShowAddModal(false)} />}
+      <MenuList menus={menus} storeId={storeId} setMenus={setMenus} />
+      {showAddModal && (
+        <AddMenuModal storeId={storeId} onClose={() => setShowAddModal(false)} />
+      )}
     </div>
   );
 }
@@ -37,7 +42,6 @@ function useStoreIdFromParams() {
   const { storeId } = useParams();
   return storeId;
 }
-
 
 function DashboardHeader() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -72,29 +76,89 @@ function DashboardMenu({ onAddMenuClick }) {
       <button onClick={onAddMenuClick} className="px-4 py-2 bg-green-400 text-white rounded">
         메뉴 추가
       </button>
-      <button className="px-4 py-2 bg-yellow-300 rounded">메뉴 수정</button>
-      <button className="px-4 py-2 bg-red-300 rounded">메뉴 삭제</button>
+    </div>
+  );
+}
+
+function MenuList({ menus, storeId, setMenus }) {
+  const handleDelete = async (menuId) => {
+    const confirmDelete = window.confirm('정말로 이 메뉴를 삭제하시겠습니까?');
+    if (!confirmDelete) return;
+
+    try {
+      // ✅ 정확한 DELETE URL 사용
+      const res = await fetch(`http://localhost:8080/api/store/${storeId}/menus/${menuId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (!res.ok) throw new Error('삭제 실패');
+
+      // ✅ 삭제 성공 후 목록 다시 불러오기
+      const updatedMenus = await fetch(
+        `http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`
+      ).then(res => res.json());
+
+      setMenus(updatedMenus);
+    } catch (err) {
+      console.error('❌ 삭제 실패:', err);
+      alert('삭제 중 오류 발생');
+    }
+  };
+
+  return (
+    <div className="mt-6">
+      <h2 className="text-xl font-bold mb-4">📋 등록된 메뉴 목록</h2>
+      <ul className="grid grid-cols-2 gap-4">
+        {menus.map(menu => (
+          <li key={menu.id} className="flex bg-white rounded shadow p-4 items-start gap-4 justify-between">
+            <div className="flex gap-4">
+              <img
+                src={menu.imageUrl}
+                alt={menu.menuName}
+                className="w-28 h-24 object-cover rounded"
+              />
+              <div className="flex flex-col justify-between">
+                <div>
+                  <h3 className="text-lg font-bold">{menu.menuName}</h3>
+                  <p className="text-red-600 font-semibold">₩{menu.price?.toLocaleString()}</p>
+                  <p className="text-gray-500 text-sm">{menu.description}</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <button className="px-3 py-1 bg-yellow-400 text-white rounded text-sm">수정</button>
+              <button
+                onClick={() => handleDelete(menu.menuId)}
+                className="px-3 py-1 bg-red-500 text-white rounded text-sm"
+              >
+                삭제
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
 function AddMenuModal({ storeId, onClose }) {
-  const [form, setForm] = useState({ name: '', description: '', price: '', category: '' });
+  const [form, setForm] = useState({ menuName: '', description: '', price: '', category: '' });
   const [image, setImage] = useState(null);
 
   const handleSubmit = async () => {
-    if (!form.name || !form.description || !form.price || !form.category) {
+    if (!form.menuName || !form.description || !form.price || !form.category) {
       alert('모든 필드를 작성해주세요.');
       return;
     }
 
     const formData = new FormData();
-    formData.append('name', form.name);
+    formData.append('menuName', form.menuName);
     formData.append('description', form.description);
-    formData.append('price', form.price.toString()); // ✅ 문자열로
+    formData.append('price', form.price.toString());
     formData.append('category', form.category);
     if (image) {
-      formData.append('image', image); // ✅ 백엔드에서 image로 받음
+      formData.append('image', image);
     }
 
     try {
@@ -119,7 +183,7 @@ function AddMenuModal({ storeId, onClose }) {
       <div className="bg-white p-6 rounded shadow w-96">
         <h2 className="text-lg font-bold mb-4">메뉴 추가</h2>
         <div className="space-y-2">
-          <input className="w-full border p-2 rounded" placeholder="이름" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+          <input className="w-full border p-2 rounded" placeholder="이름" value={form.menuName} onChange={e => setForm({ ...form, menuName: e.target.value })} />
           <input className="w-full border p-2 rounded" placeholder="설명" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
           <input className="w-full border p-2 rounded" placeholder="가격" type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} />
           <input className="w-full border p-2 rounded" placeholder="카테고리" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} />
