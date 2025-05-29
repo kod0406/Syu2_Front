@@ -144,7 +144,7 @@ export default function CustomerMenuPage() {
             onClick={() => navigate('/review')}  // ✅ 페이지 이동
             className="w-full h-24 border-2 border-red-500 text-red-500 rounded"
           >
-            리뷰
+            마이페이지
           </button>
         </div>
       </aside>

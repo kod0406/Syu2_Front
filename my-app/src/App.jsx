@@ -5,6 +5,7 @@ import OwnerDashboard from './pages/Owner.jsx'; // 파일명은 실제 OwnerDash
 import SignUp from './pages/Signup.jsx';
 import OwnerLogin from './pages/Owner_Login.jsx';
 import Review from './pages/Review.jsx';
+import ReviewWrite from './pages/Review_write.jsx';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         {/* ✅ 수정된 부분: storeId를 경로 파라미터로 전달 */}
         <Route path="/owner/dashboard/:storeId" element={<OwnerDashboard />} />
         <Route path="/review" element={<Review />} />
+        <Route path="/review/write" element={<ReviewWrite />} /> 
       </Routes>
     </div>
   );
