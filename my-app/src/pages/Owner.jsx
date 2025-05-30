@@ -1,22 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 export default function OwnerDashboard() {
   const { storeId: storeIdFromURL } = useParams();
   const [storeId, setStoreId] = useState(null);
-  // const [storeInfo, setStoreInfo] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingMenu, setEditingMenu] = useState(null);
   const [menus, setMenus] = useState([]);
   const navigate = useNavigate();
+
+  // ✅ fetchMenus useCallback으로 정의
+  const fetchMenus = useCallback(async () => {
+    if (!storeId) return;
+    const res = await fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`);
+    const data = await res.json();
+    setMenus(data);
+  }, [storeId]);
+
+  // ✅ 메뉴 등록 후 처리 함수
+  const handleMenuAdded = async () => {
+    await fetchMenus();
+    setShowAddModal(false);
+  };
 
   useEffect(() => {
     fetch('http://localhost:8080/auth/store', {
       method: 'GET',
-      credentials: 'include'
+      credentials: 'include',
     })
       .then(res => res.json())
       .then(data => {
-        console.log("ghgh" + data);
         if (!data.data) {
           alert('로그인이 필요합니다.');
           navigate('/owner/login');
@@ -28,41 +41,41 @@ export default function OwnerDashboard() {
           navigate('/owner/login');
           return;
         }
-
         setStoreId(userStoreId);
       })
       .catch(() => {
         alert('로그인이 필요합니다.');
         navigate('/owner/login');
       });
-  }, [storeIdFromURL, navigate]); 
+  }, [storeIdFromURL, navigate]);
 
+  // ✅ fetchMenus 의존성 포함
   useEffect(() => {
-    if (!storeId) return;
-
-    // fetch(`http://localhost:8080/api/stores/${storeId}`)
-    //   .then(res => res.json())
-    //   .then(data => setStoreInfo(data))
-    //   .catch(err => console.error('가게 정보 불러오기 실패:', err));
-
-    fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`)
-      .then(res => res.json())
-      .then(data => setMenus(data))
-      .catch(err => console.error('❌ 메뉴 불러오기 실패:', err.message));
-  }, [storeId]);
+    fetchMenus();
+  }, [fetchMenus]);
 
   return (
     <div className="p-4">
       <DashboardHeader />
-      {/* {storeInfo && (
-        <div className="text-sm text-gray-600 mb-2">
-          📍 가게 이름: <b>{storeInfo.storeName}</b> (ID: {storeId})
-        </div>
-      )} */}
       <DashboardMenu onAddMenuClick={() => setShowAddModal(true)} />
-      <MenuList menus={menus} storeId={storeId} setMenus={setMenus} />
+      <MenuList menus={menus} storeId={storeId} setMenus={setMenus} onEdit={setEditingMenu} />
       {showAddModal && (
-        <AddMenuModal storeId={storeId} onClose={() => setShowAddModal(false)} />
+        <AddMenuModal
+          storeId={storeId}
+          onClose={() => setShowAddModal(false)}
+          onAdded={handleMenuAdded}
+        />
+      )}
+      {editingMenu && (
+        <EditMenuModal
+          storeId={storeId}
+          menu={editingMenu}
+          onClose={() => setEditingMenu(null)}
+          onUpdated={(updatedMenus) => {
+            setMenus(updatedMenus);
+            setEditingMenu(null);
+          }}
+        />
       )}
     </div>
   );
@@ -70,14 +83,10 @@ export default function OwnerDashboard() {
 
 function DashboardHeader() {
   const [currentTime, setCurrentTime] = useState(new Date());
-
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-
   const formattedDate = currentTime.toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: '2-digit',
@@ -85,15 +94,50 @@ function DashboardHeader() {
     weekday: 'long',
   });
   const formattedTime = currentTime.toLocaleTimeString('ko-KR');
-
   return (
     <div className="flex justify-center p-2 bg-gray-800 text-white">
-      <div>
-        영업일자: {formattedDate} | 포스번호: 01 | 시간: {formattedTime}
-      </div>
+      <div>영업일자: {formattedDate} | 포스번호: 01 | 시간: {formattedTime}</div>
     </div>
   );
 }
+
+function ToggleButton({ storeId, menuId, isAvailable, onToggled }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleToggle = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/store/${storeId}/menus/${menuId}/availability`,
+        {
+          method: 'PATCH',
+          credentials: 'include',
+        }
+      );
+      if (!res.ok) throw new Error('토글 실패');
+
+      await onToggled(); // 토글 후 목록 다시 불러오기
+    } catch (err) {
+      console.error('❌ 상태 토글 실패:', err);
+      alert('상태 변경 중 오류 발생');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleToggle}
+      disabled={loading}
+      className={`px-3 py-1 rounded text-sm transition ${
+        isAvailable ? 'bg-green-500 text-white' : 'bg-gray-300 text-black'
+      }`}
+    >
+      {loading ? '...' : isAvailable ? 'ON' : 'OFF'}
+    </button>
+  );
+}
+
 
 function DashboardMenu({ onAddMenuClick }) {
   return (
@@ -105,23 +149,19 @@ function DashboardMenu({ onAddMenuClick }) {
   );
 }
 
-function MenuList({ menus, storeId, setMenus }) {
+function MenuList({ menus, storeId, setMenus, onEdit }) {
   const handleDelete = async (menuId) => {
-    const confirmDelete = window.confirm('정말로 이 메뉴를 삭제하시겠습니까?');
-    if (!confirmDelete) return;
-
+    if (!window.confirm('정말로 이 메뉴를 삭제하시겠습니까?')) return;
     try {
       const res = await fetch(`http://localhost:8080/api/store/${storeId}/menus/${menuId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
-
       if (!res.ok) throw new Error('삭제 실패');
 
       const updatedMenus = await fetch(
         `http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`
       ).then(res => res.json());
-
       setMenus(updatedMenus);
     } catch (err) {
       console.error('❌ 삭제 실패:', err);
@@ -134,29 +174,44 @@ function MenuList({ menus, storeId, setMenus }) {
       <h2 className="text-xl font-bold mb-4">📋 등록된 메뉴 목록</h2>
       <ul className="grid grid-cols-2 gap-4">
         {menus.map(menu => (
-          <li key={menu.id} className="flex bg-white rounded shadow p-4 items-start gap-4 justify-between">
+          <li key={menu.id} className="flex bg-white rounded shadow p-4 justify-between gap-4">
             <div className="flex gap-4">
               <img
                 src={menu.imageUrl}
                 alt={menu.menuName}
                 className="w-28 h-24 object-cover rounded"
               />
-              <div className="flex flex-col justify-between">
-                <div>
-                  <h3 className="text-lg font-bold">{menu.menuName}</h3>
-                  <p className="text-red-600 font-semibold">₩{menu.price?.toLocaleString()}</p>
-                  <p className="text-gray-500 text-sm">{menu.description}</p>
-                </div>
+              <div>
+                <h3 className="text-lg font-bold">{menu.menuName}</h3>
+                <p className="text-red-600 font-semibold">₩{menu.price?.toLocaleString()}</p>
+                <p className="text-gray-500 text-sm">{menu.description}</p>
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <button className="px-3 py-1 bg-yellow-400 text-white rounded text-sm">수정</button>
+              <button
+                onClick={() => onEdit(menu)}
+                className="px-3 py-1 bg-yellow-400 text-white rounded text-sm"
+              >
+                수정
+              </button>
               <button
                 onClick={() => handleDelete(menu.menuId)}
                 className="px-3 py-1 bg-red-500 text-white rounded text-sm"
               >
                 삭제
               </button>
+              <ToggleButton
+  storeId={storeId}
+  menuId={menu.menuId}
+  isAvailable={menu.available} // 혹은 menu.isAvailable
+  onToggled={async () => {
+    const updatedMenus = await fetch(
+      `http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`
+    ).then(res => res.json());
+    setMenus(updatedMenus);
+  }}
+/>
+
             </div>
           </li>
         ))}
@@ -165,7 +220,7 @@ function MenuList({ menus, storeId, setMenus }) {
   );
 }
 
-function AddMenuModal({ storeId, onClose }) {
+function AddMenuModal({ storeId, onClose, onAdded }) {
   const [form, setForm] = useState({ menuName: '', description: '', price: '', category: '' });
   const [image, setImage] = useState(null);
 
@@ -180,9 +235,7 @@ function AddMenuModal({ storeId, onClose }) {
     formData.append('description', form.description);
     formData.append('price', form.price.toString());
     formData.append('category', form.category);
-    if (image) {
-      formData.append('image', image);
-    }
+    if (image) formData.append('image', image);
 
     try {
       const res = await fetch(`http://localhost:8080/api/store/${storeId}/menus`, {
@@ -190,11 +243,9 @@ function AddMenuModal({ storeId, onClose }) {
         body: formData,
         credentials: 'include',
       });
-
       if (!res.ok) throw new Error('등록 실패');
-
       alert('메뉴가 등록되었습니다.');
-      onClose();
+      onAdded(); // ✅ 성공 시 fetchMenus 실행
     } catch (err) {
       console.error('❌ 메뉴 등록 실패:', err);
       alert('오류 발생');
@@ -202,9 +253,57 @@ function AddMenuModal({ storeId, onClose }) {
   };
 
   return (
+    <Modal title="메뉴 추가" form={form} setForm={setForm} image={image} setImage={setImage} onClose={onClose} onSubmit={handleSubmit} />
+  );
+}
+
+function EditMenuModal({ storeId, menu, onClose, onUpdated }) {
+  const [form, setForm] = useState({
+    menuName: menu.menuName,
+    description: menu.description,
+    price: menu.price,
+    category: menu.category,
+  });
+  const [image, setImage] = useState(null);
+
+  const handleSubmit = async () => {
+    const formData = new FormData();
+    formData.append('menuName', form.menuName);
+    formData.append('description', form.description);
+    formData.append('price', form.price.toString());
+    formData.append('category', form.category);
+    if (image) formData.append('image', image);
+
+    try {
+      const res = await fetch(`http://localhost:8080/api/store/${storeId}/menus/${menu.menuId}`, {
+        method: 'PUT',
+        body: formData,
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('수정 실패');
+
+      const updatedMenus = await fetch(
+        `http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`
+      ).then(res => res.json());
+
+      alert('메뉴가 수정되었습니다.');
+      onUpdated(updatedMenus);
+    } catch (err) {
+      console.error('❌ 메뉴 수정 실패:', err);
+      alert('오류 발생');
+    }
+  };
+
+  return (
+    <Modal title="메뉴 수정" form={form} setForm={setForm} image={image} setImage={setImage} onClose={onClose} onSubmit={handleSubmit} />
+  );
+}
+
+function Modal({ title, form, setForm, image, setImage, onClose, onSubmit }) {
+  return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded shadow w-96">
-        <h2 className="text-lg font-bold mb-4">메뉴 추가</h2>
+        <h2 className="text-lg font-bold mb-4">{title}</h2>
         <div className="space-y-2">
           <input className="w-full border p-2 rounded" placeholder="이름" value={form.menuName} onChange={e => setForm({ ...form, menuName: e.target.value })} />
           <input className="w-full border p-2 rounded" placeholder="설명" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
@@ -214,7 +313,7 @@ function AddMenuModal({ storeId, onClose }) {
         </div>
         <div className="flex justify-end gap-2 mt-4">
           <button className="px-4 py-2 bg-gray-300 rounded" onClick={onClose}>취소</button>
-          <button className="px-4 py-2 bg-blue-500 text-white rounded" onClick={handleSubmit}>등록</button>
+          <button className="px-4 py-2 bg-blue-500 text-white rounded" onClick={onSubmit}>확인</button>
         </div>
       </div>
     </div>

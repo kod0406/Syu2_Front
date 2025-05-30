@@ -31,8 +31,12 @@ export default function CustomerMenuPage() {
       credentials: 'include',
     })
       .then(res => res.json())
-      .then(data => setMenus(data))
+      .then(data => {
+        const availableMenus = data.filter(menu => menu.available); // ✅ 여기서 필터링
+        setMenus(availableMenus);
+      })
       .catch(err => console.error('❌ 메뉴 불러오기 실패:', err.message));
+
 
     fetch('http://localhost:8080/pointCheck', {
       method: 'POST',
