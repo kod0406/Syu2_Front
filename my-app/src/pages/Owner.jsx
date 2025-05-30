@@ -1,34 +1,64 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 export default function OwnerDashboard() {
-  const storeId = useStoreIdFromParams();
-  const [storeInfo, setStoreInfo] = useState(null);
+  const { storeId: storeIdFromURL } = useParams();
+  const [storeId, setStoreId] = useState(null);
+  // const [storeInfo, setStoreInfo] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [menus, setMenus] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (storeId) {
-      fetch(`http://localhost:8080/api/stores/${storeId}`)
-        .then(res => res.json())
-        .then(data => setStoreInfo(data))
-        .catch(err => console.error('가게 정보 불러오기 실패:', err));
+    fetch('http://localhost:8080/auth/store', {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("ghgh" + data);
+        if (!data.data) {
+          alert('로그인이 필요합니다.');
+          navigate('/owner/login');
+          return;
+        }
+        const userStoreId = data.data.id;
+        if (userStoreId.toString() !== storeIdFromURL) {
+          alert('해당 가게에 접근 권한이 없습니다.');
+          navigate('/owner/login');
+          return;
+        }
 
-      fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`)
-        .then(res => res.json())
-        .then(data => setMenus(data))
-        .catch(err => console.error('❌ 메뉴 불러오기 실패:', err.message));
-    }
+        setStoreId(userStoreId);
+      })
+      .catch(() => {
+        alert('로그인이 필요합니다.');
+        navigate('/owner/login');
+      });
+  }, [storeIdFromURL, navigate]); 
+
+  useEffect(() => {
+    if (!storeId) return;
+
+    // fetch(`http://localhost:8080/api/stores/${storeId}`)
+    //   .then(res => res.json())
+    //   .then(data => setStoreInfo(data))
+    //   .catch(err => console.error('가게 정보 불러오기 실패:', err));
+
+    fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`)
+      .then(res => res.json())
+      .then(data => setMenus(data))
+      .catch(err => console.error('❌ 메뉴 불러오기 실패:', err.message));
   }, [storeId]);
 
   return (
     <div className="p-4">
       <DashboardHeader />
-      {storeInfo && (
+      {/* {storeInfo && (
         <div className="text-sm text-gray-600 mb-2">
           📍 가게 이름: <b>{storeInfo.storeName}</b> (ID: {storeId})
         </div>
-      )}
+      )} */}
       <DashboardMenu onAddMenuClick={() => setShowAddModal(true)} />
       <MenuList menus={menus} storeId={storeId} setMenus={setMenus} />
       {showAddModal && (
@@ -36,11 +66,6 @@ export default function OwnerDashboard() {
       )}
     </div>
   );
-}
-
-function useStoreIdFromParams() {
-  const { storeId } = useParams();
-  return storeId;
 }
 
 function DashboardHeader() {
@@ -86,7 +111,6 @@ function MenuList({ menus, storeId, setMenus }) {
     if (!confirmDelete) return;
 
     try {
-      // ✅ 정확한 DELETE URL 사용
       const res = await fetch(`http://localhost:8080/api/store/${storeId}/menus/${menuId}`, {
         method: 'DELETE',
         credentials: 'include',
@@ -94,7 +118,6 @@ function MenuList({ menus, storeId, setMenus }) {
 
       if (!res.ok) throw new Error('삭제 실패');
 
-      // ✅ 삭제 성공 후 목록 다시 불러오기
       const updatedMenus = await fetch(
         `http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`
       ).then(res => res.json());

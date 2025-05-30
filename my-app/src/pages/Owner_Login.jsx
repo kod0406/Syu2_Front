@@ -1,10 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function CustomerLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate(); // ✅ React Router 내장 훅
+
+  useEffect(() => {
+    fetch('http://localhost:8080/auth/store', {
+      method: 'GET',
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data?.data?.storeId) {
+          // ✅ 이미 로그인된 경우 자동 이동
+          navigate(`/owner/dashboard/${data.data.storeId}`);
+        }
+      })
+      .catch(err => {
+        console.log('자동 로그인 체크 실패:', err);
+      });
+  }, [navigate]);
 
   const handleSocialLogin = (provider) => {
     let redirectUrl = '';
