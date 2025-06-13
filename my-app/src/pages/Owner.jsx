@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 export default function OwnerDashboard() {
@@ -8,6 +8,7 @@ export default function OwnerDashboard() {
   const [editingMenu, setEditingMenu] = useState(null);
   const [menus, setMenus] = useState([]);
   const navigate = useNavigate();
+  const [showSalesModal, setShowSalesModal] = useState(false);
 
   // ✅ fetchMenus useCallback으로 정의
   const fetchMenus = useCallback(async () => {
@@ -57,7 +58,10 @@ export default function OwnerDashboard() {
   return (
     <div className="p-4">
       <DashboardHeader />
-      <DashboardMenu onAddMenuClick={() => setShowAddModal(true)} />
+      <DashboardMenu
+        onAddMenuClick={() => setShowAddModal(true)}
+        onSalesClick={() => setShowSalesModal(true)} // 👈 이 부분 추가
+      />
       <MenuList menus={menus} storeId={storeId} setMenus={setMenus} onEdit={setEditingMenu} />
       {showAddModal && (
         <AddMenuModal
@@ -77,6 +81,10 @@ export default function OwnerDashboard() {
           }}
         />
       )}
+      {showSalesModal && (
+        <SalesModal onClose={() => setShowSalesModal(false)} />
+      )}
+
     </div>
   );
 }
@@ -139,15 +147,30 @@ function ToggleButton({ storeId, menuId, isAvailable, onToggled }) {
 }
 
 
-function DashboardMenu({ onAddMenuClick }) {
+function DashboardMenu({ onAddMenuClick, onSalesClick }) {
   return (
     <div className="flex space-x-2 p-2">
       <button onClick={onAddMenuClick} className="px-4 py-2 bg-green-400 text-white rounded">
         메뉴 추가
       </button>
+      <SalesStatsButton onClick={onSalesClick} />
     </div>
   );
 }
+
+
+function SalesStatsButton({ onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="px-4 py-2 bg-blue-500 text-white rounded"
+    >
+      매출 통계
+    </button>
+  );
+}
+
+
 
 function MenuList({ menus, storeId, setMenus, onEdit }) {
   const handleDelete = async (menuId) => {
@@ -319,3 +342,113 @@ function Modal({ title, form, setForm, image, setImage, onClose, onSubmit }) {
     </div>
   );
 }
+
+function SalesModal({ onClose }) {
+  const [statistics, setStatistics] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState('daily'); // 기본값: 오늘
+  const totalRevenueSum = useMemo(() => {
+  return statistics.reduce((sum, item) => sum + (item.totalRevenue || 0), 0);
+}, [statistics]);
+
+  useEffect(() => {
+    fetch(`http://localhost:8080/statistics/store?period=${period}`, {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('통계 조회 실패');
+        return res.json();
+      })
+      .then((data) => {
+        setStatistics(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('매출 통계 오류:', err);
+        setLoading(false);
+      });
+  }, [period]);
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded shadow w-[600px] max-h-[80vh] overflow-y-auto">
+        <h2 className="text-xl font-bold mb-4">매출 통계</h2>
+
+        {/* 🔘 기간 선택 버튼 */}
+        <div className="flex gap-2 mb-4">
+          {['daily', 'weekly', 'monthly'].map((p) => (
+            <button
+              key={p}
+              onClick={() => {
+                setPeriod(p);
+                setLoading(true);
+              }}
+              className={`px-3 py-1 rounded ${
+                period === p ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'
+              }`}
+            >
+              {p === 'daily' ? '오늘' : p === 'weekly' ? '이번 주' : '이번 달'}
+            </button>
+          ))}
+        </div>
+
+        {/* 📊 데이터 출력 */}
+        {loading ? (
+          <p>불러오는 중...</p>
+        ) : statistics.length === 0 ? (
+          <p>데이터가 없습니다.</p>
+        ) : (
+          <table className="w-full border text-sm">
+            <thead>
+              <tr className="bg-gray-100 text-center">
+                <th className="border px-2 py-1">이미지</th>
+                <th className="border px-2 py-1">메뉴 이름</th>
+                <th className="border px-2 py-1">판매 수량</th>
+                <th className="border px-2 py-1">총 매출액</th>
+              </tr>
+            </thead>
+            <tbody>
+              {statistics.map((item, i) => (
+                <tr key={i} className="text-center">
+                  <td className="border px-2 py-1">
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.menuName}
+                        className="w-16 h-12 object-cover rounded mx-auto"
+                      />
+                    ) : (
+                      <span className="text-gray-400">없음</span>
+                    )}
+                  </td>
+                  <td className="border px-2 py-1">{item.menuName}</td>
+                  <td className="border px-2 py-1">{item.totalQuantity}</td>
+                  <td className="border px-2 py-1">
+                    ₩{item.totalRevenue.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          
+        )}
+
+        <div className="mt-4 text-right font-semibold text-lg">
+          총 매출합: ₩{totalRevenueSum.toLocaleString()}
+        </div>
+
+        <div className="flex justify-end mt-6">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-blue-500 text-white rounded"
+          >
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+

@@ -90,7 +90,8 @@ export default function CustomerMenuPage() {
       menuName: item.menuName,
       menuAmount: item.quantity,
       menuPrice: item.price,
-      reviewed : false
+      reviewed : false,
+      active : false
     }))];
 
     if (usedPoints > 0) {
