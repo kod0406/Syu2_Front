@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+
 
 export default function CustomerMenuPage() {
   const [menus, setMenus] = useState([]);
@@ -10,15 +11,16 @@ export default function CustomerMenuPage() {
   const [availablePoints, setAvailablePoints] = useState(0);
   const [usedPoints, setUsedPoints] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const storeId = 1;
+  const { storeId } = useParams(); 
   const navigate = useNavigate();
+  const numericStoreId = Number(storeId);
 
 
   useEffect(() => {
     fetch('http://localhost:8080/auth/me', {
       method: 'GET',
       credentials: 'include'
-    })
+    },)
       .then(res => res.json())
       .then(data => {
         if (data.data) setIsLoggedIn(true);
@@ -26,7 +28,7 @@ export default function CustomerMenuPage() {
       })
       .catch(() => setIsLoggedIn(false));
 
-    fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`, {
+    fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${numericStoreId}`, {
       method: 'GET',
       credentials: 'include',
     })
@@ -48,7 +50,7 @@ export default function CustomerMenuPage() {
       })
       .then(data => setAvailablePoints(data.point))
       .catch(err => console.error('❌ 포인트 불러오기 실패:', err.message));
-  }, []);
+  }, [numericStoreId]);
 
   const categories = ['전체', ...Array.from(new Set(menus.map(item => item.category).filter(Boolean)))];
   const filteredMenus = selectedCategory === '전체' ? menus : menus.filter(item => item.category === selectedCategory);
@@ -103,7 +105,7 @@ export default function CustomerMenuPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/kakao-pay/ready?storeId=${storeId}`, {
+      const res = await fetch(`http://localhost:8080/api/v1/kakao-pay/ready?storeId=${numericStoreId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
