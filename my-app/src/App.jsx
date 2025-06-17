@@ -6,7 +6,6 @@ import SignUp from './pages/Signup.jsx';
 import OwnerLogin from './pages/Owner_Login.jsx';
 import Review from './pages/Review.jsx';
 import ReviewWrite from './pages/Review_write.jsx';
-import Test from './pages/test.jsx';
 
 function App() {
   return (
@@ -20,7 +19,6 @@ function App() {
         <Route path="/owner/dashboard/:storeId" element={<OwnerDashboard />} />
         <Route path="/review" element={<Review />} />
         <Route path="/review/write" element={<ReviewWrite />} /> 
-        <Route path="/test" element={<Test />} />
       </Routes>
     </div>
   );

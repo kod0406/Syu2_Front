@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import OrdersModal from '../components/order_modal'; // 파일 경로에 맞게 수정
+
 
 export default function OwnerDashboard() {
   const { storeId: storeIdFromURL } = useParams();
@@ -9,6 +11,9 @@ export default function OwnerDashboard() {
   const [menus, setMenus] = useState([]);
   const navigate = useNavigate();
   const [showSalesModal, setShowSalesModal] = useState(false);
+  const [showOrdersModal, setShowOrdersModal] = useState(false);
+
+  
 
   // ✅ fetchMenus useCallback으로 정의
   const fetchMenus = useCallback(async () => {
@@ -60,7 +65,8 @@ export default function OwnerDashboard() {
       <DashboardHeader />
       <DashboardMenu
         onAddMenuClick={() => setShowAddModal(true)}
-        onSalesClick={() => setShowSalesModal(true)} // 👈 이 부분 추가
+        onSalesClick={() => setShowSalesModal(true)}
+        onOrdersClick={() => setShowOrdersModal(true)}
       />
       <MenuList menus={menus} storeId={storeId} setMenus={setMenus} onEdit={setEditingMenu} />
       {showAddModal && (
@@ -83,6 +89,10 @@ export default function OwnerDashboard() {
       )}
       {showSalesModal && (
         <SalesModal onClose={() => setShowSalesModal(false)} />
+      )}
+
+      {showOrdersModal && (
+        <OrdersModal storeId={storeId} onClose={() => setShowOrdersModal(false)} />
       )}
 
     </div>
@@ -147,13 +157,16 @@ function ToggleButton({ storeId, menuId, isAvailable, onToggled }) {
 }
 
 
-function DashboardMenu({ onAddMenuClick, onSalesClick }) {
+function DashboardMenu({ onAddMenuClick, onSalesClick, onOrdersClick }) {
   return (
     <div className="flex space-x-2 p-2">
       <button onClick={onAddMenuClick} className="px-4 py-2 bg-green-400 text-white rounded">
         메뉴 추가
       </button>
       <SalesStatsButton onClick={onSalesClick} />
+      <button onClick={onOrdersClick} className="px-4 py-2 bg-purple-500 text-white rounded">
+        주문 현황
+      </button>
     </div>
   );
 }
