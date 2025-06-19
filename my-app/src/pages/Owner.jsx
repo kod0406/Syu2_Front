@@ -12,8 +12,10 @@ export default function OwnerDashboard() {
   const navigate = useNavigate();
   const [showSalesModal, setShowSalesModal] = useState(false);
   const [showOrdersModal, setShowOrdersModal] = useState(false);
-
   
+  const onCouponClick = () => {
+  navigate(`/owner/${storeId}/coupon`);
+  };
 
   // ✅ fetchMenus useCallback으로 정의
   const fetchMenus = useCallback(async () => {
@@ -67,6 +69,7 @@ export default function OwnerDashboard() {
         onAddMenuClick={() => setShowAddModal(true)}
         onSalesClick={() => setShowSalesModal(true)}
         onOrdersClick={() => setShowOrdersModal(true)}
+        onCouponClick={onCouponClick}
       />
       <MenuList menus={menus} storeId={storeId} setMenus={setMenus} onEdit={setEditingMenu} />
       {showAddModal && (
@@ -157,7 +160,7 @@ function ToggleButton({ storeId, menuId, isAvailable, onToggled }) {
 }
 
 
-function DashboardMenu({ onAddMenuClick, onSalesClick, onOrdersClick }) {
+function DashboardMenu({ onAddMenuClick, onSalesClick, onOrdersClick, onCouponClick }) {
   return (
     <div className="flex space-x-2 p-2">
       <button onClick={onAddMenuClick} className="px-4 py-2 bg-green-400 text-white rounded">
@@ -167,6 +170,10 @@ function DashboardMenu({ onAddMenuClick, onSalesClick, onOrdersClick }) {
       <button onClick={onOrdersClick} className="px-4 py-2 bg-purple-500 text-white rounded">
         주문 현황
       </button>
+      <button onClick={onCouponClick} className="px-4 py-2 bg-pink-500 text-white rounded">
+        쿠폰 관리
+      </button>
+
     </div>
   );
 }

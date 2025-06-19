@@ -14,6 +14,10 @@ export default function CustomerMenuPage() {
   const { storeId } = useParams(); 
   const navigate = useNavigate();
   const numericStoreId = Number(storeId);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedMenuName, setSelectedMenuName] = useState('');
+  const [selectedReviews, setSelectedReviews] = useState([]);
+
 
 
 useEffect(() => {
@@ -91,6 +95,24 @@ useEffect(() => {
       prev.map((item, i) => i === index ? { ...item, quantity: item.quantity - 1 } : item).filter(item => item.quantity > 0)
     );
   };
+
+  const handleViewReviews = async (menuId, menuName) => {
+    try {
+      const res = await fetch(`http://localhost:8080/review/show?menuId=${menuId}`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+      if (!res.ok) throw new Error('리뷰 불러오기 실패');
+      const data = await res.json();
+      setSelectedReviews(data);
+      setSelectedMenuName(menuName);
+      setReviewModalOpen(true);
+    } catch (err) {
+      console.error('❌ 리뷰 보기 실패:', err.message);
+      alert('리뷰를 불러오는 데 실패했습니다.');
+    }
+  };
+
 
   const totalAmount = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -170,6 +192,43 @@ useEffect(() => {
         </div>
       </aside>
 
+{reviewModalOpen && (
+  <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded shadow-lg w-[500px] max-h-[80vh] overflow-y-auto">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-bold">{selectedMenuName} 리뷰</h2>
+        <button onClick={() => setReviewModalOpen(false)} className="text-gray-500 hover:text-black text-xl">×</button>
+      </div>
+      {selectedReviews.length > 0 ? (
+        <ul className="space-y-4">
+          {selectedReviews.map((review, i) => (
+            <li key={i} className="border rounded p-4 text-sm space-y-2">
+              <p className="text-yellow-500 font-semibold">⭐ {review.rating.toFixed(1)} / 5</p>
+              <p className="text-gray-700">{review.comment}</p>
+              {review.imageUrl &&
+                review.imageUrl.trim().toUpperCase() !== 'NULL' &&
+                review.imageUrl.trim() !== '' && (
+                  <img
+                    src={review.imageUrl}
+                    alt="리뷰 이미지"
+                    className="w-full h-40 object-cover rounded border"
+                  />
+              )}
+
+              <p className="text-right text-xs text-gray-500">
+                작성일: {new Date(review.reviewDate).toLocaleDateString('ko-KR')}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-gray-500">아직 등록된 리뷰가 없습니다.</p>
+      )}
+    </div>
+  </div>
+)}
+
+
       <main className="w-3/6 p-6 overflow-y-auto h-full">
         <h2 className="text-lg font-semibold mb-4">{selectedCategory} 메뉴</h2>
         <div className="space-y-6">
@@ -183,6 +242,14 @@ useEffect(() => {
                     <p className="text-yellow-500 font-medium">⭐ {item.rating.toFixed(1)} / 5</p>
                     <p className="text-red-600 font-semibold">₩{item.price.toLocaleString()}</p>
                     <p className="text-gray-500 text-sm">{item.description}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <button
+                        onClick={() => handleViewReviews(item.menuId, item.menuName)}
+                        className="px-3 py-1 bg-blue-500 text-white rounded"
+                      >
+                        리뷰 보기
+                      </button>
+                    </div>
                   </div>
 
                   <button onClick={() => handleAddToOrder(item)} className="mt-2 px-3 py-1 bg-orange-500 text-white rounded">
