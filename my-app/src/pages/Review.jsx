@@ -22,34 +22,43 @@ export default function ReviewListPage() {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6">주문 내역</h2>
-      {reviewList.length === 0 ? (
-        <p className="text-gray-500">불러올 주문 내역이 없습니다.</p>
-      ) : (
-        <ul className="space-y-4 max-w-2xl">
-          {reviewList.map((item, index) => (
-            <li
-              key={index}
-              className="flex justify-between items-start border p-4 rounded shadow bg-white"
+  <div className="flex justify-between items-center mb-6">
+    <h2 className="text-2xl font-bold">주문 내역</h2>
+    <button
+      onClick={() => navigate('/')} // 또는: navigate(`/menu/${storeId}`) 등
+      className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+    >
+      메뉴로 돌아가기
+    </button>
+  </div>
+
+  {reviewList.length === 0 ? (
+    <p className="text-gray-500">불러올 주문 내역이 없습니다.</p>
+  ) : (
+    <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+      {reviewList.map((item, index) => (
+        <li
+          key={index}
+          className="border p-4 rounded shadow bg-white flex flex-col justify-between w-full"
+        >
+          <div className="space-y-1">
+            <p><strong>가게 이름:</strong> {item.storeName}</p>
+            <p className="break-words whitespace-pre-wrap"><strong>메뉴:</strong> {Array.isArray(item.orderDetails) ? item.orderDetails.join(', ') : item.orderDetails}</p>
+            <p><strong>가격:</strong> ₩{item.orderPrice.toLocaleString()}</p>
+            <p><strong>날짜:</strong> {new Date(item.date).toLocaleDateString('ko-KR')}</p>
+          </div>
+          <div className="mt-4 self-end">
+            <button
+              onClick={() => handleWriteReview(item.statisticsId)}
+              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 whitespace-nowrap"
             >
-              <div className="space-y-1">
-                <p><strong>가게 이름:</strong> {item.storeName}</p>
-                <p><strong>메뉴:</strong> {Array.isArray(item.orderDetails) ? item.orderDetails.join(', ') : item.orderDetails}</p>
-                <p><strong>가격:</strong> ₩{item.orderPrice.toLocaleString()}</p>
-                <p><strong>날짜:</strong> {new Date(item.date).toLocaleDateString('ko-KR')}</p>
-              </div>
-              <div>
-                <button
-                  onClick={() => handleWriteReview(item.statisticsId)} // ✅ 여기가 핵심
-                  className="ml-4 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 whitespace-nowrap"
-                >
-                  리뷰 쓰기
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+              리뷰 쓰기
+            </button>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
   );
 }

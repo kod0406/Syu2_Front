@@ -180,9 +180,11 @@ useEffect(() => {
                 <div className="flex flex-col justify-between flex-1">
                   <div>
                     <h3 className="text-lg font-bold">{item.menuName}</h3>
+                    <p className="text-yellow-500 font-medium">⭐ {item.rating.toFixed(1)} / 5</p>
                     <p className="text-red-600 font-semibold">₩{item.price.toLocaleString()}</p>
                     <p className="text-gray-500 text-sm">{item.description}</p>
                   </div>
+
                   <button onClick={() => handleAddToOrder(item)} className="mt-2 px-3 py-1 bg-orange-500 text-white rounded">
                     담기
                   </button>
