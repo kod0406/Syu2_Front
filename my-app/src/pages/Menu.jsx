@@ -16,6 +16,18 @@ export default function CustomerMenuPage() {
   const numericStoreId = Number(storeId);
 
 
+useEffect(() => {
+  const hasRedirected = sessionStorage.getItem('hasRedirected');
+  if (!hasRedirected) {
+    const currentUrl = window.location.pathname + window.location.search;
+    sessionStorage.setItem('qr-redirect-url', currentUrl);
+    sessionStorage.setItem('hasRedirected', 'true'); // ✅ 루프 방지
+    navigate('/index');
+  }
+}, [navigate]);
+
+
+
   useEffect(() => {
     fetch('http://localhost:8080/auth/me', {
       method: 'GET',
