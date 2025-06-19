@@ -8,7 +8,7 @@ export default function Home() {
     const target = sessionStorage.getItem('qr-redirect-url');
     if (target) {
       // ✅ 자동으로 QR 경로로 이동
-      sessionStorage.removeItem('qr-redirect-url'); // 한 번 쓰고 제거
+    //   sessionStorage.removeItem('qr-redirect-url'); // 한 번 쓰고 제거
       navigate(target);
     }
   }, [navigate]);

@@ -117,12 +117,14 @@ useEffect(() => {
     }
 
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/kakao-pay/ready?storeId=${numericStoreId}`, {
+      const redirectUrl = sessionStorage.getItem('qr-redirect-url') || '/';
+      const res = await fetch(`http://localhost:8080/api/v1/kakao-pay/ready?storeId=${numericStoreId}&redirectUrl=${encodeURIComponent(redirectUrl)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
         credentials: 'include'
       });
+
 
       if (!res.ok) throw new Error('주문 실패');
 
