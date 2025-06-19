@@ -4,7 +4,7 @@ export default function CustomerLogin() {
     let redirectUrl = '';
     switch (provider) {
       case 'kakao':
-        redirectUrl = `http://localhost:8080/api/oauth2/kakao/login`;
+      redirectUrl = `http://localhost:8080/api/oauth2/kakao/login`;
         break;
       case 'naver':
         redirectUrl = `http://localhost:8080/api/oauth2/naver/login`;

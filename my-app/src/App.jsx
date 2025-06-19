@@ -7,6 +7,7 @@ import OwnerLogin from './pages/Owner_Login.jsx';
 import Review from './pages/Review.jsx';
 import ReviewWrite from './pages/Review_write.jsx';
 import Index from './pages/Index.jsx';
+import Home from './pages/Home.jsx';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/review" element={<Review />} />
         <Route path="/review/write" element={<ReviewWrite />} /> 
         <Route path="/index" element={<Index />} />
+        <Route path="/" element={<Home />} />
       </Routes>
     </div>
   );
