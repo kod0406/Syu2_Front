@@ -332,10 +332,11 @@ useEffect(() => {
                 type="number"
                 min="0"
                 max={availablePoints}
-                value={usedPoints}
+                value={usedPoints === 0 ? '' : usedPoints} // 0일 때는 빈 문자열로
                 onChange={(e) => setUsedPoints(Math.min(availablePoints, Number(e.target.value)))}
                 className="w-full mb-4 p-2 border rounded"
               />
+
               <div className="flex justify-end gap-2">
                 <button onClick={() => setShowPointPopup(false)} className="px-4 py-2 bg-gray-200 rounded">취소</button>
                 <button
