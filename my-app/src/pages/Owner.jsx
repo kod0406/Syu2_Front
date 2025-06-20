@@ -43,13 +43,7 @@ export default function OwnerDashboard() {
           navigate('/owner/login');
           return;
         }
-        const userStoreId = data.data.id;
-        if (userStoreId.toString() !== storeIdFromURL) {
-          alert('해당 가게에 접근 권한이 없습니다.');
-          navigate('/owner/login');
-          return;
-        }
-        setStoreId(userStoreId);
+        setStoreId(data.data.id);
       })
       .catch(() => {
         alert('로그인이 필요합니다.');
