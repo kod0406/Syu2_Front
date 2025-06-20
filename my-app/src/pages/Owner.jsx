@@ -117,7 +117,7 @@ function DashboardHeader() {
   const formattedTime = currentTime.toLocaleTimeString('ko-KR');
   return (
     <div className="flex justify-center p-2 bg-gray-800 text-white">
-      <div>영업일자: {formattedDate} | 포스번호: 01 | 시간: {formattedTime}</div>
+      <div>영업일자: {formattedDate}  {formattedTime}</div>
     </div>
   );
 }

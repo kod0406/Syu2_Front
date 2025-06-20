@@ -229,40 +229,60 @@ useEffect(() => {
 )}
 
 
-      <main className="w-3/6 p-6 overflow-y-auto h-full">
-        <h2 className="text-lg font-semibold mb-4">{selectedCategory} 메뉴</h2>
-        <div className="space-y-6">
-          {filteredMenus.length > 0 ? (
-            filteredMenus.map((item, index) => (
-              <div key={index} className="flex gap-4 bg-white rounded shadow p-4">
-                <img src={item.imageUrl} alt={item.menuName} className="w-40 h-28 object-cover rounded" />
-                <div className="flex flex-col justify-between flex-1">
-                  <div>
-                    <h3 className="text-lg font-bold">{item.menuName}</h3>
-                    <p className="text-yellow-500 font-medium">⭐ {item.rating.toFixed(1)} / 5</p>
-                    <p className="text-red-600 font-semibold">₩{item.price.toLocaleString()}</p>
-                    <p className="text-gray-500 text-sm">{item.description}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <button
-                        onClick={() => handleViewReviews(item.menuId, item.menuName)}
-                        className="px-3 py-1 bg-blue-500 text-white rounded"
-                      >
-                        리뷰 보기
-                      </button>
-                    </div>
-                  </div>
+<main className="w-3/6 p-6 overflow-y-auto h-full">
+  <h2 className="text-lg font-semibold mb-4">{selectedCategory} 메뉴</h2>
+  <div className="space-y-6">
+    {filteredMenus.length > 0 ? (
+      filteredMenus.map((item, index) => (
+        <div key={index} className="relative flex gap-4 bg-white rounded shadow p-4">
+          {/* 리뷰 보기 버튼 - 이미지 우측 상단 */}
+          <button
+            onClick={() => handleViewReviews(item.menuId, item.menuName)}
+            className="absolute top-2 right-2 px-3 py-1 bg-blue-500 text-white rounded text-sm"
+          >
+            리뷰 보기
+          </button>
 
-                  <button onClick={() => handleAddToOrder(item)} className="mt-2 px-3 py-1 bg-orange-500 text-white rounded">
-                    담기
-                  </button>
-                </div>
+          {/* 메뉴 이미지 */}
+          <img
+            src={item.imageUrl}
+            alt={item.menuName}
+            className="w-40 h-28 object-cover rounded"
+          />
+
+          {/* 메뉴 정보 */}
+          <div className="flex flex-col justify-between flex-1">
+            <div>
+              {/* 메뉴 이름 + 별점 */}
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-bold">{item.menuName}</h3>
+                <span className="text-yellow-500 font-medium text-sm">
+                  ⭐ {item.rating.toFixed(1)} / 5
+                </span>
               </div>
-            ))
-          ) : (
-            <p className="text-gray-400">해당 카테고리 메뉴가 없습니다.</p>
-          )}
+
+              <p className="text-red-600 font-semibold">
+                ₩{item.price.toLocaleString()}
+              </p>
+              <p className="text-gray-500 text-sm">{item.description}</p>
+            </div>
+
+            {/* 담기 버튼 */}
+            <button
+              onClick={() => handleAddToOrder(item)}
+              className="mt-2 px-3 py-1 bg-orange-500 text-white rounded"
+            >
+              담기
+            </button>
+          </div>
         </div>
-      </main>
+      ))
+    ) : (
+      <p className="text-gray-400">해당 카테고리 메뉴가 없습니다.</p>
+    )}
+  </div>
+</main>
+
 
       <aside className="w-2/6 bg-white border-l p-4 flex flex-col justify-between h-full">
         <div className="flex-1 overflow-y-auto">
