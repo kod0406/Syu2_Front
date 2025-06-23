@@ -1,23 +1,30 @@
+// src/Owner/OrdersModal.tsx
+
 import React, { useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
-import { Stomp } from '@stomp/stompjs';
+import { Stomp, CompatClient } from '@stomp/stompjs';
+import { OrderData } from './types'; // 공통 타입만 import
 
-function OrdersModal({ storeId, onClose }) {
-  const [orderData, setOrderData] = useState(null);
-  const [completedIds, setCompletedIds] = useState([]);
+type OrdersModalProps = {
+  storeId: number;
+  onClose: () => void;
+};
+
+export default function OrdersModal({ storeId, onClose }: OrdersModalProps) {
+  const [orderData, setOrderData] = useState<OrderData | null>(null);
+  const [completedIds, setCompletedIds] = useState<number[]>([]);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    // WebSocket 연결
     const socket = new SockJS('http://localhost:8080/ws');
-    const client = Stomp.over(socket);
+    const client: CompatClient = Stomp.over(socket);
 
     client.connect(
       {},
       async () => {
         client.subscribe(`/topic/orders/${storeId}`, (message) => {
           try {
-            const payload = JSON.parse(message.body);
+            const payload: OrderData = JSON.parse(message.body);
             console.log('📨 실시간 메시지 수신:', payload);
             setOrderData(payload);
           } catch (err) {
@@ -27,22 +34,20 @@ function OrdersModal({ storeId, onClose }) {
 
         console.log('✅ WebSocket connected');
         setIsConnected(true);
-        // ✅ 연결 후 초기 주문 데이터 요청 (GET)
+
         try {
           const res = await fetch(`http://localhost:8080/api/orders/getMenu`, {
             method: 'GET',
             credentials: 'include',
           });
           if (!res.ok) throw new Error('주문 데이터 불러오기 실패');
-          const data = await res.json();
+          const data: OrderData = await res.json();
           setOrderData(data);
         } catch (err) {
           console.error('❌ 주문 목록 불러오기 실패:', err);
         }
-        // ✅ WebSocket 구독
-
       },
-      (error) => {
+      (error: unknown) => {
         console.error('❌ WebSocket 연결 실패:', error);
       }
     );
@@ -56,8 +61,7 @@ function OrdersModal({ storeId, onClose }) {
     };
   }, [storeId]);
 
-  // ✅ 주문 완료 처리
-  const markOrderAsCompleted = async (orderGroupId) => {
+  const markOrderAsCompleted = async (orderGroupId: number) => {
     try {
       const res = await fetch(`http://localhost:8080/api/orders/${orderGroupId}/complete`, {
         method: 'POST',
@@ -65,7 +69,7 @@ function OrdersModal({ storeId, onClose }) {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ active: true }), // 필요 시 제거 가능
+        body: JSON.stringify({ active: true }),
       });
 
       if (!res.ok) throw new Error('완료 처리 실패');
@@ -126,5 +130,3 @@ function OrdersModal({ storeId, onClose }) {
     </div>
   );
 }
-
-export default OrdersModal;

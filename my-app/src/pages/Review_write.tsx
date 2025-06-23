@@ -1,14 +1,20 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useLocation } from 'react-router-dom';
 
+interface UserInfo {
+  id: number;
+  email: string;
+  name: string;
+  // 필요한 항목 추가 가능
+}
+
 export default function ReviewWritePage() {
-  const [reviewText, setReviewText] = useState('');
-  const [rating, setRating] = useState(0);
-  const [images, setImages] = useState([]);
-  const [statId, setStatId] = useState('');
-  // eslint-disable-next-line no-unused-vars
-  const [user, setUser] = useState(null);
+  const [reviewText, setReviewText] = useState<string>('');
+  const [rating, setRating] = useState<number>(0);
+  const [images, setImages] = useState<File[]>([]);
+  const [statId, setStatId] = useState<string>('');
+  const [user, setUser] = useState<UserInfo | null>(null);
 
   const location = useLocation();
 
@@ -35,8 +41,8 @@ export default function ReviewWritePage() {
       });
   }, [location.search]);
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
     setImages(files.slice(0, 5));
   };
 
@@ -49,10 +55,11 @@ export default function ReviewWritePage() {
     const formData = new FormData();
     formData.append('statisticsId', statId);
     formData.append('date', new Date().toISOString().split('T')[0]);
-    formData.append('reviewRating', rating);
+    formData.append('reviewRating', String(rating));
     formData.append('comment', reviewText);
+
     if (images.length > 0) {
-      formData.append('images', images[0]);
+      formData.append('images', images[0]); // 여러 장 업로드하려면 반복문 필요
     }
 
     for (let [key, val] of formData.entries()) {

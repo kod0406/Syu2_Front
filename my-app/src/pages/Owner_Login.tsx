@@ -1,10 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+interface StoreLoginResponse {
+  storeId: number;
+  error?: string;
+}
+
 export default function CustomerLogin() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // ✅ React Router 내장 훅
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch('http://localhost:8080/auth/store', {
@@ -14,7 +19,6 @@ export default function CustomerLogin() {
       .then(res => res.json())
       .then(data => {
         if (data?.data?.storeId) {
-          // ✅ 이미 로그인된 경우 자동 이동
           navigate(`/owner/dashboard/${data.data.storeId}`);
         }
       })
@@ -23,22 +27,20 @@ export default function CustomerLogin() {
       });
   }, [navigate]);
 
-  const handleSocialLogin = (provider) => {
+  const handleSocialLogin = (provider: 'kakao' | 'naver') => {
     let redirectUrl = '';
     switch (provider) {
       case 'kakao':
-        redirectUrl = `http://localhost:8080/api/oauth2/kakao/login`;
+        redirectUrl = 'http://localhost:8080/api/oauth2/kakao/login';
         break;
       case 'naver':
-        redirectUrl = `http://localhost:8080/api/oauth2/naver/login`;
-        break;
-      default:
+        redirectUrl = 'http://localhost:8080/api/oauth2/naver/login';
         break;
     }
     window.location.href = redirectUrl;
   };
 
-  const handleEmailLogin = async (e) => {
+  const handleEmailLogin = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
@@ -54,7 +56,7 @@ export default function CustomerLogin() {
         })
       });
 
-      const data = await response.json();
+      const data: StoreLoginResponse = await response.json();
 
       if (!response.ok) {
         alert(`로그인 실패: ${data.error || '알 수 없는 오류'}`);
@@ -62,15 +64,14 @@ export default function CustomerLogin() {
       }
 
       alert('로그인 성공!');
-      // ✅ 쿼리 → 경로 파라미터 방식으로 수정
       navigate(`/owner/dashboard/${data.storeId}`);
-    } catch (err) {
+    } catch (err: any) {
       alert('로그인 중 오류 발생: ' + err.message);
     }
   };
 
   const handleSignUp = () => {
-    navigate('/signup'); // ✅ 이 부분도 SPA 방식으로 자연스럽게 처리
+    navigate('/signup');
   };
 
   return (

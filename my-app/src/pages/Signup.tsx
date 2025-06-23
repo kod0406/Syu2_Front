@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+interface SignupResponse {
+  error?: string;
+}
 
 export default function Signup() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [storeName, setStoreName] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [storeName, setStoreName] = useState<string>('');
 
-  const handleSignup = async (e) => {
+  const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -21,16 +25,16 @@ export default function Signup() {
       const response = await fetch('http://localhost:8080/api/stores/register', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           ownerEmail: email,
-          password: password,
-          storeName: storeName
-        })
+          password,
+          storeName,
+        }),
       });
 
-      const data = await response.json();
+      const data: SignupResponse = await response.json();
 
       if (!response.ok) {
         alert(`회원가입 실패: ${data.error || '알 수 없는 오류'}`);
@@ -39,7 +43,7 @@ export default function Signup() {
 
       alert('회원가입 성공! 로그인 페이지로 이동합니다.');
       navigate('/owner/login');
-    } catch (err) {
+    } catch (err: any) {
       alert('회원가입 중 오류 발생: ' + err.message);
     }
   };
