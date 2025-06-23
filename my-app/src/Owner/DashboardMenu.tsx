@@ -1,46 +1,34 @@
-// src/Owner/DashboardMenu.tsx
-
 import React from 'react';
 
-type DashboardMenuProps = {
+type Props = {
   onAddMenuClick: () => void;
   onSalesClick: () => void;
   onOrdersClick: () => void;
   onCouponClick: () => void;
 };
 
-export default function DashboardMenu({
+const DashboardMenu: React.FC<Props> = ({
   onAddMenuClick,
   onSalesClick,
   onOrdersClick,
   onCouponClick,
-}: DashboardMenuProps) {
+}) => {
   return (
-    <div className="mb-4 flex gap-3">
-      <button
-        onClick={onAddMenuClick}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      >
+    <div className="flex space-x-2 p-2">
+      <button onClick={onAddMenuClick} className="px-4 py-2 bg-green-400 text-white rounded">
         메뉴 추가
       </button>
-      <button
-        onClick={onSalesClick}
-        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-      >
-        매출 보기
+      <button onClick={onSalesClick} className="px-4 py-2 bg-blue-500 text-white rounded">
+        매출 통계
       </button>
-      <button
-        onClick={onOrdersClick}
-        className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-      >
-        주문 보기
+      <button onClick={onOrdersClick} className="px-4 py-2 bg-purple-500 text-white rounded">
+        주문 현황
       </button>
-      <button
-        onClick={onCouponClick}
-        className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-      >
+      <button onClick={onCouponClick} className="px-4 py-2 bg-pink-500 text-white rounded">
         쿠폰 관리
       </button>
     </div>
   );
-}
+};
+
+export default DashboardMenu;

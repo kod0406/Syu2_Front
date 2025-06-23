@@ -1,30 +1,44 @@
-// src/pages/OwnerDashboard.tsx
-
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-
 import DashboardHeader from '../Owner/DashboardHeader';
 import DashboardMenu from '../Owner/DashboardMenu';
 import MenuList from '../Owner/MenuList';
-import MenuAddModal from '../Owner/MenuAddModal';
-import MenuEditModal from '../Owner/MenuEditModal';
-import OrdersModal from '../Owner/OrdersModal';
+import AddMenuModal from '../Owner/MenuAddModal';
+import EditMenuModal from '../Owner/MenuEditModal';
 import SalesModal from '../Owner/SalesModal';
+import OrdersModal from '../Owner/OrdersModal';
 
-import { useMenus } from '../Owner/useMenus';
-import { Menu } from '../Owner/types';
+interface Menu {
+  menuId: number;
+  menuName: string;
+  description: string;
+  price: number;
+  category: string;
+  imageUrl?: string;
+  available: boolean;
+}
 
 export default function OwnerDashboard() {
   const { storeId: storeIdFromURL } = useParams();
   const [storeId, setStoreId] = useState<number | null>(null);
-  const navigate = useNavigate();
-
+  const [menus, setMenus] = useState<Menu[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingMenu, setEditingMenu] = useState<Menu | null>(null);
-  const [showOrdersModal, setShowOrdersModal] = useState(false);
   const [showSalesModal, setShowSalesModal] = useState(false);
+  const [showOrdersModal, setShowOrdersModal] = useState(false);
+  const navigate = useNavigate();
 
-  const { menus, fetchMenus } = useMenus(storeId);
+  const fetchMenus = useCallback(async () => {
+    if (!storeId) return;
+    const res = await fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`);
+    const data = await res.json();
+    setMenus(data);
+  }, [storeId]);
+
+  const handleMenuAdded = async () => {
+    await fetchMenus();
+    setShowAddModal(false);
+  };
 
   useEffect(() => {
     fetch('http://localhost:8080/auth/store', {
@@ -51,7 +65,7 @@ export default function OwnerDashboard() {
   }, [fetchMenus]);
 
   const onCouponClick = () => {
-    if (storeId) navigate(`/owner/${storeId}/coupon`);
+    navigate(`/owner/${storeId}/coupon`);
   };
 
   return (
@@ -63,32 +77,35 @@ export default function OwnerDashboard() {
         onOrdersClick={() => setShowOrdersModal(true)}
         onCouponClick={onCouponClick}
       />
-      <MenuList menus={menus} onEditClick={setEditingMenu} />
-
-      {showAddModal && (
-        <MenuAddModal
-          onClose={() => setShowAddModal(false)}
-          onAddComplete={fetchMenus}
+      {storeId && (
+        <MenuList
+          menus={menus}
+          storeId={storeId}
+          setMenus={setMenus}
+          onEdit={setEditingMenu}
         />
       )}
-
-      {editingMenu && (
-        <MenuEditModal
+      {showAddModal && storeId && (
+        <AddMenuModal
+          storeId={storeId}
+          onClose={() => setShowAddModal(false)}
+          onAdded={handleMenuAdded}
+        />
+      )}
+      {editingMenu && storeId && (
+        <EditMenuModal
+          storeId={storeId}
           menu={editingMenu}
           onClose={() => setEditingMenu(null)}
-          onEditComplete={() => {
-            fetchMenus();
+          onUpdated={(updatedMenus) => {
+            setMenus(updatedMenus);
             setEditingMenu(null);
           }}
         />
       )}
-
+      {showSalesModal && <SalesModal onClose={() => setShowSalesModal(false)} />}
       {showOrdersModal && storeId && (
         <OrdersModal storeId={storeId} onClose={() => setShowOrdersModal(false)} />
-      )}
-
-      {showSalesModal && storeId && (
-        <SalesModal storeId={storeId} onClose={() => setShowSalesModal(false)} />
       )}
     </div>
   );

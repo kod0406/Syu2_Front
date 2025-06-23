@@ -1,17 +1,14 @@
-// src/Owner/OrdersModal.tsx
-
 import React, { useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { Stomp, CompatClient } from '@stomp/stompjs';
-import { OrderData } from './types'; // 공통 타입만 import
 
-type OrdersModalProps = {
+interface OrdersModalProps {
   storeId: number;
   onClose: () => void;
-};
+}
 
-export default function OrdersModal({ storeId, onClose }: OrdersModalProps) {
-  const [orderData, setOrderData] = useState<OrderData | null>(null);
+const OrdersModal: React.FC<OrdersModalProps> = ({ storeId, onClose }) => {
+  const [orderData, setOrderData] = useState<any>(null);
   const [completedIds, setCompletedIds] = useState<number[]>([]);
   const [isConnected, setIsConnected] = useState(false);
 
@@ -24,7 +21,7 @@ export default function OrdersModal({ storeId, onClose }: OrdersModalProps) {
       async () => {
         client.subscribe(`/topic/orders/${storeId}`, (message) => {
           try {
-            const payload: OrderData = JSON.parse(message.body);
+            const payload = JSON.parse(message.body);
             console.log('📨 실시간 메시지 수신:', payload);
             setOrderData(payload);
           } catch (err) {
@@ -32,7 +29,6 @@ export default function OrdersModal({ storeId, onClose }: OrdersModalProps) {
           }
         });
 
-        console.log('✅ WebSocket connected');
         setIsConnected(true);
 
         try {
@@ -41,7 +37,7 @@ export default function OrdersModal({ storeId, onClose }: OrdersModalProps) {
             credentials: 'include',
           });
           if (!res.ok) throw new Error('주문 데이터 불러오기 실패');
-          const data: OrderData = await res.json();
+          const data = await res.json();
           setOrderData(data);
         } catch (err) {
           console.error('❌ 주문 목록 불러오기 실패:', err);
@@ -89,7 +85,7 @@ export default function OrdersModal({ storeId, onClose }: OrdersModalProps) {
         {!isConnected ? (
           <p>🕐 서버 연결 중...</p>
         ) : orderData && orderData.groups?.length > 0 ? (
-          orderData.groups.map((group) => {
+          orderData.groups.map((group: any) => {
             const isCompleted = completedIds.includes(group.orderGroupId);
             return (
               <div
@@ -107,7 +103,7 @@ export default function OrdersModal({ storeId, onClose }: OrdersModalProps) {
                   </button>
                 </div>
                 <ul className="space-y-1">
-                  {group.items.map((item, idx) => (
+                  {group.items.map((item: any, idx: number) => (
                     <li key={idx} className="flex justify-between border-b py-1">
                       <span>{item.menuName} × {item.quantity}</span>
                       <span>₩{item.price.toLocaleString()}</span>
@@ -129,4 +125,6 @@ export default function OrdersModal({ storeId, onClose }: OrdersModalProps) {
       </div>
     </div>
   );
-}
+};
+
+export default OrdersModal;

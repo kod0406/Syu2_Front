@@ -1,83 +1,99 @@
-// src/Owner/MenuEditModal.tsx
+import React, { useState } from 'react';
 
-import React, { useState, useEffect } from 'react';
-import { Menu } from './types'; // 또는 '../Owner/types'
-
-type MenuEditModalProps = {
-  menu: Menu;
+interface Props {
+  storeId: number;
+  menu: {
+    menuId: number;
+    menuName: string;
+    description: string;
+    price: number;
+    category: string;
+  };
   onClose: () => void;
-  onEditComplete: () => void;
-};
+  onUpdated: (updatedMenus: any[]) => void;
+}
 
-export default function MenuEditModal({ menu, onClose, onEditComplete }: MenuEditModalProps) {
-  const [name, setName] = useState(menu.name);
-  const [price, setPrice] = useState(String(menu.price));
-  const [description, setDescription] = useState(menu.description || '');
-  const [imageUrl, setImageUrl] = useState(menu.imageUrl || '');
+const EditMenuModal: React.FC<Props> = ({ storeId, menu, onClose, onUpdated }) => {
+  const [form, setForm] = useState({
+    menuName: menu.menuName,
+    description: menu.description,
+    price: menu.price,
+    category: menu.category,
+  });
+  const [image, setImage] = useState<File | null>(null);
 
   const handleSubmit = async () => {
-    const updatedMenu = {
-      id: menu.id,
-      name,
-      price: Number(price),
-      description,
-      imageUrl,
-    };
+    const formData = new FormData();
+    formData.append('menuName', form.menuName);
+    formData.append('description', form.description);
+    formData.append('price', form.price.toString());
+    formData.append('category', form.category);
+    if (image) formData.append('image', image);
 
     try {
-      await fetch(`http://localhost:8080/api/Store/Menu/${menu.id}`, {
+      const res = await fetch(`http://localhost:8080/api/store/${storeId}/menus/${menu.menuId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedMenu),
+        body: formData,
+        credentials: 'include',
       });
-      onEditComplete();
+      if (!res.ok) throw new Error('수정 실패');
+
+      const updatedMenus = await fetch(
+        `http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`
+      ).then(res => res.json());
+
+      alert('메뉴가 수정되었습니다.');
+      onUpdated(updatedMenus);
     } catch (err) {
-      alert('메뉴 수정 실패');
+      console.error('❌ 메뉴 수정 실패:', err);
+      alert('오류 발생');
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded shadow-md w-96 space-y-4">
-        <h2 className="text-xl font-bold mb-2">메뉴 수정</h2>
-        <input
-          type="text"
-          placeholder="메뉴 이름"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full border rounded p-2"
-        />
-        <input
-          type="number"
-          placeholder="가격"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className="w-full border rounded p-2"
-        />
-        <input
-          type="text"
-          placeholder="설명"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full border rounded p-2"
-        />
-        <input
-          type="text"
-          placeholder="이미지 URL"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          className="w-full border rounded p-2"
-        />
-        <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:underline">취소</button>
-          <button
-            onClick={handleSubmit}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            저장
-          </button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded shadow w-96">
+        <h2 className="text-lg font-bold mb-4">메뉴 수정</h2>
+        <div className="space-y-2">
+          <input
+            className="w-full border p-2 rounded"
+            placeholder="이름"
+            value={form.menuName}
+            onChange={e => setForm({ ...form, menuName: e.target.value })}
+          />
+          <input
+            className="w-full border p-2 rounded"
+            placeholder="설명"
+            value={form.description}
+            onChange={e => setForm({ ...form, description: e.target.value })}
+          />
+          <input
+            className="w-full border p-2 rounded"
+            placeholder="가격"
+            type="number"
+            value={form.price}
+            onChange={e => setForm({ ...form, price: Number(e.target.value) })}
+          />
+          <input
+            className="w-full border p-2 rounded"
+            placeholder="카테고리"
+            value={form.category}
+            onChange={e => setForm({ ...form, category: e.target.value })}
+          />
+          <input
+            className="w-full border p-2 rounded"
+            type="file"
+            accept="image/*"
+            onChange={e => setImage(e.target.files?.[0] || null)}
+          />
+        </div>
+        <div className="flex justify-end gap-2 mt-4">
+          <button className="px-4 py-2 bg-gray-300 rounded" onClick={onClose}>취소</button>
+          <button className="px-4 py-2 bg-blue-500 text-white rounded" onClick={handleSubmit}>수정</button>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default EditMenuModal;

@@ -1,12 +1,27 @@
-// src/Owner/DashboardHeader.tsx
+import React, { useState, useEffect } from 'react';
 
-import React from 'react';
+const DashboardHeader: React.FC = () => {
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
 
-export default function DashboardHeader() {
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formattedDate = currentTime.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'long',
+  });
+
+  const formattedTime = currentTime.toLocaleTimeString('ko-KR');
+
   return (
-    <div className="mb-6">
-      <h1 className="text-2xl font-bold text-gray-800">사장님 대시보드</h1>
-      <p className="text-sm text-gray-500">가게 정보를 확인하고 메뉴를 관리할 수 있습니다.</p>
+    <div className="flex justify-center p-2 bg-gray-800 text-white">
+      <div>영업일자: {formattedDate} {formattedTime}</div>
     </div>
   );
-}
+};
+
+export default DashboardHeader;

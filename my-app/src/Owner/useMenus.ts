@@ -32,7 +32,7 @@ export function useMenus(storeId: number | null) {
 
   const editMenu = async (menu: Menu) => {
     try {
-      await fetch(`http://localhost:8080/api/Store/Menu/${menu.id}`, {
+      await fetch(`http://localhost:8080/api/Store/Menu/${menu.menuId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(menu),

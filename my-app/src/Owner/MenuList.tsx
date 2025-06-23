@@ -1,38 +1,48 @@
-// src/Owner/MenuList.tsx
-
 import React from 'react';
-import { Menu } from './types'; // 공통 타입 정의에서 가져오기
+import MenuCard from './MenuCard';
 
-type MenuListProps = {
+interface Menu {
+  menuId: number;
+  menuName: string;
+  description: string;
+  price: number;
+  category: string;
+  imageUrl?: string;
+  available: boolean;
+}
+
+interface Props {
   menus: Menu[];
-  onEditClick: (menu: Menu) => void;
-};
+  storeId: number;
+  setMenus: (menus: Menu[]) => void;
+  onEdit: (menu: Menu) => void;
+}
 
-export default function MenuList({ menus, onEditClick }: MenuListProps) {
+const MenuList: React.FC<Props> = ({ menus, storeId, setMenus, onEdit }) => {
+  const fetchMenus = async () => {
+    const updatedMenus = await fetch(
+      `http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`
+    ).then(res => res.json());
+    setMenus(updatedMenus);
+  };
+
   return (
-    <div className="grid gap-4">
-      {menus.map((menu) => (
-        <div key={menu.id} className="border rounded p-4 shadow-sm bg-white">
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-lg font-semibold">{menu.name}</h2>
-            <button
-              onClick={() => onEditClick(menu)}
-              className="text-sm text-blue-600 hover:underline"
-            >
-              수정
-            </button>
-          </div>
-          <p className="text-sm text-gray-600">{menu.description}</p>
-          <p className="text-sm text-gray-800 font-medium">{menu.price.toLocaleString()}원</p>
-          {menu.imageUrl && (
-            <img
-              src={menu.imageUrl}
-              alt={menu.name}
-              className="mt-2 w-32 h-32 object-cover rounded"
-            />
-          )}
-        </div>
-      ))}
+    <div className="mt-6">
+      <h2 className="text-xl font-bold mb-4">등록된 메뉴 목록</h2>
+      <ul className="grid grid-cols-2 gap-4">
+        {menus.map(menu => (
+          <MenuCard
+            key={menu.menuId}
+            menu={menu}
+            storeId={storeId}
+            onEdit={onEdit}
+            onDeleted={fetchMenus}
+            onToggled={fetchMenus}
+          />
+        ))}
+      </ul>
     </div>
   );
-}
+};
+
+export default MenuList;
