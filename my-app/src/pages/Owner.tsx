@@ -7,6 +7,7 @@ import AddMenuModal from '../Owner/MenuAddModal';
 import EditMenuModal from '../Owner/MenuEditModal';
 import SalesModal from '../Owner/SalesModal';
 import OrdersModal from '../Owner/OrdersModal';
+import api from '../API/TokenConfig';
 
 interface Menu {
   menuId: number;
@@ -30,8 +31,8 @@ export default function OwnerDashboard() {
 
   const fetchMenus = useCallback(async () => {
     if (!storeId) return;
-    const res = await fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`);
-    const data = await res.json();
+    const res = await api.get(`/api/Store/Menu?StoreNumber=${storeId}`);
+    const data = res.data;
     setMenus(data);
   }, [storeId]);
 
@@ -41,18 +42,15 @@ export default function OwnerDashboard() {
   };
 
   useEffect(() => {
-    fetch('http://localhost:8080/auth/store', {
-      method: 'GET',
-      credentials: 'include',
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (!data.data) {
+    api
+      .get('/auth/store')
+      .then(res => {
+        if (!res.data.data) {
           alert('로그인이 필요합니다.');
           navigate('/owner/login');
           return;
         }
-        setStoreId(data.data.id);
+        setStoreId(res.data.data.id);
       })
       .catch(() => {
         alert('로그인이 필요합니다.');

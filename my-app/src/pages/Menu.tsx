@@ -5,7 +5,8 @@ import CategorySidebar from '../Menu/CategorySidebar';
 import MenuCard from '../Menu/MenuCard';
 import OrderSummary from '../Menu/OrderSummary';
 import PointPopup from '../Menu/PointPopup';
-import ReviewModal from '../Menu/ReviewModal'; 
+import ReviewModal from '../Menu/ReviewModal';
+import api from '../API/TokenConfig';
 
 interface MenuItem {
   menuId: number;
@@ -38,21 +39,18 @@ export default function CustomerMenuPage() {
   const [selectedReviews, setSelectedReviews] = useState([]);
 
   const handleViewReviews = async (menuId: number, menuName: string) => {
-  try {
-    const res = await fetch(`http://localhost:8080/review/show?menuId=${menuId}`, {
-      method: 'GET',
-      credentials: 'include'
-    });
-    if (!res.ok) throw new Error('리뷰 불러오기 실패');
-    const data = await res.json();
-    setSelectedMenuName(menuName);
-    setSelectedReviews(data);
-    setReviewModalOpen(true);
-  } catch (err) {
-    console.error('❌ 리뷰 보기 실패:', err);
-    alert('리뷰를 불러오는 데 실패했습니다.');
-  }
-};
+    try {
+      const res = await api.get(`/review/show?menuId=${menuId}`);
+      if (res.status !== 200) throw new Error('리뷰 불러오기 실패');
+      const data = res.data;
+      setSelectedMenuName(menuName);
+      setSelectedReviews(data);
+      setReviewModalOpen(true);
+    } catch (err) {
+      console.error('❌ 리뷰 보기 실패:', err);
+      alert('리뷰를 불러오는 데 실패했습니다.');
+    }
+  };
 
   useEffect(() => {
     const hasRedirected = sessionStorage.getItem('hasRedirected');
@@ -65,34 +63,26 @@ export default function CustomerMenuPage() {
   }, [navigate]);
 
   useEffect(() => {
-    fetch('http://localhost:8080/auth/me', {
-      method: 'GET',
-      credentials: 'include'
-    })
-      .then(res => res.json())
-      .then(data => {
-        setIsLoggedIn(!!data.data);
+    api
+      .get('/auth/me')
+      .then(res => {
+        setIsLoggedIn(!!res.data.data);
       })
       .catch(() => setIsLoggedIn(false));
 
-    fetch(`http://localhost:8080/api/Store/Menu?StoreNumber=${numericStoreId}`, {
-      method: 'GET',
-      credentials: 'include',
-    })
-      .then(res => res.json())
-      .then(data => {
-        const availableMenus = data.filter((menu: MenuItem) => menu.available);
+    api
+      .get(`/api/Store/Menu?StoreNumber=${numericStoreId}`)
+      .then(res => {
+        const availableMenus = res.data.filter((menu: MenuItem) => menu.available);
         setMenus(availableMenus);
       })
       .catch(err => console.error('❌ 메뉴 불러오기 실패:', err.message));
 
-    fetch('http://localhost:8080/pointCheck', {
-      method: 'POST',
-      credentials: 'include',
-    })
+    api
+      .post('/pointCheck')
       .then(res => {
-        if (!res.ok) throw new Error('포인트 요청 실패');
-        return res.json();
+        if (res.status !== 200) throw new Error('포인트 요청 실패');
+        return res.data;
       })
       .then(data => setAvailablePoints(data.point))
       .catch(err => console.error('❌ 포인트 불러오기 실패:', err.message));
@@ -152,16 +142,16 @@ export default function CustomerMenuPage() {
     }
     try {
       const redirectUrl = sessionStorage.getItem('qr-redirect-url') || '/';
-      const res = await fetch(`http://localhost:8080/api/v1/kakao-pay/ready?storeId=${numericStoreId}&redirectUrl=${encodeURIComponent(redirectUrl)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        credentials: 'include'
-      });
+      const res = await api.post(
+        `/api/v1/kakao-pay/ready?storeId=${numericStoreId}&redirectUrl=${encodeURIComponent(
+          redirectUrl
+        )}`,
+        payload
+      );
 
-      if (!res.ok) throw new Error('주문 실패');
+      if (res.status !== 200) throw new Error('주문 실패');
 
-      const data = await res.json();
+      const data = res.data;
       if (data.next_redirect_pc_url) {
         window.location.href = data.next_redirect_pc_url;
       } else {

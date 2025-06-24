@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import api from '../API/TokenConfig';
 
 interface ToggleButtonProps {
   storeId: number;
@@ -13,15 +14,9 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({ storeId, menuId, isAvailabl
   const handleToggle = async () => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `http://localhost:8080/api/store/${storeId}/menus/${menuId}/availability`,
-        {
-          method: 'PATCH',
-          credentials: 'include',
-        }
+      await api.patch(
+        `/api/store/${storeId}/menus/${menuId}/availability`
       );
-      if (!res.ok) throw new Error('토글 실패');
-
       await onToggled();
     } catch (err) {
       console.error('❌ 상태 토글 실패:', err);

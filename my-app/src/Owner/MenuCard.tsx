@@ -1,5 +1,6 @@
 import React from 'react';
 import ToggleButton from './ToggleButton';
+import api from '../API/TokenConfig';
 
 interface Menu {
   menuId: number;
@@ -25,11 +26,7 @@ const MenuCard: React.FC<Props> = ({ menu, storeId, onEdit, onDeleted, onToggled
     console.log('삭제하려는 메뉴:', menu);
     if (!window.confirm('정말로 이 메뉴를 삭제하시겠습니까?')) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/store/${storeId}/menus/${menu.menuId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('삭제 실패');
+      await api.delete(`/api/store/${storeId}/menus/${menu.menuId}`);
       onDeleted();
     } catch (err) {
       console.error('❌ 삭제 실패:', err);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { Stomp, CompatClient } from '@stomp/stompjs';
+import api from '../API/TokenConfig';
 
 interface OrdersModalProps {
   storeId: number;
@@ -32,13 +33,8 @@ const OrdersModal: React.FC<OrdersModalProps> = ({ storeId, onClose }) => {
         setIsConnected(true);
 
         try {
-          const res = await fetch(`http://localhost:8080/api/orders/getMenu`, {
-            method: 'GET',
-            credentials: 'include',
-          });
-          if (!res.ok) throw new Error('주문 데이터 불러오기 실패');
-          const data = await res.json();
-          setOrderData(data);
+          const res = await api.get(`/api/orders/getMenu`);
+          setOrderData(res.data);
         } catch (err) {
           console.error('❌ 주문 목록 불러오기 실패:', err);
         }
@@ -59,16 +55,10 @@ const OrdersModal: React.FC<OrdersModalProps> = ({ storeId, onClose }) => {
 
   const markOrderAsCompleted = async (orderGroupId: number) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/orders/${orderGroupId}/complete`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ active: true }),
+      await api.post(`/api/orders/${orderGroupId}/complete`, {
+        active: true,
       });
 
-      if (!res.ok) throw new Error('완료 처리 실패');
       setCompletedIds((prev) => [...prev, orderGroupId]);
       console.log(`✅ 주문 그룹 ${orderGroupId} 완료 처리됨`);
     } catch (err) {

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import api from '../API/TokenConfig';
 
 type Props = {
   storeId: number;
@@ -29,12 +30,7 @@ const AddMenuModal: React.FC<Props> = ({ storeId, onClose, onAdded }) => {
     if (image) formData.append('image', image);
 
     try {
-      const res = await fetch(`http://localhost:8080/api/store/${storeId}/menus`, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('등록 실패');
+      await api.post(`/api/store/${storeId}/menus`, formData);
       alert('메뉴가 등록되었습니다.');
       onAdded();
     } catch (err) {

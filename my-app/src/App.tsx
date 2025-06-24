@@ -9,6 +9,7 @@ import ReviewWrite from './pages/Review_write';
 import Index from './pages/Index';
 import Home from './pages/Home';
 import Coupon from './pages/Coupon';
+import CustomerCouponPage from './pages/CustomerCouponPage';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/index" element={<Index />} />
         <Route path="/" element={<Home />} />
         <Route path="/owner/:storeId/coupon" element={<Coupon />} />
+        <Route path="/my-coupons" element={<CustomerCouponPage />} />
       </Routes>
     </div>
   );

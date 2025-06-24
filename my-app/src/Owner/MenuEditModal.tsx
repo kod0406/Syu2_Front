@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import api from '../API/TokenConfig';
 
 interface Props {
   storeId: number;
@@ -31,16 +32,12 @@ const EditMenuModal: React.FC<Props> = ({ storeId, menu, onClose, onUpdated }) =
     if (image) formData.append('image', image);
 
     try {
-      const res = await fetch(`http://localhost:8080/api/store/${storeId}/menus/${menu.menuId}`, {
-        method: 'PUT',
-        body: formData,
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('수정 실패');
+      await api.put(`/api/store/${storeId}/menus/${menu.menuId}`, formData);
 
-      const updatedMenus = await fetch(
-        `http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`
-      ).then(res => res.json());
+      const res = await api.get(
+        `/api/Store/Menu?StoreNumber=${storeId}`
+      );
+      const updatedMenus = res.data;
 
       alert('메뉴가 수정되었습니다.');
       onUpdated(updatedMenus);

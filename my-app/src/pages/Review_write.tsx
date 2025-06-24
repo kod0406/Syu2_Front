@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useLocation } from 'react-router-dom';
+import api from '../API/TokenConfig';
 
 interface UserInfo {
   id: number;
@@ -23,15 +24,11 @@ export default function ReviewWritePage() {
     const idFromQuery = params.get('statId');
     if (idFromQuery) setStatId(idFromQuery);
 
-    fetch('http://localhost:8080/auth/me', {
-      method: 'GET',
-      credentials: 'include',
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.data) {
-          setUser(data.data);
-          console.log('🙋 유저 정보:', data.data);
+    api.get('/auth/me')
+      .then(res => {
+        if (res.data.data) {
+          setUser(res.data.data);
+          console.log('🙋 유저 정보:', res.data.data);
         } else {
           console.warn('로그인되지 않음');
         }
@@ -67,13 +64,9 @@ export default function ReviewWritePage() {
     }
 
     try {
-      const res = await fetch('http://localhost:8080/review/write', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
+      const res = await api.post('/review/write', formData);
 
-      if (!res.ok) throw new Error('서버 오류');
+      if (res.status !== 200) throw new Error('서버 오류');
       alert('리뷰가 등록되었습니다.');
       window.location.href = '/review';
     } catch (err) {

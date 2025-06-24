@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../API/TokenConfig';
 
 interface StoreLoginResponse {
   storeId: number;
@@ -12,14 +13,11 @@ export default function CustomerLogin() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:8080/auth/store', {
-      method: 'GET',
-      credentials: 'include',
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data?.data?.storeId) {
-          navigate(`/owner/dashboard/${data.data.storeId}`);
+    api
+      .get('/auth/store')
+      .then(res => {
+        if (res.data?.data?.storeId) {
+          navigate(`/owner/dashboard/${res.data.data.storeId}`);
         }
       })
       .catch(err => {
@@ -44,21 +42,14 @@ export default function CustomerLogin() {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:8080/api/stores/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          ownerEmail: email,
-          password: password
-        })
+      const response = await api.post('/api/stores/login', {
+        ownerEmail: email,
+        password: password,
       });
 
-      const data: StoreLoginResponse = await response.json();
+      const data: StoreLoginResponse = response.data;
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         alert(`로그인 실패: ${data.error || '알 수 없는 오류'}`);
         return;
       }
@@ -66,7 +57,8 @@ export default function CustomerLogin() {
       alert('로그인 성공!');
       navigate(`/owner/dashboard/${data.storeId}`);
     } catch (err: any) {
-      alert('로그인 중 오류 발생: ' + err.message);
+      const message = err.response?.data?.error || err.message || '로그인 중 오류 발생';
+      alert(message);
     }
   };
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import MenuCard from './MenuCard';
+import api from '../API/TokenConfig';
 
 interface Menu {
   menuId: number;
@@ -20,10 +21,10 @@ interface Props {
 
 const MenuList: React.FC<Props> = ({ menus, storeId, setMenus, onEdit }) => {
   const fetchMenus = async () => {
-    const updatedMenus = await fetch(
-      `http://localhost:8080/api/Store/Menu?StoreNumber=${storeId}`
-    ).then(res => res.json());
-    setMenus(updatedMenus);
+    const res = await api.get(
+      `/api/Store/Menu?StoreNumber=${storeId}`
+    );
+    setMenus(res.data);
   };
 
   return (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import api from '../API/TokenConfig';
 
 interface SalesItem {
   menuName: string;
@@ -21,16 +22,9 @@ const SalesModal: React.FC<Props> = ({ onClose }) => {
   }, [statistics]);
 
   useEffect(() => {
-    fetch(`http://localhost:8080/statistics/store?period=${period}`, {
-      method: 'GET',
-      credentials: 'include',
-    })
+    api.get(`/statistics/store?period=${period}`)
       .then(res => {
-        if (!res.ok) throw new Error('통계 조회 실패');
-        return res.json();
-      })
-      .then(data => {
-        setStatistics(data);
+        setStatistics(res.data);
         setLoading(false);
       })
       .catch(err => {

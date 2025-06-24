@@ -1,5 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../API/TokenConfig'; // api 인스턴스 임포트
 
 interface SignupResponse {
   error?: string;
@@ -22,21 +23,15 @@ export default function Signup() {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/stores/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ownerEmail: email,
-          password,
-          storeName,
-        }),
+      const response = await api.post('/api/stores/register', {
+        ownerEmail: email,
+        password,
+        storeName,
       });
 
-      const data: SignupResponse = await response.json();
+      const data: SignupResponse = response.data;
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         alert(`회원가입 실패: ${data.error || '알 수 없는 오류'}`);
         return;
       }
