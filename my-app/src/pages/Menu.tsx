@@ -5,6 +5,7 @@ import CategorySidebar from '../Menu/CategorySidebar';
 import MenuCard from '../Menu/MenuCard';
 import OrderSummary from '../Menu/OrderSummary';
 import PointPopup from '../Menu/PointPopup';
+import ReviewModal from '../Menu/ReviewModal'; 
 
 interface MenuItem {
   menuId: number;
@@ -32,6 +33,26 @@ export default function CustomerMenuPage() {
   const { storeId } = useParams<{ storeId: string }>();
   const navigate = useNavigate();
   const numericStoreId = Number(storeId);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedMenuName, setSelectedMenuName] = useState('');
+  const [selectedReviews, setSelectedReviews] = useState([]);
+
+  const handleViewReviews = async (menuId: number, menuName: string) => {
+  try {
+    const res = await fetch(`http://localhost:8080/review/show?menuId=${menuId}`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error('리뷰 불러오기 실패');
+    const data = await res.json();
+    setSelectedMenuName(menuName);
+    setSelectedReviews(data);
+    setReviewModalOpen(true);
+  } catch (err) {
+    console.error('❌ 리뷰 보기 실패:', err);
+    alert('리뷰를 불러오는 데 실패했습니다.');
+  }
+};
 
   useEffect(() => {
     const hasRedirected = sessionStorage.getItem('hasRedirected');
@@ -169,7 +190,8 @@ export default function CustomerMenuPage() {
         <div className="space-y-6">
           {filteredMenus.length > 0 ? (
             filteredMenus.map((item, index) => (
-              <MenuCard key={index} item={item} onAdd={() => handleAddToOrder(item)} />
+              <MenuCard key={index} item={item} onAdd={() => handleAddToOrder(item)}
+              onViewReviews={handleViewReviews} />
             ))
           ) : (
             <p className="text-gray-400">해당 카테고리 메뉴가 없습니다.</p>
@@ -198,6 +220,13 @@ export default function CustomerMenuPage() {
           onClose={() => setShowPointPopup(false)}
         />
       )}
+
+      <ReviewModal
+  open={reviewModalOpen}
+  menuName={selectedMenuName}
+  reviews={selectedReviews}
+  onClose={() => setReviewModalOpen(false)}
+/>
     </div>
   );
 }
