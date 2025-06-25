@@ -12,6 +12,8 @@ export default function CustomerLogin() {
   const [password, setPassword] = useState<string>('');
   const navigate = useNavigate();
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+
   useEffect(() => {
     api
       .get('/auth/store')
@@ -29,10 +31,10 @@ export default function CustomerLogin() {
     let redirectUrl = '';
     switch (provider) {
       case 'kakao':
-        redirectUrl = 'http://localhost:8080/api/oauth2/kakao/login';
+        redirectUrl = `${API_BASE_URL}/api/oauth2/kakao/login`;
         break;
       case 'naver':
-        redirectUrl = 'http://localhost:8080/api/oauth2/naver/login';
+        redirectUrl = `${API_BASE_URL}/api/oauth2/naver/login`;
         break;
     }
     window.location.href = redirectUrl;

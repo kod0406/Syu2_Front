@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../API/TokenConfig'; // ✅ 여기에 경로 맞춰서 import
 
 interface ReviewItem {
   statisticsId: number;
@@ -15,13 +16,13 @@ export default function ReviewListPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:8080/review/ListShow', {
-      method: 'GET',
-      credentials: 'include'
-    })
-      .then(res => res.json())
-      .then(data => setReviewList(data))
-      .catch(err => console.error('❌ 리뷰 목록 불러오기 실패:', err));
+    api.get('/review/ListShow') // ✅ fetch → api.get
+      .then(res => {
+        setReviewList(res.data); // ✅ 응답 데이터 세팅
+      })
+      .catch(err => {
+        console.error('❌ 리뷰 목록 불러오기 실패:', err);
+      });
   }, []);
 
   const handleWriteReview = (statisticsId: number) => {
