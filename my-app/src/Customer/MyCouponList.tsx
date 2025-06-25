@@ -11,6 +11,7 @@ export interface MyCoupon {
   expiresAt: string;
   isUsed: boolean;
   storeName: string;
+  discountLimit?: number | null;
 }
 
 interface Props {
@@ -41,7 +42,7 @@ const MyCouponList: React.FC<Props> = ({ coupons }) => {
                   <div className="mt-3 pt-3 border-t border-gray-200">
                     <p className={`${coupon.isUsed ? 'text-gray-500' : 'text-blue-600'} font-semibold`}>
                       {coupon.discountType === 'PERCENTAGE'
-                          ? `${coupon.discountValue || 0}% 할인`
+                          ? `${coupon.discountValue || 0}% 할인` + (coupon.discountLimit ? ` (최대 ${coupon.discountLimit.toLocaleString()}원)` : '')
                           : `${(coupon.discountValue || 0).toLocaleString()}원 할인`}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
