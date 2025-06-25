@@ -43,6 +43,7 @@ export default function CustomerMenuPage() {
   const [selectedMenuName, setSelectedMenuName] = useState('');
   const [selectedReviews, setSelectedReviews] = useState([]);
 
+
   const handleViewReviews = async (menuId: number, menuName: string) => {
     try {
       const res = await api.get(`/review/show?menuId=${menuId}`);

@@ -8,6 +8,7 @@ import EditMenuModal from '../Owner/MenuEditModal';
 import SalesModal from '../Owner/SalesModal';
 import OrdersModal from '../Owner/OrdersModal';
 import api from '../API/TokenConfig';
+import QRModal from '../Owner/QrModal';
 
 interface Menu {
   menuId: number;
@@ -28,6 +29,8 @@ export default function OwnerDashboard() {
   const [showSalesModal, setShowSalesModal] = useState(false);
   const [showOrdersModal, setShowOrdersModal] = useState(false);
   const navigate = useNavigate();
+  const [qrCodeBase64, setQrCodeBase64] = useState<string | null>(null);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   const fetchMenus = useCallback(async () => {
     if (!storeId) return;
@@ -35,6 +38,28 @@ export default function OwnerDashboard() {
     const data = res.data;
     setMenus(data);
   }, [storeId]);
+
+  const handleQrDownload = () => {
+    if (storeId) {
+      // api 인스턴스에서 baseURL 사용
+      const downloadUrl = `${api.defaults.baseURL}/api/stores/${storeId}/qrcode/download`;
+      window.location.href = downloadUrl;
+    }
+  };
+
+  const handleQrView = async () => {
+    if (storeId) {
+      try {
+        const res = await api.get(`/api/stores/${storeId}/qrcode/json`);
+        const base64 = res.data.qrCodeBase64;
+        setQrCodeBase64(base64);
+        setShowQRModal(true);
+      } catch (err) {
+        alert('QR 코드 조회에 실패했습니다.');
+      }
+    }
+  };
+
 
   const handleMenuAdded = async () => {
     await fetchMenus();
@@ -74,6 +99,8 @@ export default function OwnerDashboard() {
         onSalesClick={() => setShowSalesModal(true)}
         onOrdersClick={() => setShowOrdersModal(true)}
         onCouponClick={onCouponClick}
+        onQrDownloadClick={handleQrDownload}
+        onQrViewClick={handleQrView}
       />
       {storeId && (
         <MenuList
@@ -105,6 +132,10 @@ export default function OwnerDashboard() {
       {showOrdersModal && storeId && (
         <OrdersModal storeId={storeId} onClose={() => setShowOrdersModal(false)} />
       )}
+    {showQRModal && qrCodeBase64 && (
+      <QRModal base64={qrCodeBase64} onClose={() => setShowQRModal(false)} />
+    )}
+
     </div>
   );
 }

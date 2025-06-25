@@ -5,6 +5,8 @@ type Props = {
   onSalesClick: () => void;
   onOrdersClick: () => void;
   onCouponClick: () => void;
+  onQrDownloadClick: () => void;
+  onQrViewClick: () => void;
 };
 
 const DashboardMenu: React.FC<Props> = ({
@@ -12,6 +14,8 @@ const DashboardMenu: React.FC<Props> = ({
   onSalesClick,
   onOrdersClick,
   onCouponClick,
+  onQrDownloadClick,
+  onQrViewClick,
 }) => {
   return (
     <div className="flex space-x-2 p-2">
@@ -26,6 +30,12 @@ const DashboardMenu: React.FC<Props> = ({
       </button>
       <button onClick={onCouponClick} className="px-4 py-2 bg-pink-500 text-white rounded">
         쿠폰 관리
+      </button>
+      <button onClick={onQrDownloadClick} className="px-4 py-2 bg-yellow-500 text-white rounded">
+        QR 코드 다운로드
+      </button>
+      <button onClick={onQrViewClick} className="px-4 py-2 bg-gray-600 text-white rounded">
+        QR 코드 조회
       </button>
     </div>
   );
