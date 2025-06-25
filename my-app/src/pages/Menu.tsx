@@ -6,7 +6,9 @@ import MenuCard from '../Menu/MenuCard';
 import OrderSummary from '../Menu/OrderSummary';
 import PointPopup from '../Menu/PointPopup';
 import ReviewModal from '../Menu/ReviewModal';
+import CouponPopup from '../Menu/CouponPopup';
 import api from '../API/TokenConfig';
+import { CustomerCoupon } from '../types/coupon';
 
 interface MenuItem {
   menuId: number;
@@ -31,6 +33,9 @@ export default function CustomerMenuPage() {
   const [availablePoints, setAvailablePoints] = useState<number>(0);
   const [usedPoints, setUsedPoints] = useState<number>(0);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [selectedCoupon, setSelectedCoupon] = useState<CustomerCoupon | null>(null);
+  const [availableCoupons, setAvailableCoupons] = useState<CustomerCoupon[]>([]);
+  const [showCouponPopup, setShowCouponPopup] = useState<boolean>(false);
   const { storeId } = useParams<{ storeId: string }>();
   const navigate = useNavigate();
   const numericStoreId = Number(storeId);
@@ -67,6 +72,14 @@ export default function CustomerMenuPage() {
       .get('/auth/me')
       .then(res => {
         setIsLoggedIn(!!res.data.data);
+        if (!!res.data.data) {
+          api
+            .get(`/api/customer/my-coupons/store/${numericStoreId}`)
+            .then(res => {
+              setAvailableCoupons(res.data);
+            })
+            .catch(err => console.error('❌ 사용 가능한 쿠폰 불러오기 실패:', err.message));
+        }
       })
       .catch(() => setIsLoggedIn(false));
 
@@ -116,7 +129,41 @@ export default function CustomerMenuPage() {
     );
   };
 
-  const totalAmount = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const couponDiscount = React.useMemo(() => {
+    if (!selectedCoupon) return 0;
+
+    const applicableItems = selectedCoupon.applicableCategories?.length
+      ? orderItems.filter(item => selectedCoupon.applicableCategories?.includes(item.category))
+      : orderItems;
+
+    const applicableAmount = applicableItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    let discount = 0;
+    if (selectedCoupon.discountType === 'PERCENTAGE') {
+      discount = applicableAmount * (selectedCoupon.discountValue / 100);
+      if (selectedCoupon.discountLimit) {
+        discount = Math.min(discount, selectedCoupon.discountLimit);
+      }
+    } else {
+      discount = selectedCoupon.discountValue;
+    }
+
+    return Math.floor(discount);
+  }, [orderItems, selectedCoupon]);
+
+
+  const totalAmount = subtotal - couponDiscount - usedPoints;
+
+  const handleSelectCoupon = (coupon: CustomerCoupon) => {
+    if (subtotal < (coupon.minimumOrderAmount || 0)) {
+      alert('최소 주문 금액을 충족하지 않습니다.');
+      return;
+    }
+    setSelectedCoupon(coupon);
+    setShowCouponPopup(false);
+  };
 
   const handleSubmitOrder = async () => {
     if (orderItems.length === 0) {
@@ -131,6 +178,17 @@ export default function CustomerMenuPage() {
       reviewed : false,
       active : false
     }))];
+
+    if (selectedCoupon) {
+      payload.push({
+        menuName: `CouponUsed:${selectedCoupon.id}`,
+        menuAmount: 1, // or coupon ID
+        menuPrice: couponDiscount, // discount amount
+        reviewed: false,
+        active: false
+      });
+    }
+
     if (usedPoints > 0) {
       payload.push({
         menuName: 'UserPointUsedOrNotUsed',
@@ -160,6 +218,7 @@ export default function CustomerMenuPage() {
 
       setOrderItems([]);
       setUsedPoints(0);
+      setSelectedCoupon(null);
     } catch (err) {
       console.error('❌ 주문 실패:', err);
       alert('주문에 실패했습니다.');
@@ -182,8 +241,8 @@ export default function CustomerMenuPage() {
             filteredMenus.map((item, index) => (
               <MenuCard key={index} item={item} onAdd={() => handleAddToOrder(item)}
               onViewReviews={handleViewReviews} />
-            ))
-          ) : (
+            )))
+          : (
             <p className="text-gray-400">해당 카테고리 메뉴가 없습니다.</p>
           )}
         </div>
@@ -193,13 +252,17 @@ export default function CustomerMenuPage() {
         orderItems={orderItems}
         isLoggedIn={isLoggedIn}
         usedPoints={usedPoints}
-        availablePoints={availablePoints}
         onRemove={handleRemoveFromOrder}
         onIncrease={handleIncrease}
         onDecrease={handleDecrease}
         onSubmitOrder={handleSubmitOrder}
         onUsePoint={() => setShowPointPopup(true)}
         totalAmount={totalAmount}
+        subtotal={subtotal}
+        couponDiscount={couponDiscount}
+        selectedCoupon={selectedCoupon}
+        onUseCoupon={() => setShowCouponPopup(true)}
+        onCancelCoupon={() => setSelectedCoupon(null)}
       />
 
       {showPointPopup && (
@@ -208,6 +271,15 @@ export default function CustomerMenuPage() {
           usedPoints={usedPoints}
           setUsedPoints={setUsedPoints}
           onClose={() => setShowPointPopup(false)}
+        />
+      )}
+
+      {showCouponPopup && (
+        <CouponPopup
+          coupons={availableCoupons}
+          onSelect={handleSelectCoupon}
+          onClose={() => setShowCouponPopup(false)}
+          currentOrderAmount={subtotal}
         />
       )}
 
