@@ -96,7 +96,7 @@ const OrdersModal: React.FC<OrdersModalProps> = ({ storeId, onClose }) => {
                   {group.items.map((item: any, idx: number) => (
                     <li key={idx} className="flex justify-between border-b py-1">
                       <span>{item.menuName} × {item.quantity}</span>
-                      <span>₩{item.price.toLocaleString()}</span>
+                      <span>₩{(item.price * item.quantity).toLocaleString()}</span>
                     </li>
                   ))}
                 </ul>
