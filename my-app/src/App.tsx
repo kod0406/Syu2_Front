@@ -12,6 +12,7 @@ import Coupon from './pages/Coupon';
 import CustomerCouponPage from './pages/CustomerCouponPage';
 
 function App() {
+  console.log('✅ ENV:', process.env.REACT_APP_API_URL);
   return (
     <div className="min-h-screen bg-gray-100">
       <Routes>

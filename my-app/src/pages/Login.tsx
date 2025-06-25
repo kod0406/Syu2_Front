@@ -3,7 +3,7 @@ import React from 'react';
 
 export default function CustomerLogin() {
   const handleSocialLogin = (provider: 'kakao' | 'naver') => {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8080';
     const redirectUrl = `${API_BASE}/api/oauth2/${provider}/login`; // ✅ redirect_uri 제거
     window.location.href = redirectUrl;
   };

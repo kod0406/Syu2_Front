@@ -12,7 +12,7 @@ export default function CustomerLogin() {
   const [password, setPassword] = useState<string>('');
   const navigate = useNavigate();
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
   useEffect(() => {
     api
