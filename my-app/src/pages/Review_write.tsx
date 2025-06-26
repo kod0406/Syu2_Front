@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom'; // 🔹 useParams 사용
 import api from '../API/TokenConfig';
 
 interface UserInfo {
@@ -10,18 +10,17 @@ interface UserInfo {
 }
 
 export default function ReviewWritePage() {
+  const { statisticsId } = useParams<{ statisticsId: string }>(); // 🔹 경로 파라미터로부터 추출
   const [reviewText, setReviewText] = useState('');
   const [rating, setRating] = useState(0);
   const [images, setImages] = useState<File[]>([]);
   const [statId, setStatId] = useState('');
   const [user, setUser] = useState<UserInfo | null>(null);
 
-  const location = useLocation();
-
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const idFromQuery = params.get('statId');
-    if (idFromQuery) setStatId(idFromQuery);
+    if (statisticsId) {
+      setStatId(statisticsId);
+    }
 
     api.get('/auth/me')
       .then(res => {
@@ -30,7 +29,7 @@ export default function ReviewWritePage() {
       .catch(err => {
         console.error('❌ 사용자 정보 불러오기 실패:', err);
       });
-  }, [location.search]);
+  }, [statisticsId]);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
@@ -50,7 +49,9 @@ export default function ReviewWritePage() {
     formData.append('comment', reviewText);
 
     if (images.length > 0) {
-      formData.append('images', images[0]); // 여러 장 업로드하려면 반복문 필요
+      images.forEach((image, index) => {
+        formData.append('images', image); // 여러 장 업로드 가능하도록 수정
+      });
     }
 
     try {
