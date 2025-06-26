@@ -54,7 +54,7 @@ export default function ReviewWritePage() {
     }
 
     try {
-      const res = await api.post('/review/write', formData);
+      const res = await api.post('api/review/write', formData);
       if (res.status !== 200) throw new Error('서버 오류');
       alert('리뷰가 등록되었습니다.');
       window.location.href = '/review';
