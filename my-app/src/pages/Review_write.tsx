@@ -7,14 +7,13 @@ interface UserInfo {
   id: number;
   email: string;
   name: string;
-  // 필요한 항목 추가 가능
 }
 
 export default function ReviewWritePage() {
-  const [reviewText, setReviewText] = useState<string>('');
-  const [rating, setRating] = useState<number>(0);
+  const [reviewText, setReviewText] = useState('');
+  const [rating, setRating] = useState(0);
   const [images, setImages] = useState<File[]>([]);
-  const [statId, setStatId] = useState<string>('');
+  const [statId, setStatId] = useState('');
   const [user, setUser] = useState<UserInfo | null>(null);
 
   const location = useLocation();
@@ -26,12 +25,7 @@ export default function ReviewWritePage() {
 
     api.get('/auth/me')
       .then(res => {
-        if (res.data.data) {
-          setUser(res.data.data);
-          console.log('🙋 유저 정보:', res.data.data);
-        } else {
-          console.warn('로그인되지 않음');
-        }
+        if (res.data.data) setUser(res.data.data);
       })
       .catch(err => {
         console.error('❌ 사용자 정보 불러오기 실패:', err);
@@ -59,13 +53,8 @@ export default function ReviewWritePage() {
       formData.append('images', images[0]); // 여러 장 업로드하려면 반복문 필요
     }
 
-    for (let [key, val] of formData.entries()) {
-      console.log('✅ 전송 중:', key, val);
-    }
-
     try {
       const res = await api.post('/review/write', formData);
-
       if (res.status !== 200) throw new Error('서버 오류');
       alert('리뷰가 등록되었습니다.');
       window.location.href = '/review';
@@ -76,19 +65,19 @@ export default function ReviewWritePage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white shadow rounded">
-      <h2 className="text-2xl font-bold mb-4">리뷰 작성</h2>
+    <div className="w-full max-w-xl mx-auto p-4 md:p-6 bg-white shadow rounded">
+      <h2 className="text-xl md:text-2xl font-bold mb-4">리뷰 작성</h2>
 
       <input type="hidden" value={statId} />
 
       <div className="mb-4">
-        <label className="block font-semibold mb-1">별점</label>
+        <label className="block font-semibold mb-1 text-sm">별점</label>
         <div className="flex gap-1">
           {[1, 2, 3, 4, 5].map((num) => (
             <button
               key={num}
               onClick={() => setRating(num)}
-              className={`text-2xl ${rating >= num ? 'text-yellow-400' : 'text-gray-300'}`}
+              className={`text-xl md:text-2xl ${rating >= num ? 'text-yellow-400' : 'text-gray-300'}`}
             >
               ★
             </button>
@@ -97,17 +86,17 @@ export default function ReviewWritePage() {
       </div>
 
       <div className="mb-4">
-        <label className="block font-semibold mb-1">리뷰 내용</label>
+        <label className="block font-semibold mb-1 text-sm">리뷰 내용</label>
         <textarea
           value={reviewText}
           onChange={(e) => setReviewText(e.target.value)}
-          className="w-full p-2 border rounded h-24 resize-none"
+          className="w-full p-2 border rounded h-24 resize-none text-sm"
           placeholder="리뷰를 작성해주세요."
         />
       </div>
 
       <div className="mb-4">
-        <label className="block font-semibold mb-1">음식 사진 첨부 (최대 5장)</label>
+        <label className="block font-semibold mb-1 text-sm">음식 사진 첨부 (최대 5장)</label>
         <input type="file" accept="image/*" multiple onChange={handleImageChange} />
         <div className="flex gap-2 mt-2 flex-wrap">
           {images.map((img, idx) => (
@@ -123,7 +112,7 @@ export default function ReviewWritePage() {
 
       <button
         onClick={handleSubmit}
-        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+        className="w-full bg-blue-500 text-white py-2.5 rounded hover:bg-blue-600 text-sm font-semibold"
       >
         리뷰 작성 완료
       </button>

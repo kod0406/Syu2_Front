@@ -9,6 +9,7 @@ import ReviewModal from '../Menu/ReviewModal';
 import CouponPopup from '../Menu/CouponPopup';
 import api from '../API/TokenConfig';
 import { CustomerCoupon } from '../types/coupon';
+import MobileOrderSummary from '../Menu/MobileOrderSummary';
 
 interface MenuItem {
   menuId: number;
@@ -42,6 +43,7 @@ export default function CustomerMenuPage() {
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedMenuName, setSelectedMenuName] = useState('');
   const [selectedReviews, setSelectedReviews] = useState([]);
+  const [showOrderModal, setShowOrderModal] = useState(false);
 
 
   const handleViewReviews = async (menuId: number, menuName: string) => {
@@ -231,7 +233,7 @@ export default function CustomerMenuPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+<div className="md:flex h-screen bg-gray-50 relative">
       <CategorySidebar
         categories={categories}
         selectedCategory={selectedCategory}
@@ -239,7 +241,7 @@ export default function CustomerMenuPage() {
         onNavigateMyPage={() => navigate('/review')}
       />
 
-      <main className="w-3/6 p-6 overflow-y-auto h-full">
+      <main className="w-full md:w-3/6 p-4 md:p-6 overflow-y-auto h-full">
         <h2 className="text-lg font-semibold mb-4">{selectedCategory} 메뉴</h2>
         <div className="space-y-6">
           {filteredMenus.length > 0 ? (
@@ -253,22 +255,42 @@ export default function CustomerMenuPage() {
         </div>
       </main>
 
-      <OrderSummary
-        orderItems={orderItems}
-        isLoggedIn={isLoggedIn}
-        usedPoints={usedPoints}
-        onRemove={handleRemoveFromOrder}
-        onIncrease={handleIncrease}
-        onDecrease={handleDecrease}
-        onSubmitOrder={handleSubmitOrder}
-        onUsePoint={() => setShowPointPopup(true)}
-        totalAmount={totalAmount}
-        subtotal={subtotal}
-        couponDiscount={couponDiscount}
-        selectedCoupon={selectedCoupon}
-        onUseCoupon={() => setShowCouponPopup(true)}
-        onCancelCoupon={() => setSelectedCoupon(null)}
-      />
+<div className="hidden md:block w-2/6">
+  <OrderSummary
+    orderItems={orderItems}
+    isLoggedIn={isLoggedIn}
+    usedPoints={usedPoints}
+    onRemove={handleRemoveFromOrder}
+    onIncrease={handleIncrease}
+    onDecrease={handleDecrease}
+    onSubmitOrder={handleSubmitOrder}
+    onUsePoint={() => setShowPointPopup(true)}
+    totalAmount={totalAmount}
+    subtotal={subtotal}
+    couponDiscount={couponDiscount}
+    selectedCoupon={selectedCoupon}
+    onUseCoupon={() => setShowCouponPopup(true)}
+    onCancelCoupon={() => setSelectedCoupon(null)}
+  />
+</div>
+
+<MobileOrderSummary
+  orderItems={orderItems}
+  isLoggedIn={isLoggedIn}
+  usedPoints={usedPoints}
+  totalAmount={totalAmount}
+  subtotal={subtotal}
+  couponDiscount={couponDiscount}
+  onSubmitOrder={handleSubmitOrder}
+  onUsePoint={() => setShowPointPopup(true)}
+  onUseCoupon={() => setShowCouponPopup(true)}
+  onCancelCoupon={() => setSelectedCoupon(null)}
+  selectedCoupon={selectedCoupon}
+  disabled={orderItems.length === 0}
+  showModal={showOrderModal}
+  setShowModal={setShowOrderModal}
+/>
+      
 
       {showPointPopup && (
         <PointPopup
