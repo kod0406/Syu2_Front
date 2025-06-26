@@ -241,7 +241,7 @@ export default function CustomerMenuPage() {
         onNavigateMyPage={() => navigate('/review')}
       />
 
-      <main className="w-full md:w-3/6 p-4 md:p-6 overflow-y-auto h-full">
+<main className="w-full md:w-3/6 p-4 md:p-6 overflow-y-auto h-full pb-24">
         <h2 className="text-lg font-semibold mb-4">{selectedCategory} 메뉴</h2>
         <div className="space-y-6">
           {filteredMenus.length > 0 ? (
@@ -253,9 +253,11 @@ export default function CustomerMenuPage() {
             <p className="text-gray-400">해당 카테고리 메뉴가 없습니다.</p>
           )}
         </div>
+          {/* ✅ 여기를 추가! */}
+  <div className="block md:hidden h-[120px]" />
       </main>
 
-<div className="hidden md:block w-2/6">
+<div className="hidden md:flex w-2/6 h-screen">
   <OrderSummary
     orderItems={orderItems}
     isLoggedIn={isLoggedIn}

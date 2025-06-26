@@ -41,7 +41,8 @@ export default function OrderSummary({
                                        onCancelCoupon,
                                      }: Props) {
 
-  // 쿠폰/포인트 사용 내역을 더 보기 좋게 렌더링하는 함수
+  // 쿠폰/포인트 사용 내역을 더 보기 좋게 렌더링하는 함수f
+
   const renderOrderItem = (item: OrderItem, index: number) => {
     // 쿠폰 사용 내역 처리
     if (item.menuName.startsWith('CouponUsed:')) {
@@ -118,7 +119,7 @@ export default function OrderSummary({
   };
 
   return (
-      <aside className="w-2/6 bg-white border-l p-4 flex flex-col justify-between h-full">
+      <aside className="w-full h-full bg-white border-l p-4 flex flex-col justify-between">
         <div className="flex-1 overflow-y-auto">
           <h3 className="text-lg font-bold mb-2">주문서</h3>
           {orderItems.length === 0 ? (
