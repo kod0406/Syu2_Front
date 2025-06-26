@@ -48,7 +48,7 @@ export default function CustomerMenuPage() {
 
   const handleViewReviews = async (menuId: number, menuName: string) => {
     try {
-      const res = await api.get(`/review/show?menuId=${menuId}`);
+      const res = await api.get(`api/review/show?menuId=${menuId}`);
       if (res.status !== 200) throw new Error('리뷰 불러오기 실패');
       const data = res.data;
       setSelectedMenuName(menuName);
