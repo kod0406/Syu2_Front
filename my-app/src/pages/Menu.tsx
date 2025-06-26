@@ -255,7 +255,7 @@ export default function CustomerMenuPage() {
         </div>
       </main>
 
-<div className="hidden md:block w-2/6">
+<div className="hidden md:flex w-2/6 h-screen">
   <OrderSummary
     orderItems={orderItems}
     isLoggedIn={isLoggedIn}
