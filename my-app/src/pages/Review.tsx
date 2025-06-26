@@ -26,7 +26,7 @@ export default function ReviewListPage() {
   }, []);
 
   const handleWriteReview = (statisticsId: number) => {
-    navigate(`/review/write?statId=${statisticsId}`);
+    navigate(`/review/write/${statisticsId}`);
   };
 
   return (
