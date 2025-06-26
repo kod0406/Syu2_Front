@@ -186,9 +186,6 @@ export default function OrderSummary({
               ₩{totalAmount.toLocaleString()}
             </p>
           </div>
-          <button className="w-full mb-2 px-4 py-2 bg-gray-300 rounded text-gray-600">
-            주문내역 보기
-          </button>
           <button
               className="w-full px-4 py-3 bg-red-500 text-white rounded font-bold text-lg hover:bg-red-600 disabled:bg-red-300"
               onClick={onSubmitOrder}

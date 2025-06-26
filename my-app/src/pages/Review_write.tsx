@@ -43,7 +43,8 @@ export default function ReviewWritePage() {
     }
 
     const formData = new FormData();
-    formData.append('statisticsId', statId);
+    // formData.append('statisticsId', statId);
+    formData.append('customerStatisticsId', statId);  // ★ 수정된 부분
     formData.append('date', new Date().toISOString().split('T')[0]);
     formData.append('reviewRating', String(rating));
     formData.append('comment', reviewText);
