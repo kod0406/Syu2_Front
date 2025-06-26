@@ -22,7 +22,7 @@ const SalesModal: React.FC<Props> = ({ onClose }) => {
   }, [statistics]);
 
   useEffect(() => {
-    api.get(`/statistics/store?period=${period}`)
+    api.get(`/api/statistics/store?period=${period}`)
       .then(res => {
         setStatistics(res.data);
         setLoading(false);

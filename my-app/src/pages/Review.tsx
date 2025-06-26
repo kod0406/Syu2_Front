@@ -16,7 +16,7 @@ export default function ReviewListPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get('/review/ListShow') // ✅ fetch → api.get
+    api.get('/api/review/ListShow') // ✅ fetch → api.get
       .then(res => {
         setReviewList(res.data); // ✅ 응답 데이터 세팅
       })
@@ -26,7 +26,7 @@ export default function ReviewListPage() {
   }, []);
 
   const handleWriteReview = (statisticsId: number) => {
-    navigate(`/review/write?statId=${statisticsId}`);
+    navigate(`/api/review/write?statId=${statisticsId}`);
   };
 
   return (

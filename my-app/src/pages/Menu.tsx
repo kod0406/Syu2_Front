@@ -93,7 +93,7 @@ export default function CustomerMenuPage() {
       .catch(err => console.error('❌ 메뉴 불러오기 실패:', err.message));
 
     api
-      .post('/pointCheck')
+      .post('/api/pointCheck')
       .then(res => {
         if (res.status !== 200) throw new Error('포인트 요청 실패');
         return res.data;
@@ -205,14 +205,18 @@ export default function CustomerMenuPage() {
         `/api/v1/kakao-pay/ready?storeId=${numericStoreId}&redirectUrl=${encodeURIComponent(
           redirectUrl
         )}`,
-        payload
+        payload,
+          {
+            headers: { 'User-Agent': navigator.userAgent } // 👈 꼭 포함
+          }
       );
 
       if (res.status !== 200) throw new Error('주문 실패');
 
-      const data = res.data;
-      if (data.next_redirect_pc_url) {
-        window.location.href = data.next_redirect_pc_url;
+      //const data = res.data;
+      const redirectUrlFromServer = res.data.redirectUrl;
+      if (redirectUrlFromServer) {
+        window.location.href = redirectUrlFromServer;
       } else {
         alert('결제 페이지 이동에 실패했습니다.');
       }

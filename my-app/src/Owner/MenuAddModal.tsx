@@ -30,7 +30,10 @@ const AddMenuModal: React.FC<Props> = ({ storeId, onClose, onAdded }) => {
     if (image) formData.append('image', image);
 
     try {
-      await api.post(`/api/store/${storeId}/menus`, formData);
+      await api.post(`/api/store/${storeId}/menus`, formData, { headers: {
+        'Content-Type': 'multipart/form-data'
+        }
+      });
       alert('메뉴가 등록되었습니다.');
       onAdded();
     } catch (err) {
