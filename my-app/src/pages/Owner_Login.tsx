@@ -27,19 +27,6 @@ export default function CustomerLogin() {
       });
   }, [navigate]);
 
-  const handleSocialLogin = (provider: 'kakao' | 'naver') => {
-    let redirectUrl = '';
-    switch (provider) {
-      case 'kakao':
-        redirectUrl = `${API_BASE_URL}/api/oauth2/kakao/login`;
-        break;
-      case 'naver':
-        redirectUrl = `${API_BASE_URL}/api/oauth2/naver/login`;
-        break;
-    }
-    window.location.href = redirectUrl;
-  };
-
   const handleEmailLogin = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -107,21 +94,7 @@ export default function CustomerLogin() {
           </button>
         </div>
 
-        <div className="space-y-2">
-          <button
-            onClick={() => handleSocialLogin('kakao')}
-            className="w-full flex items-center justify-center bg-yellow-400 text-black py-3 rounded shadow"
-          >
-            Kakao로 시작하기
-          </button>
-          <button
-            onClick={() => handleSocialLogin('naver')}
-            className="w-full flex items-center justify-center bg-green-500 text-white py-3 rounded shadow"
-          >
-            Naver로 시작하기
-          </button>
         </div>
       </div>
-    </div>
   );
 }

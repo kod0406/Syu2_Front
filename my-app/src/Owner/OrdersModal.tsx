@@ -20,24 +20,31 @@ const OrdersModal: React.FC<OrdersModalProps> = ({ storeId, onClose }) => {
     client.connect(
       {},
       async () => {
-        client.subscribe(`/topic/orders/${storeId}`, (message) => {
-          try {
-            const payload = JSON.parse(message.body);
-            console.log('📨 실시간 메시지 수신:', payload);
-            setOrderData(payload);
-          } catch (err) {
-            console.error('❌ 실시간 메시지 파싱 실패:', err);
-          }
-        });
+let firstMessageReceived = false;
 
-        setIsConnected(true);
+client.subscribe(`/topic/orders/${storeId}`, async (message) => {
+  try {
+    const payload = JSON.parse(message.body);
+    console.log('📨 실시간 메시지 수신:', payload);
+    setOrderData(payload);
 
-        try {
-          const res = await api.get(`/api/orders/getMenu`);
-          setOrderData(res.data);
-        } catch (err) {
-          console.error('❌ 주문 목록 불러오기 실패:', err);
-        }
+    if (!firstMessageReceived) {
+      firstMessageReceived = true;
+      setIsConnected(true); // 연결 상태도 여기서 설정
+
+      // 구독 이후, 첫 메시지 수신 후에 API 호출
+      try {
+        const res = await api.get(`/api/orders/getMenu`);
+        setOrderData(res.data);
+      } catch (err) {
+        console.error('❌ 주문 목록 불러오기 실패:', err);
+      }
+    }
+  } catch (err) {
+    console.error('❌ 실시간 메시지 파싱 실패:', err);
+  }
+});
+
       },
       (error: unknown) => {
         console.error('❌ WebSocket 연결 실패:', error);
