@@ -51,7 +51,7 @@ export default function ReviewWritePage() {
     formData.append('comment', reviewText);
 
     if (images.length > 0) {
-      formData.append('images', images[0]); // 사진 1장만 추가
+      formData.append('image', images[0]); // 사진 1장만 추가
     }
 
     console.log('📦 전송할 formData 내용 확인:');
