@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { useParams } from 'react-router-dom';
 import api from '../API/TokenConfig';
+import { useParams, useNavigate } from 'react-router-dom';
 
 interface UserInfo {
   id: number;
@@ -16,6 +16,7 @@ export default function ReviewWritePage() {
   const [images, setImages] = useState<File[]>([]);
   const [statId, setStatId] = useState('');
   const [user, setUser] = useState<UserInfo | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (statisticsId) {
@@ -76,7 +77,15 @@ export default function ReviewWritePage() {
 
   return (
     <div className="w-full max-w-xl mx-auto p-4 md:p-6 bg-white shadow rounded">
-      <h2 className="text-xl md:text-2xl font-bold mb-4">리뷰 작성</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl md:text-2xl font-bold">리뷰 작성</h2>
+        <button
+          onClick={() => navigate(-1)}
+          className="px-3 py-1 bg-gray-300 text-black rounded text-sm hover:bg-gray-400"
+        >
+          ← 돌아가기
+        </button>
+      </div>
 
       <input type="hidden" value={statId} />
 
@@ -119,7 +128,6 @@ export default function ReviewWritePage() {
           ))}
         </div>
       </div>
-
       <button
         onClick={handleSubmit}
         className="w-full bg-blue-500 text-white py-2.5 rounded hover:bg-blue-600 text-sm font-semibold"

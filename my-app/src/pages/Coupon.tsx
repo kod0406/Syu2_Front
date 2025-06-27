@@ -5,7 +5,6 @@ import CouponEditModal, { CouponForm as CouponEditForm } from '../Coupon/CouponE
 import CouponList, { Coupon } from '../Coupon/CouponList';
 import api from '../API/TokenConfig';
 
-// This interface is for the creation form, which uses strings for all fields.
 interface CouponCreateForm {
   couponName: string;
   discountType: 'PERCENTAGE' | 'FIXED_AMOUNT';
@@ -23,15 +22,11 @@ export default function CouponPage() {
   const navigate = useNavigate();
   const { storeId } = useParams<{ storeId: string }>();
 
-  // State for modals
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-
-  // State for data
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
 
-  // State for the creation form
   const [createForm, setCreateForm] = useState<CouponCreateForm>({
     couponName: '',
     discountType: 'PERCENTAGE',
@@ -46,7 +41,6 @@ export default function CouponPage() {
   });
   const [createExpiryType, setCreateExpiryType] = useState<'ABSOLUTE' | 'RELATIVE'>('ABSOLUTE');
 
-  // Fetch all coupons for the store
   const fetchCoupons = useCallback(async () => {
     if (!storeId) return;
     try {
@@ -62,7 +56,6 @@ export default function CouponPage() {
     fetchCoupons();
   }, [fetchCoupons]);
 
-  // Handler for creating a coupon
   const handleCreateCoupon = async () => {
     const payload = {
       couponName: createForm.couponName,
@@ -85,7 +78,7 @@ export default function CouponPage() {
       await api.post('/api/store/coupons', payload);
       alert('✅ 쿠폰이 성공적으로 생성되었습니다.');
       setShowCreateModal(false);
-      fetchCoupons(); // Refresh the list
+      fetchCoupons();
     } catch (error: any) {
       console.error('쿠폰 생성 오류:', error);
       const message = error.response?.data?.message || '네트워크 오류 또는 서버 내부 오류';
@@ -93,13 +86,11 @@ export default function CouponPage() {
     }
   };
 
-  // Handler for opening the edit modal
   const handleEditClick = (coupon: Coupon) => {
     setEditingCoupon(coupon);
     setShowEditModal(true);
   };
 
-  // Handler for updating a coupon
   const handleUpdateCoupon = async (couponId: number, form: CouponEditForm, expiryType: 'ABSOLUTE' | 'RELATIVE') => {
     const payload = {
       couponName: form.couponName,
@@ -123,7 +114,7 @@ export default function CouponPage() {
       alert('✅ 쿠폰이 성공적으로 수정되었습니다.');
       setShowEditModal(false);
       setEditingCoupon(null);
-      fetchCoupons(); // Refresh the list
+      fetchCoupons();
     } catch (error: any) {
       console.error('쿠폰 수정 오류:', error);
       const message = error.response?.data?.message || '네트워크 오류 또는 서버 내부 오류';
@@ -131,13 +122,12 @@ export default function CouponPage() {
     }
   };
 
-  // Handler for deleting a coupon
   const handleDeleteCoupon = async (couponId: number) => {
     if (!window.confirm('정말로 이 쿠폰을 삭제하시겠습니까? 발급된 쿠폰은 삭제할 수 없습니다.')) return;
     try {
       await api.delete(`/api/store/coupons/${couponId}`);
       alert('✅ 쿠폰이 삭제되었습니다.');
-      fetchCoupons(); // Refresh the list
+      fetchCoupons();
     } catch (error: any) {
       console.error('쿠폰 삭제 오류:', error);
       const message = error.response?.data?.message || '네트워크 오류 또는 서버 내부 오류';
@@ -145,12 +135,11 @@ export default function CouponPage() {
     }
   };
 
-  // Handler for changing coupon status
   const handleStatusChange = async (couponId: number, status: Coupon['status']) => {
     try {
       await api.patch(`/api/store/coupons/${couponId}/status`, { status });
       alert(`✅ 쿠폰 상태가 ${status}(으)로 변경되었습니다.`);
-      fetchCoupons(); // Refresh the list
+      fetchCoupons();
     } catch (error: any) {
       console.error('쿠폰 상태 변경 오류:', error);
       const message = error.response?.data?.message || '네트워크 오류 또는 서버 내부 오류';
@@ -161,13 +150,24 @@ export default function CouponPage() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">🎟️ 쿠폰 관리</h1>
-      <button
-        onClick={() => setShowCreateModal(true)}
-        className="px-4 py-2 bg-pink-600 text-white rounded"
-      >
-        쿠폰 생성하기
-      </button>
 
+      {/* 상단 버튼 그룹 */}
+      <div className="flex items-center gap-2 mb-6">
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="px-4 py-2 bg-pink-600 text-white rounded"
+        >
+          쿠폰 생성하기
+        </button>
+        <button
+          onClick={() => navigate(`/owner/dashboard/${storeId}`)}
+          className="px-4 py-2 bg-gray-300 text-black rounded"
+        >
+          ← 돌아가기
+        </button>
+      </div>
+
+      {/* 쿠폰 생성 모달 */}
       {showCreateModal && (
         <CouponCreateModal
           form={createForm}
@@ -179,6 +179,7 @@ export default function CouponPage() {
         />
       )}
 
+      {/* 쿠폰 수정 모달 */}
       {showEditModal && editingCoupon && (
         <CouponEditModal
           coupon={editingCoupon}
@@ -190,21 +191,13 @@ export default function CouponPage() {
         />
       )}
 
+      {/* 쿠폰 목록 */}
       <CouponList
         coupons={coupons}
         onEdit={handleEditClick}
         onDelete={handleDeleteCoupon}
         onStatusChange={handleStatusChange}
       />
-
-      <div className="mt-6">
-        <button
-          onClick={() => navigate(`/owner/dashboard/${storeId}`)}
-          className="px-3 py-1 bg-gray-300 rounded"
-        >
-          ← 돌아가기
-        </button>
-      </div>
     </div>
   );
 }
