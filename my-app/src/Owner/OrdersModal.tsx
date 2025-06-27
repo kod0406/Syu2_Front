@@ -14,7 +14,7 @@ const OrdersModal: React.FC<OrdersModalProps> = ({ storeId, onClose }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const socket = new SockJS('https://igo.ai.kr/ws');
+    const socket = new SockJS('http://localhost:8080/ws');
     const client: CompatClient = Stomp.over(socket);
 
     client.connect(
