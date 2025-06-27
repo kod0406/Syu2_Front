@@ -10,6 +10,10 @@ import Index from './pages/Index';
 import Home from './pages/Home';
 import Coupon from './pages/Coupon';
 import CustomerCouponPage from './pages/CustomerCouponPage';
+import EmailVerification from './pages/EmailVerification';
+import EmailResend from './pages/EmailResend';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   console.log('✅ ENV:', process.env.REACT_APP_API_URL);
@@ -27,6 +31,10 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/owner/:storeId/coupon" element={<Coupon />} />
         <Route path="/my-coupons" element={<CustomerCouponPage />} />
+        <Route path="/verify-email" element={<EmailVerification />} />
+        <Route path="/email-resend" element={<EmailResend />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </div>
   );
