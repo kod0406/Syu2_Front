@@ -7,6 +7,7 @@ import AddMenuModal from '../Owner/MenuAddModal';
 import EditMenuModal from '../Owner/MenuEditModal';
 import SalesModal from '../Owner/SalesModal';
 import OrdersModal from '../Owner/OrdersModal';
+import StoreProfileModal from '../Owner/StoreProfileModal';
 import api from '../API/TokenConfig';
 import QRModal from '../Owner/QrModal';
 
@@ -20,14 +21,22 @@ interface Menu {
   available: boolean;
 }
 
+interface StoreInfo {
+  id: number;
+  storeName: string;
+  ownerEmail: string;
+}
+
 export default function OwnerDashboard() {
   const { storeId: storeIdFromURL } = useParams();
   const [storeId, setStoreId] = useState<number | null>(null);
+  const [storeInfo, setStoreInfo] = useState<StoreInfo | null>(null);
   const [menus, setMenus] = useState<Menu[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingMenu, setEditingMenu] = useState<Menu | null>(null);
   const [showSalesModal, setShowSalesModal] = useState(false);
   const [showOrdersModal, setShowOrdersModal] = useState(false);
+  const [showStoreProfileModal, setShowStoreProfileModal] = useState(false);
   const navigate = useNavigate();
   const [qrCodeBase64, setQrCodeBase64] = useState<string | null>(null);
   const [showQRModal, setShowQRModal] = useState(false);
@@ -60,7 +69,6 @@ export default function OwnerDashboard() {
     }
   };
 
-
   const handleMenuAdded = async () => {
     await fetchMenus();
     setShowAddModal(false);
@@ -75,7 +83,13 @@ export default function OwnerDashboard() {
           navigate('/owner/login');
           return;
         }
-        setStoreId(res.data.data.id);
+        const storeData = res.data.data;
+        setStoreId(storeData.id);
+        setStoreInfo({
+          id: storeData.id,
+          storeName: storeData.storeName,
+          ownerEmail: storeData.ownerEmail
+        });
       })
       .catch(() => {
         alert('로그인이 필요합니다.');
@@ -91,6 +105,10 @@ export default function OwnerDashboard() {
     navigate(`/owner/${storeId}/coupon`);
   };
 
+  const onStoreProfileClick = () => {
+    setShowStoreProfileModal(true);
+  };
+
   return (
     <div className="p-4">
       <DashboardHeader />
@@ -101,6 +119,7 @@ export default function OwnerDashboard() {
         onCouponClick={onCouponClick}
         onQrDownloadClick={handleQrDownload}
         onQrViewClick={handleQrView}
+        onStoreProfileClick={onStoreProfileClick}
       />
       {storeId && (
         <MenuList
@@ -132,10 +151,14 @@ export default function OwnerDashboard() {
       {showOrdersModal && storeId && (
         <OrdersModal storeId={storeId} onClose={() => setShowOrdersModal(false)} />
       )}
-    {showQRModal && qrCodeBase64 && (
-      <QRModal base64={qrCodeBase64} onClose={() => setShowQRModal(false)} />
-    )}
-
+      {showQRModal && qrCodeBase64 && (
+        <QRModal base64={qrCodeBase64} onClose={() => setShowQRModal(false)} />
+      )}
+      {showStoreProfileModal && (
+        <StoreProfileModal
+          onClose={() => setShowStoreProfileModal(false)}
+        />
+      )}
     </div>
   );
 }
