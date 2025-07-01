@@ -177,7 +177,6 @@ export default function CustomerMenuPage() {
     if (orderItems.length === 0) {
       setAlertMessage('주문할 메뉴가 없습니다.');
       setOnConfirm(null);
-      alert('주문할 메뉴가 없습니다.');
       return;
     }
 
@@ -227,7 +226,8 @@ export default function CustomerMenuPage() {
       if (redirectUrlFromServer) {
         window.location.href = redirectUrlFromServer;
       } else {
-        alert('결제 페이지 이동에 실패했습니다.');
+        setAlertMessage('결제 페이지 이동에 실패했습니다.');
+        setOnConfirm(null);
       }
 
       setOrderItems([]);
@@ -235,7 +235,8 @@ export default function CustomerMenuPage() {
       setSelectedCoupon(null);
     } catch (err) {
       console.error('❌ 주문 실패:', err);
-      alert('주문에 실패했습니다.');
+      setAlertMessage('주문에 실패했습니다.');
+      setOnConfirm(null);
     }
   };
 
@@ -300,8 +301,11 @@ export default function CustomerMenuPage() {
   disabled={orderItems.length === 0}
   showModal={showOrderModal}
   setShowModal={setShowOrderModal}
+  onIncrease={handleIncrease}             // ✅ 추가
+  onDecrease={handleDecrease}             // ✅ 추가
+  onRemove={handleRemoveFromOrder}        // ✅ 추가
 />
-      
+
 
       {showPointPopup && (
         <PointPopup

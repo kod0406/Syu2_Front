@@ -22,6 +22,9 @@ interface Props {
   disabled: boolean;
   showModal: boolean;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
+  onIncrease: (index: number) => void;
+  onDecrease: (index: number) => void;
+  onRemove: (index: number) => void;
 }
 
 export default function MobileOrderSummary({
@@ -36,10 +39,13 @@ export default function MobileOrderSummary({
   onUsePoint,
   onUseCoupon,
   onCancelCoupon,
-  disabled
+  disabled,
+  showModal,
+  setShowModal,
+  onIncrease,
+  onDecrease,
+  onRemove,
 }: Props) {
-  const [showModal, setShowModal] = useState(false);
-
   const renderOrderItem = (item: OrderItem, index: number) => {
     if (item.menuName.startsWith('CouponUsed:')) {
       const couponName = selectedCoupon?.couponName || '쿠폰 할인';
@@ -49,26 +55,43 @@ export default function MobileOrderSummary({
             <span className="text-green-700 font-medium">🎫 {couponName}</span>
             <span className="text-green-600 text-xs">할인 적용</span>
           </div>
-          <div className="text-green-700 font-medium">-₩{Math.abs(item.price * item.quantity).toLocaleString()}</div>
+          <div className="text-green-700 font-medium">
+            -₩{Math.abs(item.price * item.quantity).toLocaleString()}
+          </div>
         </li>
       );
     }
+
     if (item.menuName.startsWith('UserPointUsedOrNotUsed')) {
       return (
         <li key={index} className="flex justify-between items-center text-sm bg-blue-50 p-2 rounded">
           <div className="flex flex-col">
             <span className="text-blue-700 font-medium">💰 포인트 사용</span>
-            <span className="text-blue-600 text-xs">{Math.abs(item.price * item.quantity).toLocaleString()}P 사용</span>
+            <span className="text-blue-600 text-xs">
+              {Math.abs(item.price * item.quantity).toLocaleString()}P 사용
+            </span>
           </div>
-          <div className="text-blue-700 font-medium">-₩{Math.abs(item.price * item.quantity).toLocaleString()}</div>
+          <div className="text-blue-700 font-medium">
+            -₩{Math.abs(item.price * item.quantity).toLocaleString()}
+          </div>
         </li>
       );
     }
+
     return (
       <li key={index} className="flex justify-between items-center text-sm">
         <div className="flex flex-col">
-          <span>{item.menuName} x{item.quantity}</span>
-          <span className="text-gray-500 text-xs">₩{(item.price * item.quantity).toLocaleString()}</span>
+          <span>
+            {item.menuName} x{item.quantity}
+          </span>
+          <span className="text-gray-500 text-xs">
+            ₩{(item.price * item.quantity).toLocaleString()}
+          </span>
+        </div>
+        <div className="flex items-center gap-1">
+          <button onClick={() => onDecrease(index)} className="px-2 bg-gray-200 rounded">-</button>
+          <button onClick={() => onIncrease(index)} className="px-2 bg-gray-200 rounded">+</button>
+          <button onClick={() => onRemove(index)} className="text-red-500 hover:text-red-700 ml-2">X</button>
         </div>
       </li>
     );
@@ -86,15 +109,28 @@ export default function MobileOrderSummary({
           {selectedCoupon ? (
             <div className="flex-1 p-2 border rounded-lg bg-green-50 text-center">
               <p className="text-sm font-semibold truncate">{selectedCoupon.couponName}</p>
-              <button onClick={onCancelCoupon} className="text-xs text-gray-500 hover:text-red-500">(적용 취소)</button>
+              <button
+                onClick={onCancelCoupon}
+                className="text-xs text-gray-500 hover:text-red-500"
+              >
+                (적용 취소)
+              </button>
             </div>
           ) : (
-            <button className="flex-1 text-sm px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300" onClick={onUseCoupon} disabled={orderItems.length === 0}>
+            <button
+              className="flex-1 text-sm px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300"
+              onClick={onUseCoupon}
+              disabled={orderItems.length === 0}
+            >
               쿠폰 사용
             </button>
           )}
 
-          <button className="flex-1 text-sm px-3 py-2 bg-yellow-400 text-black rounded hover:bg-yellow-500 disabled:bg-gray-300" onClick={onUsePoint} disabled={orderItems.length === 0}>
+          <button
+            className="flex-1 text-sm px-3 py-2 bg-yellow-400 text-black rounded hover:bg-yellow-500 disabled:bg-gray-300"
+            onClick={onUsePoint}
+            disabled={orderItems.length === 0}
+          >
             포인트 사용
           </button>
         </div>
@@ -121,7 +157,9 @@ export default function MobileOrderSummary({
           <div className="bg-white w-11/12 max-h-[80vh] overflow-y-auto rounded p-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold">주문 내역</h3>
-              <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-red-500">닫기</button>
+              <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-red-500">
+                닫기
+              </button>
             </div>
             <ul className="space-y-2">
               {orderItems.map((item, index) => renderOrderItem(item, index))}
