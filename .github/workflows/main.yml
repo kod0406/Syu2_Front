@@ -13,12 +13,14 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: npm install
-        working-directory: ./Syu2_Front
+        run: |
+          cd Syu2_Front
+          npm install
 
       - name: Build frontend
-        run: npm run build
-        working-directory: ./Syu2_Front
+        run: |
+          cd Syu2_Front
+          npm run build
 
       - name: Copy build files to EC2
         uses: appleboy/scp-action@v0.1.4
