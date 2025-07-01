@@ -56,9 +56,8 @@ const CouponList: React.FC<Props> = ({ coupons, onEdit, onDelete, onStatusChange
                   </p>
                   <p className="text-sm text-gray-600">
                     {coupon.discountType === 'PERCENTAGE'
-                      ? `${coupon.discountValue}% 할인`
+                      ? `${coupon.discountValue}% 할인${coupon.discountLimit ? ` (최대 ${coupon.discountLimit.toLocaleString()}원)` : ''}`
                       : `${coupon.discountValue.toLocaleString()}원 할인`}
-                    {coupon.discountLimit && ` (최대 ${coupon.discountLimit.toLocaleString()}원)`}
                   </p>
                   <p className="text-sm text-gray-500">
                     {coupon.minimumOrderAmount.toLocaleString()}원 이상 주문 시 사용 가능
@@ -108,4 +107,3 @@ const CouponList: React.FC<Props> = ({ coupons, onEdit, onDelete, onStatusChange
 };
 
 export default CouponList;
-
