@@ -33,6 +33,15 @@ jobs:
             else
               echo "⚠️ 기존 build 폴더 없음"
             fi
+            
+      - name: Ensure target folder exists
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            mkdir -p /home/ubuntu/QrStore/build
 
       - name: Copy build files to EC2
         uses: appleboy/scp-action@v0.1.4
@@ -40,7 +49,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "my-app/build/"
+          source: "my-app/build/*"
           target: "/home/ubuntu/QrStore/build"
 
 
