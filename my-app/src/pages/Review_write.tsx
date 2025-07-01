@@ -2,6 +2,7 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import api from '../API/TokenConfig';
 import { useParams, useNavigate } from 'react-router-dom';
+import Modal from '../pages/Modal';
 
 interface UserInfo {
   id: number;
@@ -17,6 +18,9 @@ export default function ReviewWritePage() {
   const [statId, setStatId] = useState('');
   const [user, setUser] = useState<UserInfo | null>(null);
   const navigate = useNavigate();
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [onConfirm, setOnConfirm] = useState<(() => void) | null>(null);
+
 
   useEffect(() => {
     if (statisticsId) {
@@ -41,7 +45,8 @@ export default function ReviewWritePage() {
 
   const handleSubmit = async () => {
     if (!statId || !rating || !reviewText) {
-      alert('모든 필드를 작성해주세요.');
+      setAlertMessage('모든 필드를 작성해주세요.');
+      setOnConfirm(null);
       return;
     }
 
@@ -67,15 +72,20 @@ export default function ReviewWritePage() {
         }
       });
       if (res.status !== 200) throw new Error('서버 오류');
-      alert('리뷰가 등록되었습니다.');
-      window.location.href = '/review';
+        setAlertMessage('리뷰가 등록되었습니다.');
+        setOnConfirm(() => () => {
+          window.location.href = '/review';
+      });
+
     } catch (err) {
       console.error('❌ 리뷰 전송 실패:', err);
-      alert('리뷰 작성 중 오류가 발생했습니다.');
+      setAlertMessage('리뷰 작성 중 오류가 발생했습니다.');
+      setOnConfirm(null);
     }
   };
 
   return (
+    <>
     <div className="w-full max-w-xl mx-auto p-4 md:p-6 bg-white shadow rounded">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl md:text-2xl font-bold">리뷰 작성</h2>
@@ -141,5 +151,17 @@ export default function ReviewWritePage() {
         리뷰 작성 완료
       </button>
     </div>
+    {alertMessage && (
+  <Modal
+    message={alertMessage}
+    onClose={() => {
+      setAlertMessage(null);
+      setOnConfirm(null);
+    }}
+    onConfirm={onConfirm ?? undefined}
+    confirmText="확인"
+  />
+)}
+</>
   );
 }

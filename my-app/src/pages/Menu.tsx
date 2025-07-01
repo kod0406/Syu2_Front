@@ -10,7 +10,7 @@ import CouponPopup from '../Menu/CouponPopup';
 import api from '../API/TokenConfig';
 import { CustomerCoupon } from '../types/coupon';
 import MobileOrderSummary from '../Menu/MobileOrderSummary';
-
+import Modal from '../pages/Modal';
 interface MenuItem {
   menuId: number;
   menuName: string;
@@ -44,6 +44,9 @@ export default function CustomerMenuPage() {
   const [selectedMenuName, setSelectedMenuName] = useState('');
   const [selectedReviews, setSelectedReviews] = useState([]);
   const [showOrderModal, setShowOrderModal] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [onConfirm, setOnConfirm] = useState<(() => void) | null>(null);
+
 
 
   const handleViewReviews = async (menuId: number, menuName: string) => {
@@ -56,7 +59,8 @@ export default function CustomerMenuPage() {
       setReviewModalOpen(true);
     } catch (err) {
       console.error('❌ 리뷰 보기 실패:', err);
-      alert('리뷰를 불러오는 데 실패했습니다.');
+    setAlertMessage('리뷰를 불러오는 데 실패했습니다.');
+    setOnConfirm(null);
     }
   };
 
@@ -161,7 +165,8 @@ export default function CustomerMenuPage() {
 
   const handleSelectCoupon = (coupon: CustomerCoupon) => {
     if (subtotal < (coupon.minimumOrderAmount || 0)) {
-      alert('최소 주문 금액을 충족하지 않습니다.');
+      setAlertMessage('최소 주문 금액을 충족하지 않습니다.');
+      setOnConfirm(null);
       return;
     }
     setSelectedCoupon(coupon);
@@ -170,6 +175,8 @@ export default function CustomerMenuPage() {
 
   const handleSubmitOrder = async () => {
     if (orderItems.length === 0) {
+      setAlertMessage('주문할 메뉴가 없습니다.');
+      setOnConfirm(null);
       alert('주문할 메뉴가 없습니다.');
       return;
     }
@@ -320,6 +327,18 @@ export default function CustomerMenuPage() {
   reviews={selectedReviews}
   onClose={() => setReviewModalOpen(false)}
 />
+      {alertMessage && (
+  <Modal
+    message={alertMessage}
+    onClose={() => {
+      setAlertMessage(null);
+      setOnConfirm(null);
+    }}
+    onConfirm={onConfirm ?? undefined}
+    confirmText="확인"
+  />
+)}
+
     </div>
   );
 }

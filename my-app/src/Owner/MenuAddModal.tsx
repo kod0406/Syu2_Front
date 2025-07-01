@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '../API/TokenConfig';
+import Modal from '../pages/Modal';
 
 type Props = {
   storeId: number;
@@ -15,10 +16,13 @@ const AddMenuModal: React.FC<Props> = ({ storeId, onClose, onAdded }) => {
     category: '',
   });
   const [image, setImage] = useState<File | null>(null);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [onConfirm, setOnConfirm] = useState<(() => void) | null>(null);
 
   const handleSubmit = async () => {
     if (!form.menuName || !form.description || !form.price || !form.category) {
-      alert('모든 필드를 작성해주세요.');
+      setAlertMessage('모든 필드를 작성해주세요.');
+      setOnConfirm(null);
       return;
     }
 
@@ -34,15 +38,20 @@ const AddMenuModal: React.FC<Props> = ({ storeId, onClose, onAdded }) => {
         'Content-Type': 'multipart/form-data'
         }
       });
-      alert('메뉴가 등록되었습니다.');
-      onAdded();
-    } catch (err) {
+      setAlertMessage('✅ 메뉴가 등록되었습니다.');
+      setOnConfirm(() => () => {
+        onAdded();
+        onClose();
+      });
+          } catch (err) {
       console.error('❌ 메뉴 등록 실패:', err);
-      alert('오류 발생');
+      setAlertMessage('❌ 메뉴 등록 중 오류가 발생했습니다.');
+      setOnConfirm(null);
     }
   };
 
   return (
+    <>
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded shadow w-96">
         <h2 className="text-lg font-bold mb-4">메뉴 추가</h2>
@@ -85,7 +94,23 @@ const AddMenuModal: React.FC<Props> = ({ storeId, onClose, onAdded }) => {
         </div>
       </div>
     </div>
+        {alertMessage && (
+      <Modal
+        title="알림"
+        message={alertMessage}
+        onClose={() => {
+          setAlertMessage(null);
+          setOnConfirm(null);
+        }}
+        onConfirm={onConfirm ?? undefined}
+        confirmText="확인"
+      // ✅ cancelText 생략
+      />
+    )}
+    </>
   );
 };
+
+
 
 export default AddMenuModal;

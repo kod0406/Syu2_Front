@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '../API/TokenConfig';
+import Modal from '../pages/Modal';
 
 interface ToggleButtonProps {
   storeId: number;
@@ -10,6 +11,8 @@ interface ToggleButtonProps {
 
 const ToggleButton: React.FC<ToggleButtonProps> = ({ storeId, menuId, isAvailable, onToggled }) => {
   const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [onConfirm, setOnConfirm] = useState<(() => void) | null>(null);
 
   const handleToggle = async () => {
     setLoading(true);
@@ -20,13 +23,16 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({ storeId, menuId, isAvailabl
       await onToggled();
     } catch (err) {
       console.error('❌ 상태 토글 실패:', err);
-      alert('상태 변경 중 오류 발생');
+      setAlertMessage('❌ 상태 변경 중 오류 발생');
+      setOnConfirm(null);
+
     } finally {
       setLoading(false);
     }
   };
 
   return (
+    <>
     <button
       onClick={handleToggle}
       disabled={loading}
@@ -36,6 +42,19 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({ storeId, menuId, isAvailabl
     >
       {loading ? '...' : isAvailable ? 'ON' : 'OFF'}
     </button>
+    {alertMessage && (
+  <Modal
+    title="알림"
+    message={alertMessage}
+    onClose={() => {
+      setAlertMessage(null);
+      setOnConfirm(null);
+    }}
+    onConfirm={onConfirm ?? undefined}
+    confirmText="확인"
+  />
+)}
+</>
   );
 };
 

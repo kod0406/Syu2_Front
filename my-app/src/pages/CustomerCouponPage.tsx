@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../API/TokenConfig';
 import MyCouponList, { MyCoupon } from '../Customer/MyCouponList';
 import AvailableCouponList, { AvailableCoupon } from '../Customer/AvailableCouponList';
+import Modal from '../pages/Modal';
 
 export default function CustomerCouponPage() {
   const [activeTab, setActiveTab] = useState<'my' | 'available'>('my');
@@ -11,6 +12,9 @@ export default function CustomerCouponPage() {
   const [issuedCouponIds, setIssuedCouponIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [onConfirm, setOnConfirm] = useState<(() => void) | null>(null);
+
 
   const fetchMyCoupons = useCallback(async () => {
     setLoading(true);
@@ -54,17 +58,25 @@ export default function CustomerCouponPage() {
   const handleIssueCoupon = async (couponId: number) => {
     try {
       await api.post(`/api/customer/coupons/${couponId}/issue`);
-      alert('✅ 쿠폰이 성공적으로 발급되었습니다.');
+      setAlertMessage('✅ 쿠폰이 성공적으로 발급되었습니다.');
+      setOnConfirm(() => () => {
+        fetchAvailableCoupons();
+        setAlertMessage(null);      // ✅ 모달도 닫아줌
+        setOnConfirm(null);         // ✅ confirm도 초기화
+      });
       // 쿠폰 발급 후, 발급 가능 목록을 새로고침하여 버튼 상태를 업데이트합니다.
       fetchAvailableCoupons();
     } catch (error: any) {
       console.error('❌ 쿠폰 발급 오류:', error);
       const message = error.response?.data?.message || '쿠폰 발급에 실패했습니다.';
-      alert(`❌ 발급 실패: ${message}`);
+      setAlertMessage(`❌ 발급 실패: ${message}`);
+      setOnConfirm(null);
+
     }
   };
 
   return (
+    <>
     <div className="max-w-2xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 text-center">🎟️ 내 쿠폰함</h1>
 
@@ -104,5 +116,18 @@ export default function CustomerCouponPage() {
         </button>
       </div>
     </div>
+    {alertMessage && (
+  <Modal
+    title="알림"
+    message={alertMessage}
+    onClose={() => {
+      setAlertMessage(null);
+      setOnConfirm(null);
+    }}
+    onConfirm={onConfirm ?? undefined}
+    confirmText="확인"
+  />
+)}
+</>
   );
 }

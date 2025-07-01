@@ -8,8 +8,9 @@ import EditMenuModal from '../Owner/MenuEditModal';
 import SalesModal from '../Owner/SalesModal';
 import OrdersModal from '../Owner/OrdersModal';
 import StoreProfileModal from '../Owner/StoreProfileModal';
-import api from '../API/TokenConfig';
 import QRModal from '../Owner/QrModal';
+import api from '../API/TokenConfig';
+import GlobalModal from '../pages/Modal'; // ✅ 추가
 
 interface Menu {
   menuId: number;
@@ -37,9 +38,12 @@ export default function OwnerDashboard() {
   const [showSalesModal, setShowSalesModal] = useState(false);
   const [showOrdersModal, setShowOrdersModal] = useState(false);
   const [showStoreProfileModal, setShowStoreProfileModal] = useState(false);
-  const navigate = useNavigate();
   const [qrCodeBase64, setQrCodeBase64] = useState<string | null>(null);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null); // ✅ 추가
+  const [onConfirm, setOnConfirm] = useState<(() => void) | null>(null); // ✅ 추가
+
+  const navigate = useNavigate();
 
   const fetchMenus = useCallback(async () => {
     if (!storeId) return;
@@ -50,7 +54,6 @@ export default function OwnerDashboard() {
 
   const handleQrDownload = () => {
     if (storeId) {
-      // api 인스턴스에서 baseURL 사용
       const downloadUrl = `${api.defaults.baseURL}/api/stores/${storeId}/qrcode/download`;
       window.location.href = downloadUrl;
     }
@@ -64,7 +67,8 @@ export default function OwnerDashboard() {
         setQrCodeBase64(base64);
         setShowQRModal(true);
       } catch (err) {
-        alert('QR 코드 조회에 실패했습니다.');
+        setAlertMessage('QR 코드 조회에 실패했습니다.'); // ✅ alert → modal
+        setOnConfirm(null);
       }
     }
   };
@@ -79,8 +83,8 @@ export default function OwnerDashboard() {
       .get('/auth/store')
       .then(res => {
         if (!res.data.data) {
-          alert('로그인이 필요합니다.');
-          navigate('/owner/login');
+          setAlertMessage('로그인이 필요합니다.'); // ✅ alert → modal
+          setOnConfirm(() => () => navigate('/owner/login'));
           return;
         }
         const storeData = res.data.data;
@@ -92,8 +96,8 @@ export default function OwnerDashboard() {
         });
       })
       .catch(() => {
-        alert('로그인이 필요합니다.');
-        navigate('/owner/login');
+        setAlertMessage('로그인이 필요합니다.'); // ✅ alert → modal
+        setOnConfirm(() => () => navigate('/owner/login'));
       });
   }, [storeIdFromURL, navigate]);
 
@@ -157,6 +161,19 @@ export default function OwnerDashboard() {
       {showStoreProfileModal && (
         <StoreProfileModal
           onClose={() => setShowStoreProfileModal(false)}
+        />
+      )}
+
+      {/* ✅ 글로벌 모달 */}
+      {alertMessage && (
+        <GlobalModal
+          message={alertMessage}
+          onClose={() => {
+            setAlertMessage(null);
+            setOnConfirm(null);
+          }}
+          onConfirm={onConfirm ?? undefined}
+          confirmText="확인"
         />
       )}
     </div>
