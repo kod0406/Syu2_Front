@@ -4,13 +4,13 @@ import { useNavigate } from 'react-router-dom';
 export default function IndexPage() {
   const navigate = useNavigate();
 
-  const handleGuest = () => {
+  const handleGuest = (): void => {
     const target = sessionStorage.getItem('qr-redirect-url') || '/';
     navigate(target);
   };
 
-  const handleLogin = () => {
-    navigate(`/customer/login`);
+  const handleLogin = (): void => {
+    navigate('/customer/login');
   };
 
   return (

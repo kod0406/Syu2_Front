@@ -1,17 +1,10 @@
-export default function CustomerLogin() {
+'use client';
+import React from 'react';
 
-  const handleSocialLogin = (provider) => {
-    let redirectUrl = '';
-    switch (provider) {
-      case 'kakao':
-      redirectUrl = `http://localhost:8080/api/oauth2/kakao/login`;
-        break;
-      case 'naver':
-        redirectUrl = `http://localhost:8080/api/oauth2/naver/login`;
-        break;
-      default:
-        break;
-    }
+export default function CustomerLogin() {
+  const handleSocialLogin = (provider: 'kakao' | 'naver') => {
+    const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+    const redirectUrl = `${API_BASE}/api/oauth2/${provider}/login`; // ✅ redirect_uri 제거
     window.location.href = redirectUrl;
   };
 
@@ -20,7 +13,6 @@ export default function CustomerLogin() {
       <div className="w-full max-w-sm space-y-6 bg-white p-6 rounded shadow">
         <h1 className="text-2xl font-bold text-center">로그인</h1>
 
-        {/* 소셜 로그인 버튼 */}
         <div className="space-y-2">
           <button
             onClick={() => handleSocialLogin('kakao')}
