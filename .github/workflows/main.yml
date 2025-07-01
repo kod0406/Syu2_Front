@@ -16,6 +16,13 @@ jobs:
         working-directory: ./my-app
         run: npm install
 
+      - name: Create .env.local file
+        working-directory: ./my-app
+        run: |
+          cat <<EOF > .env.local
+          ${{ secrets.APPLICATION_PROPERTIES }}
+          EOF
+
       - name: Build frontend
         working-directory: ./my-app
         run: CI='' npm run build
@@ -33,6 +40,15 @@ jobs:
             else
               echo "⚠️ 기존 build 폴더 없음"
             fi
+            
+      - name: Ensure target folder exists
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            mkdir -p /home/ubuntu/QrStore/build
 
       - name: Copy build files to EC2
         uses: appleboy/scp-action@v0.1.4
@@ -40,8 +56,9 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "build/*"
-          target: "/home/ubuntu/QrStore"
+          source: "my-app/build/*"
+          target: "/home/ubuntu/QrStore/build"
+          strip_components: 2
 
 
       - name: Restart Nginx or frontend service
@@ -51,4 +68,4 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            deploy
+            bash ~/deploy-react.sh

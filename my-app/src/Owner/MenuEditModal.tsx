@@ -37,6 +37,7 @@ const EditMenuModal: React.FC<Props> = ({ storeId, menu, onClose, onUpdated }) =
         }
     });
 
+
       const res = await api.get(
         `/api/Store/Menu?StoreNumber=${storeId}`
       );
