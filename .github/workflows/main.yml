@@ -14,9 +14,11 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: ./Syu2_Front
 
       - name: Build frontend
         run: npm run build
+        working-directory: ./Syu2_Front
 
       - name: Copy build files to EC2
         uses: appleboy/scp-action@v0.1.4
@@ -24,7 +26,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "build/*"
+          source: "Syu2_Front/build/*"
           target: "/home/ubuntu/QrStore"
 
       - name: Restart Nginx or frontend service
