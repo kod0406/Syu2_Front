@@ -18,7 +18,7 @@ jobs:
 
       - name: Build frontend
         working-directory: ./my-app
-        run: npm run build
+        run: CI='' npm run build
         
       - name: 🔥 Remove old build folder on EC2
         uses: appleboy/ssh-action@v1.0.0
