@@ -31,19 +31,6 @@ export default function CustomerLogin() {
         });
   }, [navigate]);
 
-  const handleSocialLogin = (provider: 'kakao' | 'naver') => {
-    let redirectUrl = '';
-    switch (provider) {
-      case 'kakao':
-        redirectUrl = `${API_BASE_URL}/api/oauth2/kakao/login`;
-        break;
-      case 'naver':
-        redirectUrl = `${API_BASE_URL}/api/oauth2/naver/login`;
-        break;
-    }
-    window.location.href = redirectUrl;
-  };
-
   const handleEmailLogin = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -139,7 +126,6 @@ export default function CustomerLogin() {
                   autoComplete="current-password"
               />
             </div>
-
             <button
                 type="submit"
                 className="w-full bg-blue-600 text-white font-semibold py-4 rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 shadow-md hover:shadow-lg"

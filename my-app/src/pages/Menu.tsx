@@ -239,6 +239,8 @@ export default function CustomerMenuPage() {
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
         onNavigateMyPage={() => navigate('/review')}
+        onNavigateCouponPage={() => navigate('/my-coupons')} // 여기에서 경로 지정
+        isLoggedIn={isLoggedIn}
       />
 
 <main className="w-full md:w-3/6 p-4 md:p-6 overflow-y-auto h-full pb-24">

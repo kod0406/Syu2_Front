@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import SockJS from 'sockjs-client';
 import { Stomp, CompatClient } from '@stomp/stompjs';
 import api from '../API/TokenConfig';
@@ -12,32 +12,60 @@ const OrdersModal: React.FC<OrdersModalProps> = ({ storeId, onClose }) => {
   const [orderData, setOrderData] = useState<any>(null);
   const [completedIds, setCompletedIds] = useState<number[]>([]);
   const [isConnected, setIsConnected] = useState(false);
+  const hasLoadedInitialOrders = useRef(false); // 최초 API 요청 방지용
 
   useEffect(() => {
-    const socket = new SockJS('https://igo.ai.kr/ws');
+    const socket = new SockJS(`${process.env.REACT_APP_API_URL}/ws`);
     const client: CompatClient = Stomp.over(socket);
 
     client.connect(
       {},
-      async () => {
+      () => {
         client.subscribe(`/topic/orders/${storeId}`, (message) => {
           try {
-            const payload = JSON.parse(message.body);
+            let payload = JSON.parse(message.body);
+
+            // ✅ JSON이 한 번 더 감싸진 문자열일 경우 처리
+            if (typeof payload === 'string') {
+              payload = JSON.parse(payload);
+            }
+
             console.log('📨 실시간 메시지 수신:', payload);
-            setOrderData(payload);
+
+            if (payload.groups && Array.isArray(payload.groups)) {
+              setOrderData(payload);
+            } else if (Array.isArray(payload)) {
+              setOrderData({ groups: payload });
+            } else {
+              console.warn('⚠️ 예상치 못한 메시지 구조:', payload);
+            }
           } catch (err) {
-            console.error('❌ 실시간 메시지 파싱 실패:', err);
+            console.error('❌ 메시지 파싱 실패:', err);
           }
         });
 
         setIsConnected(true);
 
-        try {
-          const res = await api.get(`/api/orders/getMenu`);
-          setOrderData(res.data);
-        } catch (err) {
-          console.error('❌ 주문 목록 불러오기 실패:', err);
-        }
+        // ✅ 최초 1회만 API 요청
+        (async () => {
+          if (hasLoadedInitialOrders.current) return;
+          hasLoadedInitialOrders.current = true;
+
+          try {
+            const res = await api.get(`/api/orders/getMenu`);
+            console.log('✅ 초기 주문 데이터 수신:', res.data);
+
+            if (res.data.groups && Array.isArray(res.data.groups)) {
+              setOrderData(res.data);
+            } else if (Array.isArray(res.data)) {
+              setOrderData({ groups: res.data });
+            } else {
+              console.warn('⚠️ API 데이터 구조가 이상함:', res.data);
+            }
+          } catch (err) {
+            console.error('❌ 주문 목록 불러오기 실패:', err);
+          }
+        })();
       },
       (error: unknown) => {
         console.error('❌ WebSocket 연결 실패:', error);
@@ -53,12 +81,11 @@ const OrdersModal: React.FC<OrdersModalProps> = ({ storeId, onClose }) => {
     };
   }, [storeId]);
 
+  console.log('🧪 orderData 상태:', orderData);
+
   const markOrderAsCompleted = async (orderGroupId: number) => {
     try {
-      await api.post(`/api/orders/${orderGroupId}/complete`, {
-        active: true,
-      });
-
+      await api.post(`/api/orders/${orderGroupId}/complete`, { active: true });
       setCompletedIds((prev) => [...prev, orderGroupId]);
       console.log(`✅ 주문 그룹 ${orderGroupId} 완료 처리됨`);
     } catch (err) {
@@ -74,31 +101,39 @@ const OrdersModal: React.FC<OrdersModalProps> = ({ storeId, onClose }) => {
 
         {!isConnected ? (
           <p>🕐 서버 연결 중...</p>
-        ) : orderData && orderData.groups?.length > 0 ? (
+        ) : orderData?.groups?.length > 0 ? (
           orderData.groups.map((group: any) => {
+            const orderGroupId = group.orderGroupId ?? Math.random();
             const isCompleted = completedIds.includes(group.orderGroupId);
+
             return (
               <div
-                key={group.orderGroupId}
+                key={orderGroupId}
                 className={`border rounded p-3 mb-4 ${isCompleted ? 'opacity-50' : ''}`}
               >
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-bold">🧾 주문 그룹 #{group.orderGroupId}</h3>
+                  <h3 className="font-bold">🧾 주문 그룹 #{group.orderGroupId ?? '미지정'}</h3>
                   <button
-                    onClick={() => markOrderAsCompleted(group.orderGroupId)}
+                    onClick={() =>
+                      group.orderGroupId && markOrderAsCompleted(group.orderGroupId)
+                    }
                     className="text-sm px-2 py-1 bg-green-500 text-white rounded disabled:opacity-50"
-                    disabled={isCompleted}
+                    disabled={isCompleted || !group.orderGroupId}
                   >
                     ✅ 완료
                   </button>
                 </div>
                 <ul className="space-y-1">
-                  {group.items.map((item: any, idx: number) => (
-                    <li key={idx} className="flex justify-between border-b py-1">
-                      <span>{item.menuName} × {item.quantity}</span>
-                      <span>₩{(item.price * item.quantity).toLocaleString()}</span>
-                    </li>
-                  ))}
+                  {group.items?.length > 0 ? (
+                    group.items.map((item: any, idx: number) => (
+                      <li key={idx} className="flex justify-between border-b py-1">
+                        <span>{item.menuName} × {item.quantity}</span>
+                        <span>₩{(item.price * item.quantity).toLocaleString()}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <li>❌ 주문 항목 없음</li>
+                  )}
                 </ul>
               </div>
             );

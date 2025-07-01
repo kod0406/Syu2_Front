@@ -35,31 +35,36 @@ const MenuCard: React.FC<Props> = ({ menu, storeId, onEdit, onDeleted, onToggled
   };
 
   return (
-    <li className="flex bg-white rounded shadow p-4 justify-between gap-4">
-      <div className="flex gap-4">
+    <li className="flex justify-between gap-6 bg-white/80 backdrop-blur-md border border-gray-200 shadow-xl rounded-3xl p-6 hover:shadow-2xl transition-all duration-200">
+      {/* 왼쪽: 이미지 + 정보 */}
+      <div className="flex gap-5">
         <img
           src={menu.imageUrl || ''}
           alt={menu.menuName}
-          className="w-28 h-24 object-cover rounded"
+          className="w-28 h-24 object-cover rounded-xl shadow-md"
         />
-        <div>
-          <h3 className="text-lg font-bold">{menu.menuName}</h3>
-          <p className="text-red-600 font-semibold">₩{menu.price?.toLocaleString()}</p>
+        <div className="flex flex-col justify-between">
+          <h3 className="text-xl font-bold text-gray-800">{menu.menuName}</h3>
+          <p className="text-red-500 text-lg font-semibold">
+            ₩{menu.price?.toLocaleString()}
+          </p>
           <p className="text-gray-500 text-sm">{menu.description}</p>
         </div>
       </div>
-      <div className="flex flex-col gap-2">
+
+      {/* 오른쪽: 버튼들 */}
+      <div className="flex flex-col items-end justify-between gap-2">
         <button
           onClick={() => onEdit(menu)}
-          className="px-3 py-1 bg-yellow-400 text-white rounded text-sm"
+          className="px-4 py-1 rounded-full bg-yellow-400 hover:bg-yellow-500 text-white text-sm font-medium shadow-md transition"
         >
-          수정
+          ✏️ 수정
         </button>
         <button
           onClick={handleDelete}
-          className="px-3 py-1 bg-red-500 text-white rounded text-sm"
+          className="px-4 py-1 rounded-full bg-red-500 hover:bg-red-600 text-white text-sm font-medium shadow-md transition"
         >
-          삭제
+          🗑️ 삭제
         </button>
         <ToggleButton
           storeId={storeId}

@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { useParams } from 'react-router-dom'; // 🔹 useParams 사용
 import api from '../API/TokenConfig';
+import { useParams, useNavigate } from 'react-router-dom';
 
 interface UserInfo {
   id: number;
@@ -10,12 +10,13 @@ interface UserInfo {
 }
 
 export default function ReviewWritePage() {
-  const { statisticsId } = useParams<{ statisticsId: string }>(); // 🔹 경로 파라미터로부터 추출
+  const { statisticsId } = useParams<{ statisticsId: string }>();
   const [reviewText, setReviewText] = useState('');
   const [rating, setRating] = useState(0);
   const [images, setImages] = useState<File[]>([]);
   const [statId, setStatId] = useState('');
   const [user, setUser] = useState<UserInfo | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (statisticsId) {
@@ -32,8 +33,10 @@ export default function ReviewWritePage() {
   }, [statisticsId]);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files ? Array.from(e.target.files) : [];
-    setImages(files.slice(0, 5));
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      setImages([files[0]]); // 사진 1장만 저장
+    }
   };
 
   const handleSubmit = async () => {
@@ -43,20 +46,26 @@ export default function ReviewWritePage() {
     }
 
     const formData = new FormData();
-    // formData.append('statisticsId', statId);
-    formData.append('customerStatisticsId', statId);  // ★ 수정된 부분
+    formData.append('statisticsId', String(Number(statId)));
     formData.append('date', new Date().toISOString().split('T')[0]);
     formData.append('reviewRating', String(rating));
     formData.append('comment', reviewText);
 
     if (images.length > 0) {
-      images.forEach((image, index) => {
-        formData.append('images', image); // 여러 장 업로드 가능하도록 수정
-      });
+      formData.append('image', images[0]); // 사진 1장만 추가
+    }
+
+    console.log('📦 전송할 formData 내용 확인:');
+    for (const [key, value] of formData.entries()) {
+      console.log(`🧾 ${key}:`, value);
     }
 
     try {
-      const res = await api.post('api/review/write', formData);
+      const res = await api.post('api/review/write', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       if (res.status !== 200) throw new Error('서버 오류');
       alert('리뷰가 등록되었습니다.');
       window.location.href = '/review';
@@ -68,7 +77,15 @@ export default function ReviewWritePage() {
 
   return (
     <div className="w-full max-w-xl mx-auto p-4 md:p-6 bg-white shadow rounded">
-      <h2 className="text-xl md:text-2xl font-bold mb-4">리뷰 작성</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl md:text-2xl font-bold">리뷰 작성</h2>
+        <button
+          onClick={() => navigate(-1)}
+          className="px-3 py-1 bg-gray-300 text-black rounded text-sm hover:bg-gray-400"
+        >
+          ← 돌아가기
+        </button>
+      </div>
 
       <input type="hidden" value={statId} />
 
@@ -98,8 +115,8 @@ export default function ReviewWritePage() {
       </div>
 
       <div className="mb-4">
-        <label className="block font-semibold mb-1 text-sm">음식 사진 첨부 (최대 5장)</label>
-        <input type="file" accept="image/*" multiple onChange={handleImageChange} />
+        <label className="block font-semibold mb-1 text-sm">음식 사진 첨부 (1장만)</label>
+        <input type="file" accept="image/*" onChange={handleImageChange} />
         <div className="flex gap-2 mt-2 flex-wrap">
           {images.map((img, idx) => (
             <img
@@ -111,7 +128,6 @@ export default function ReviewWritePage() {
           ))}
         </div>
       </div>
-
       <button
         onClick={handleSubmit}
         className="w-full bg-blue-500 text-white py-2.5 rounded hover:bg-blue-600 text-sm font-semibold"
