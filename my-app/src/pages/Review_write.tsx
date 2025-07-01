@@ -35,7 +35,7 @@ export default function ReviewWritePage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      setImages([files[0]]); // 사진 1장만 저장
+      setImages([files[0]]);
     }
   };
 
@@ -52,7 +52,7 @@ export default function ReviewWritePage() {
     formData.append('comment', reviewText);
 
     if (images.length > 0) {
-      formData.append('image', images[0]); // 사진 1장만 추가
+      formData.append('image', images[0]);
     }
 
     console.log('📦 전송할 formData 내용 확인:');
@@ -86,6 +86,12 @@ export default function ReviewWritePage() {
           ← 돌아가기
         </button>
       </div>
+
+      {user && (
+        <div className="mb-4 text-sm text-gray-600">
+          ✍️ 작성자: <span className="font-medium">{user.name}</span>
+        </div>
+      )}
 
       <input type="hidden" value={statId} />
 
