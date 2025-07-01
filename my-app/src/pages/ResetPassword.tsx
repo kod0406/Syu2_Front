@@ -44,9 +44,9 @@ export default function ResetPassword() {
       return;
     }
 
-    if (formData.newPassword.length < 6) {
+    if (formData.newPassword.length < 8) {
       setMessageType('error');
-      setMessage('비밀번호는 최소 6자 이상이어야 합니다.');
+      setMessage('비밀번호는 최소 8자 이상이어야 합니다.');
       return;
     }
 
@@ -198,10 +198,10 @@ export default function ResetPassword() {
                 value={formData.newPassword}
                 onChange={handleInputChange}
                 className="w-full p-4 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
-                placeholder="새 비밀번호를 입력하세요 (최소 6자)"
+                placeholder="새 비밀번호를 입력하세요 (최소 8자)"
                 required
                 disabled={isLoading}
-                minLength={6}
+                minLength={8}
               />
               <svg className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
@@ -239,7 +239,7 @@ export default function ResetPassword() {
               <div className="text-sm text-yellow-700">
                 <p className="font-medium mb-1">비밀번호 요구사항</p>
                 <ul className="list-disc list-inside space-y-1">
-                  <li>최소 6자 이상</li>
+                  <li>최소 8자 이상</li>
                   <li>영문, 숫자, 특수문자 조합 권장</li>
                   <li>다른 사이트와 다른 비밀번호 사용</li>
                 </ul>
@@ -303,7 +303,7 @@ export default function ResetPassword() {
             </svg>
             <div className="text-xs text-gray-600">
               <p className="font-medium mb-1">보안 안내</p>
-              <p>재설정 링크는 10분 후 자동으로 만료됩니다. 새 비밀번호는 즉시 적용되며, 다른 기기에서 로그인된 세션은 자동으로 로그아웃됩니다.</p>
+              <p>재설정 토큰은 1시간 후 자동으로 만료됩니다. 새 비밀번호는 즉시 적용되며, 다른 기기에서 로그인된 세션은 자동으로 로그아웃됩니다.</p>
             </div>
           </div>
         </div>

@@ -53,7 +53,7 @@ export default function ForgotPassword() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-3">비밀번호 찾기</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-3">비밀번호 재설정</h1>
           <p className="text-gray-600">
             {!isEmailSent
               ? '가입 시 사용한 이메일 주소를 입력하시면\n비밀번호 재설정 링크를 보내드립니다.'
@@ -149,7 +149,7 @@ export default function ForgotPassword() {
                   <ol className="list-decimal list-inside space-y-1">
                     <li>이메일함에서 재설정 링크를 확인하세요</li>
                     <li>스팸 메일함도 확인해보세요</li>
-                    <li>링크는 <strong>10분</strong> 후 만료됩니다</li>
+                    <li><strong>1시간</strong>안에 설정을 완료해 주세요.</li>
                     <li>링크를 클릭하여 새 비밀번호를 설정하세요</li>
                   </ol>
                 </div>
