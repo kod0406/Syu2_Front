@@ -32,7 +32,11 @@ const EditMenuModal: React.FC<Props> = ({ storeId, menu, onClose, onUpdated }) =
     if (image) formData.append('image', image);
 
     try {
-      await api.put(`/api/store/${storeId}/menus/${menu.menuId}`, formData);
+      await api.put(`/api/store/${storeId}/menus/${menu.menuId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
 
       const res = await api.get(
         `/api/Store/Menu?StoreNumber=${storeId}`

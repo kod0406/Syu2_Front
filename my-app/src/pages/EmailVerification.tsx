@@ -90,8 +90,6 @@ export default function EmailVerification() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
                 </svg>
               </div>
-              {/* 성공 애니메이션 효과 */}
-              <div className="absolute inset-0 rounded-full bg-green-200 animate-ping opacity-30"></div>
             </div>
 
             <h1 className="text-3xl font-bold text-green-600 mb-3">🎉 인증 완료!</h1>
