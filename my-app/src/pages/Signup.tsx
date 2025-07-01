@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../API/TokenConfig'; // api 인스턴스 임포트
+import Modal from '../pages/Modal';
 
 interface SignupResponse {
   error?: string;
@@ -19,12 +20,16 @@ export default function Signup() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [registeredEmail, setRegisteredEmail] = useState<string>('');
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [onConfirm, setOnConfirm] = useState<(() => void) | null>(null);
+
 
   const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      alert('비밀번호가 일치하지 않습니다.');
+setAlertMessage('❌ 비밀번호가 일치하지 않습니다.');
+setOnConfirm(() => () => {});
       return;
     }
 
@@ -43,11 +48,15 @@ export default function Signup() {
         setRegisteredEmail(data.email || email);
         setShowSuccessModal(true);
       } else {
-        alert(`회원가입 실패: ${data.error || '알 수 없는 오류'}`);
+setAlertMessage(`❌ 회원가입 실패: ${data.error || '알 수 없는 오류'}`);
+setOnConfirm(() => () => {});
+
       }
     } catch (err: any) {
       const errorData = err.response?.data;
-      alert('회원가입 중 오류 발생: ' + (errorData?.message || err.message));
+setAlertMessage('❌ 회원가입 중 오류 발생: ' + (errorData?.message || err.message));
+setOnConfirm(() => () => {});
+
     } finally {
       setIsLoading(false);
     }
@@ -62,6 +71,7 @@ export default function Signup() {
   };
 
   return (
+    <>
     <div className="flex items-center justify-center min-h-screen bg-green-100">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
         {/* 헤더 영역 */}
@@ -215,5 +225,17 @@ export default function Signup() {
         </div>
       )}
     </div>
+    {alertMessage && (
+  <Modal
+    message={alertMessage}
+    onClose={() => {
+      setAlertMessage(null);
+      setOnConfirm(null);
+    }}
+    onConfirm={onConfirm ?? undefined}
+    confirmText="확인"
+  />
+)}
+</>
   );
 }

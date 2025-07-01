@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import SockJS from 'sockjs-client';
 import { Stomp, CompatClient } from '@stomp/stompjs';
 import api from '../API/TokenConfig';
+import Modal from '../pages/Modal';
 
 interface OrdersModalProps {
   storeId: number;
@@ -13,6 +14,8 @@ const OrdersModal: React.FC<OrdersModalProps> = ({ storeId, onClose }) => {
   const [completedIds, setCompletedIds] = useState<number[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const hasLoadedInitialOrders = useRef(false); // 최초 API 요청 방지용
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [onConfirm, setOnConfirm] = useState<(() => void) | null>(null);
 
   useEffect(() => {
     const socket = new SockJS(`${process.env.REACT_APP_API_URL}/ws`);
@@ -90,11 +93,14 @@ const OrdersModal: React.FC<OrdersModalProps> = ({ storeId, onClose }) => {
       console.log(`✅ 주문 그룹 ${orderGroupId} 완료 처리됨`);
     } catch (err) {
       console.error('❌ 오류 발생:', err);
-      alert('주문 완료 처리 중 오류 발생');
+      setAlertMessage('❌ 주문 완료 처리 중 오류 발생');
+      setOnConfirm(null);
+
     }
   };
 
   return (
+    <>
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded shadow w-[500px] max-h-[80vh] overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">📦 실시간 주문 현황</h2>
@@ -149,6 +155,19 @@ const OrdersModal: React.FC<OrdersModalProps> = ({ storeId, onClose }) => {
         </div>
       </div>
     </div>
+    {alertMessage && (
+  <Modal
+    title="알림"
+    message={alertMessage}
+    onClose={() => {
+      setAlertMessage(null);
+      setOnConfirm(null);
+    }}
+    onConfirm={onConfirm ?? undefined}
+    confirmText="확인"
+  />
+)}
+</>
   );
 };
 

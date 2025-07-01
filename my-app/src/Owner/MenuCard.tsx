@@ -1,7 +1,7 @@
 import React from 'react';
 import ToggleButton from './ToggleButton';
 import api from '../API/TokenConfig';
-
+import Modal from '../pages/Modal';
 interface Menu {
   menuId: number;
   menuName: string;
@@ -21,20 +21,24 @@ interface Props {
 }
 
 const MenuCard: React.FC<Props> = ({ menu, storeId, onEdit, onDeleted, onToggled }) => {
-  const handleDelete = async () => {
-    console.log('현재 storeId:', storeId);
-    console.log('삭제하려는 메뉴:', menu);
-    if (!window.confirm('정말로 이 메뉴를 삭제하시겠습니까?')) return;
-    try {
-      await api.delete(`/api/store/${storeId}/menus/${menu.menuId}`);
-      onDeleted();
-    } catch (err) {
-      console.error('❌ 삭제 실패:', err);
-      alert('삭제 중 오류 발생');
-    }
+  const [alertMessage, setAlertMessage] = React.useState<string | null>(null);
+  const [onConfirm, setOnConfirm] = React.useState<(() => void) | null>(null);
+  const handleDelete = () => {
+    setAlertMessage('정말로 이 메뉴를 삭제하시겠습니까?');
+    setOnConfirm(() => async () => {
+      try {
+        await api.delete(`/api/store/${storeId}/menus/${menu.menuId}`);
+        onDeleted();
+      } catch (err) {
+        console.error('❌ 삭제 실패:', err);
+        setAlertMessage('삭제 중 오류 발생');
+        setOnConfirm(null);
+      }
+    });
   };
 
   return (
+    <>
     <li className="flex justify-between gap-6 bg-white/80 backdrop-blur-md border border-gray-200 shadow-xl rounded-3xl p-6 hover:shadow-2xl transition-all duration-200">
       {/* 왼쪽: 이미지 + 정보 */}
       <div className="flex gap-5">
@@ -76,6 +80,20 @@ const MenuCard: React.FC<Props> = ({ menu, storeId, onEdit, onDeleted, onToggled
         />
       </div>
     </li>
+    {alertMessage && (
+  <Modal
+    title="알림"
+    message={alertMessage}
+    onClose={() => {
+      setAlertMessage(null);
+      setOnConfirm(null);
+    }}
+    onConfirm={onConfirm ?? undefined}
+    confirmText="확인"
+    cancelText={onConfirm ? '취소' : undefined}
+  />
+)}
+</>
   );
 };
 

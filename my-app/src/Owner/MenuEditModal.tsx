@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '../API/TokenConfig';
+import Modal from '../pages/Modal';
 
 interface Props {
   storeId: number;
@@ -23,6 +24,9 @@ const EditMenuModal: React.FC<Props> = ({ storeId, menu, onClose, onUpdated }) =
   });
   const [image, setImage] = useState<File | null>(null);
 
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [onConfirm, setOnConfirm] = useState<(() => void) | null>(null);
+
   const handleSubmit = async () => {
     const formData = new FormData();
     formData.append('menuName', form.menuName);
@@ -32,26 +36,31 @@ const EditMenuModal: React.FC<Props> = ({ storeId, menu, onClose, onUpdated }) =
     if (image) formData.append('image', image);
 
     try {
-      await api.put(`/api/store/${storeId}/menus/${menu.menuId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+      await api.put(`/api/store/${storeId}/menus/${menu.menuId}`, formData, { headers: {
+        'Content-Type': 'multipart/form-data'
         }
-      });
+    });
+
 
       const res = await api.get(
         `/api/Store/Menu?StoreNumber=${storeId}`
       );
       const updatedMenus = res.data;
 
-      alert('메뉴가 수정되었습니다.');
-      onUpdated(updatedMenus);
+      setAlertMessage('✅ 메뉴가 수정되었습니다.');
+      setOnConfirm(() => () => {
+        onUpdated(updatedMenus);
+        onClose();
+      });
     } catch (err) {
       console.error('❌ 메뉴 수정 실패:', err);
-      alert('오류 발생');
+      setAlertMessage('❌ 메뉴 수정 중 오류가 발생했습니다.');
+      setOnConfirm(null);
     }
   };
 
   return (
+    <>
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded shadow w-96">
         <h2 className="text-lg font-bold mb-4">메뉴 수정</h2>
@@ -94,6 +103,19 @@ const EditMenuModal: React.FC<Props> = ({ storeId, menu, onClose, onUpdated }) =
         </div>
       </div>
     </div>
+    {alertMessage && (
+  <Modal
+    title="알림"
+    message={alertMessage}
+    onClose={() => {
+      setAlertMessage(null);
+      setOnConfirm(null);
+    }}
+    onConfirm={onConfirm ?? undefined}
+    confirmText="확인"
+  />
+)}
+  </>
   );
 };
 
