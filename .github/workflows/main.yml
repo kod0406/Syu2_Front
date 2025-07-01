@@ -16,6 +16,13 @@ jobs:
         working-directory: ./my-app
         run: npm install
 
+      - name: Create .env.local file
+        working-directory: ./my-app
+        run: |
+          cat <<EOF > .env.local
+          ${{ secrets.APPLICATION_PROPERTIES }}
+          EOF
+
       - name: Build frontend
         working-directory: ./my-app
         run: CI='' npm run build
