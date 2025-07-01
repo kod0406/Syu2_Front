@@ -3,7 +3,7 @@ name: Deploy React App to GitHub Pages
 on:
   push:
     branches:
-      - lnh # main 브랜치에 push될 때만 실행됨
+      - main # main 브랜치에 push될 때만 실행됨
 
 jobs:
   build-and-deploy:
