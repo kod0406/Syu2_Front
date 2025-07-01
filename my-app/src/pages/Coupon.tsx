@@ -4,6 +4,7 @@ import CouponCreateModal from '../Coupon/CouponCreateModal';
 import CouponEditModal, { CouponForm as CouponEditForm } from '../Coupon/CouponEditModal';
 import CouponList, { Coupon } from '../Coupon/CouponList';
 import api from '../API/TokenConfig';
+import AlertModal from '../Coupon/AlertCoupon'; // 경로는 너 프로젝트에 맞게 수정
 
 interface CouponCreateForm {
   couponName: string;
@@ -27,6 +28,10 @@ export default function CouponPage() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
 
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
+  const [isConfirmMode, setIsConfirmMode] = useState(false);
+
   const [createForm, setCreateForm] = useState<CouponCreateForm>({
     couponName: '',
     discountType: 'PERCENTAGE',
@@ -48,7 +53,8 @@ export default function CouponPage() {
       setCoupons(response.data);
     } catch (error) {
       console.error('❌ 쿠폰 목록 조회 오류:', error);
-      alert('쿠폰 목록을 불러오는 데 실패했습니다.');
+      setAlertMessage('쿠폰 목록을 불러오는 데 실패했습니다.');
+      setIsConfirmMode(false);
     }
   }, [storeId]);
 
@@ -76,13 +82,15 @@ export default function CouponPage() {
 
     try {
       await api.post('/api/store/coupons', payload);
-      alert('✅ 쿠폰이 성공적으로 생성되었습니다.');
+      setAlertMessage('✅ 쿠폰이 성공적으로 생성되었습니다.');
+      setIsConfirmMode(false);
       setShowCreateModal(false);
       fetchCoupons();
     } catch (error: any) {
       console.error('쿠폰 생성 오류:', error);
       const message = error.response?.data?.message || '네트워크 오류 또는 서버 내부 오류';
-      alert(`❌ 생성 실패: ${message}`);
+      setAlertMessage(`❌ 생성 실패: ${message}`);
+      setIsConfirmMode(false);
     }
   };
 
@@ -111,39 +119,48 @@ export default function CouponPage() {
 
     try {
       await api.put(`/api/store/coupons/${couponId}`, payload);
-      alert('✅ 쿠폰이 성공적으로 수정되었습니다.');
+      setAlertMessage('✅ 쿠폰이 성공적으로 수정되었습니다.');
+      setIsConfirmMode(false);
       setShowEditModal(false);
       setEditingCoupon(null);
       fetchCoupons();
     } catch (error: any) {
       console.error('쿠폰 수정 오류:', error);
       const message = error.response?.data?.message || '네트워크 오류 또는 서버 내부 오류';
-      alert(`❌ 수정 실패: ${message}`);
+      setAlertMessage(`❌ 수정 실패: ${message}`);
+      setIsConfirmMode(false);
     }
   };
 
-  const handleDeleteCoupon = async (couponId: number) => {
-    if (!window.confirm('정말로 이 쿠폰을 삭제하시겠습니까? 발급된 쿠폰은 삭제할 수 없습니다.')) return;
-    try {
-      await api.delete(`/api/store/coupons/${couponId}`);
-      alert('✅ 쿠폰이 삭제되었습니다.');
-      fetchCoupons();
-    } catch (error: any) {
-      console.error('쿠폰 삭제 오류:', error);
-      const message = error.response?.data?.message || '네트워크 오류 또는 서버 내부 오류';
-      alert(`❌ 삭제 실패: ${message}`);
-    }
+  const handleDeleteCoupon = (couponId: number) => {
+    setAlertMessage('정말로 이 쿠폰을 삭제하시겠습니까? 발급된 쿠폰은 삭제할 수 없습니다.');
+    setIsConfirmMode(true);
+    setConfirmAction(() => async () => {
+      try {
+        await api.delete(`/api/store/coupons/${couponId}`);
+        setAlertMessage('✅ 쿠폰이 삭제되었습니다.');
+        setIsConfirmMode(false);
+        fetchCoupons();
+      } catch (error: any) {
+        console.error('쿠폰 삭제 오류:', error);
+        const message = error.response?.data?.message || '네트워크 오류 또는 서버 내부 오류';
+        setAlertMessage(`❌ 삭제 실패: ${message}`);
+        setIsConfirmMode(false);
+      }
+    });
   };
 
   const handleStatusChange = async (couponId: number, status: Coupon['status']) => {
     try {
       await api.patch(`/api/store/coupons/${couponId}/status`, { status });
-      alert(`✅ 쿠폰 상태가 ${status}(으)로 변경되었습니다.`);
+      setAlertMessage(`✅ 쿠폰 상태가 ${status}(으)로 변경되었습니다.`);
+      setIsConfirmMode(false);
       fetchCoupons();
     } catch (error: any) {
       console.error('쿠폰 상태 변경 오류:', error);
       const message = error.response?.data?.message || '네트워크 오류 또는 서버 내부 오류';
-      alert(`❌ 상태 변경 실패: ${message}`);
+      setAlertMessage(`❌ 상태 변경 실패: ${message}`);
+      setIsConfirmMode(false);
     }
   };
 
@@ -151,7 +168,6 @@ export default function CouponPage() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">🎟️ 쿠폰 관리</h1>
 
-      {/* 상단 버튼 그룹 */}
       <div className="flex items-center gap-2 mb-6">
         <button
           onClick={() => setShowCreateModal(true)}
@@ -167,7 +183,6 @@ export default function CouponPage() {
         </button>
       </div>
 
-      {/* 쿠폰 생성 모달 */}
       {showCreateModal && (
         <CouponCreateModal
           form={createForm}
@@ -179,7 +194,6 @@ export default function CouponPage() {
         />
       )}
 
-      {/* 쿠폰 수정 모달 */}
       {showEditModal && editingCoupon && (
         <CouponEditModal
           coupon={editingCoupon}
@@ -191,13 +205,25 @@ export default function CouponPage() {
         />
       )}
 
-      {/* 쿠폰 목록 */}
       <CouponList
         coupons={coupons}
         onEdit={handleEditClick}
         onDelete={handleDeleteCoupon}
         onStatusChange={handleStatusChange}
       />
+
+      {alertMessage && (
+        <AlertModal
+          message={alertMessage}
+          onClose={() => {
+            setAlertMessage(null);
+            setConfirmAction(null);
+          }}
+          onConfirm={isConfirmMode ? confirmAction! : undefined}
+          confirmText={isConfirmMode ? '확인' : '닫기'}
+          cancelText="취소"
+        />
+      )}
     </div>
   );
 }
