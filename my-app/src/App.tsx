@@ -36,7 +36,7 @@ function App() {
 
     // 현재 페이지 경로를 확인하여 적절한 로그인 페이지로 리다이렉트
     const currentPath = window.location.pathname;
-    if (currentPath.includes('/owner/') || currentPath.includes('/dashboard/')) {
+    if (currentPath.includes('/owner/') || currentPath.includes('/dashboard/')) { // 여기에서 추가 가능
       // 점주 관련 페이지에서 세션 만료된 경우
       window.location.href = '/owner/login';
     } else {
