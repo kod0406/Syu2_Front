@@ -1,7 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../API/TokenConfig';
-import GlobalModal from '../pages/Modal'; // ✅ 모달 import 경로는 실제 위치에 맞게 조정
+import GlobalModal from '../pages/Modal';
 
 interface StoreLoginResponse {
   storeId: number;

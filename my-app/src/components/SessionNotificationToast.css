@@ -1,0 +1,93 @@
+.notification-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    max-width: 400px;
+    min-width: 320px;
+    z-index: 9998;
+    animation: slideIn 0.4s ease;
+    border: 1px solid #e5e7eb;
+}
+
+.notification-toast.info {
+    border-left: 5px solid #3b82f6;
+}
+
+.toast-header {
+    padding: 16px 20px 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f8fafc;
+    border-radius: 12px 12px 0 0;
+}
+
+.toast-header strong {
+    color: #1e293b;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #64748b;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.toast-close:hover {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.toast-body {
+    padding: 16px 20px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #475569;
+}
+
+/* 애니메이션 */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* 모바일 반응형 */
+@media (max-width: 640px) {
+    .notification-toast {
+        top: 16px;
+        right: 16px;
+        left: 16px;
+        max-width: none;
+        min-width: auto;
+    }
+
+    .toast-header {
+        padding: 14px 16px 10px 16px;
+    }
+
+    .toast-body {
+        padding: 14px 16px;
+        font-size: 12px;
+    }
+}
