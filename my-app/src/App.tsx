@@ -19,7 +19,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 
 function App() {
-  console.log('✅ ENV:', process.env.REACT_APP_API_URL);
+
+    // 사용자 정의 훅을 사용하여 세션 알림 및 상태 관리(문제 있으면 .env 파일에서 REACT_APP_API_URL 설정 확인)
 
   // 세션 알림 훅 사용
   const {
@@ -31,6 +32,7 @@ function App() {
   // 로그인 페이지로 리다이렉트
   const handleLoginRedirect = () => {
     clearNotification();
+    clearSessionAndRedirect(); // 토큰 삭제 및 리다이렉트도 항상 실행
 
     // 현재 페이지 경로를 확인하여 적절한 로그인 페이지로 리다이렉트
     const currentPath = window.location.pathname;

@@ -50,7 +50,11 @@ export default function CustomerLogin() {
       }
 
       setAlertMessage('로그인 성공!');
-      setOnConfirm(() => () => navigate(`/owner/dashboard/${data.storeId}`));
+      setOnConfirm(() => () => {
+        setTimeout(() => {
+          navigate(`/owner/dashboard/${data.storeId}`);
+        }, 200); // 200ms 딜레이 후 페이지 이동
+      });
     } catch (err: any) {
       const errorData = err.response?.data;
       const errorCode = errorData?.errorCode;
