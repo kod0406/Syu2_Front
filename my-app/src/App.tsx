@@ -1,4 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
+import { useSessionNotification } from './hooks/useSessionNotification';
+import SessionNotificationModal from './components/SessionNotificationModal';
+import SessionNotificationToast from './components/SessionNotificationToast';
 import Login from './pages/Login';
 import Menu from './pages/Menu';
 import OwnerDashboard from './pages/Owner';
@@ -16,7 +19,38 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 
 function App() {
-  console.log('✅ ENV:', process.env.REACT_APP_API_URL);
+
+    // 사용자 정의 훅을 사용하여 세션 알림 및 상태 관리(문제 있으면 .env 파일에서 REACT_APP_API_URL 설정 확인)
+
+  // 세션 알림 훅 사용
+  const {
+    notification,
+    clearNotification,
+    clearSessionAndRedirect
+  } = useSessionNotification();
+
+  // 로그인 페이지로 리다이렉트
+  const handleLoginRedirect = () => {
+    clearNotification();
+    clearSessionAndRedirect(); // 토큰 삭제 및 리다이렉트도 항상 실행
+
+    // 현재 페이지 경로를 확인하여 적절한 로그인 페이지로 리다이렉트
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/owner/') || currentPath.includes('/dashboard/')) {
+      // 점주 관련 페이지에서 세션 만료된 경우
+      window.location.href = '/owner/login';
+    } else {
+      // 그 외의 경우 (고객 관련 페이지)
+      window.location.href = '/customer/login';
+    }
+  };
+
+  // 세션 정리 및 리다이렉트
+  const handleClearSession = () => {
+    clearNotification();
+    clearSessionAndRedirect();
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Routes>
@@ -36,6 +70,30 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
+
+      {/* 세션 알림 모달 - 세션 무효화 및 강제 로그아웃용 */}
+      {notification && (notification.type === 'SESSION_INVALIDATED' || notification.type === 'FORCE_LOGOUT') && (
+        <SessionNotificationModal
+          notification={notification}
+          onClose={clearNotification}
+          onLoginRedirect={handleLoginRedirect}
+          onClearSession={handleClearSession}
+        />
+      )}
+
+      {/* 세션 알림 토스트 - 새 기기 로그인 감지용 */}
+      {notification && notification.type === 'NEW_DEVICE_LOGIN' && notification.deviceInfo && (
+        <SessionNotificationToast
+          notification={{
+            type: 'NEW_DEVICE_LOGIN',
+            message: notification.message,
+            deviceInfo: notification.deviceInfo,
+            timestamp: notification.timestamp
+          }}
+          onClose={clearNotification}
+          duration={8000}
+        />
+      )}
     </div>
   );
 }
