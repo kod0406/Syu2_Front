@@ -2,6 +2,8 @@ import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../API/TokenConfig'; // api 인스턴스 임포트
 import Modal from '../pages/Modal';
+import KakaoMapScript from '../components/KakaoMapScript';
+import AddressSearch from '../components/AddressSearch';
 
 interface SignupResponse {
   error?: string;
@@ -17,46 +19,81 @@ export default function Signup() {
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [storeName, setStoreName] = useState<string>('');
+  const [address, setAddress] = useState<string>('');
+  const [addressX, setAddressX] = useState<number | null>(null);
+  const [addressY, setAddressY] = useState<number | null>(null);
+  const [addressPlaceName, setAddressPlaceName] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [registeredEmail, setRegisteredEmail] = useState<string>('');
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [onConfirm, setOnConfirm] = useState<(() => void) | null>(null);
+  const [addressChecked, setAddressChecked] = useState(false);
 
 
   const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-setAlertMessage('❌ 비밀번호가 일치하지 않습니다.');
-setOnConfirm(() => () => {});
+      setAlertMessage('❌ 비밀번호가 일치하지 않습니다.');
+      setOnConfirm(null); // 빈 함수 대신 null로 변경
+      return;
+    }
+    if (!addressChecked) {
+      setAlertMessage('❌ 주소를 정확히 선택(체크)해 주세요.');
+      setOnConfirm(null); // 빈 함수 대신 null로 변경
       return;
     }
 
     setIsLoading(true);
 
     try {
+      // 1. 회원가입 요청 (주소 정보 제외)
       const response = await api.post('/api/stores/register', {
         ownerEmail: email,
         password,
-        storeName,
+        storeName
       });
 
       const data: SignupResponse = response.data;
 
       if (response.status === 200) {
+        // 2. 주소 정보 별도 전송
+        try {
+          // address에서 city, district 파싱 (예: '서울특별시 강남구 ...')
+          let city = '';
+          let district = '';
+          if (address) {
+            const parts = address.split(' ');
+            if (parts.length >= 2) {
+              city = parts[0];
+              district = parts[1];
+            }
+          }
+          await api.post('/api/stores/address', null, {
+            params: {
+              storeId: data.storeId, // 회원가입 응답에서 받은 storeId
+              fullAddress: address,
+              city,
+              district,
+              latitude: addressY,
+              longitude: addressX,
+            }
+          });
+        } catch (addressError: any) {
+          setAlertMessage('⚠️ 회원가입은 완료되었으나, 주소 저장에 실패했습니다.\n관리자에게 문의해주세요.');
+          setOnConfirm(() => handleGoToLogin);
+        }
         setRegisteredEmail(data.email || email);
         setShowSuccessModal(true);
       } else {
-setAlertMessage(`❌ 회원가입 실패: ${data.error || '알 수 없는 오류'}`);
-setOnConfirm(() => () => {});
-
+        setAlertMessage(`❌ 회원가입 실패: ${data.error || '알 수 없는 오류'}`);
+        setOnConfirm(null); // 빈 함수 대신 null로 변경
       }
     } catch (err: any) {
       const errorData = err.response?.data;
-setAlertMessage('❌ 회원가입 중 오류 발생: ' + (errorData?.message || err.message));
-setOnConfirm(() => () => {});
-
+      setAlertMessage('❌ 회원가입 중 오류 발생: ' + (errorData?.message || err.message));
+      setOnConfirm(null); // 빈 함수 대신 null로 변경
     } finally {
       setIsLoading(false);
     }
@@ -135,6 +172,26 @@ setOnConfirm(() => () => {});
                 className="w-full p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700 placeholder-gray-400 disabled:bg-gray-50 disabled:text-gray-500"
                 required
                 disabled={isLoading}
+            />
+          </div>
+
+          {/* 주소 입력 */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700 block">가게 주소</label>
+            <KakaoMapScript />
+            <AddressSearch
+              onAddressSelect={(addr, x, y, placeName) => {
+                setAddress(addr);
+                setAddressX(x);
+                setAddressY(y);
+                setAddressChecked(!!addr);
+                setAddressPlaceName(placeName || '');
+              }}
+              placeholder="도로명, 지번, 건물명 등으로 검색"
+              defaultValue={address}
+              className="w-full p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700 placeholder-gray-400 disabled:bg-gray-50 disabled:text-gray-500"
+              name="storeAddress"
+              disabled={isLoading}
             />
           </div>
 
