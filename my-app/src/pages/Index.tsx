@@ -5,7 +5,7 @@ export default function IndexPage() {
   const navigate = useNavigate();
 
   const handleGuest = (): void => {
-    const target = sessionStorage.getItem('qr-redirect-url') || '/';
+    const target = sessionStorage.getItem('qr-redirect-url') || '/home';
     navigate(target);
   };
 

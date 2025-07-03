@@ -14,6 +14,7 @@ import EmailVerification from './pages/EmailVerification';
 import EmailResend from './pages/EmailResend';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import Location from './pages/location';
 
 function App() {
   console.log('✅ ENV:', process.env.REACT_APP_API_URL);
@@ -28,13 +29,14 @@ function App() {
         <Route path="/review" element={<Review />} />
         <Route path="/review/write/:statisticsId" element={<ReviewWrite />} />
         <Route path="/index" element={<Index />} />
-        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/owner/:storeId/coupon" element={<Coupon />} />
         <Route path="/my-coupons" element={<CustomerCouponPage />} />
         <Route path="/verify-email" element={<EmailVerification />} />
         <Route path="/email-resend" element={<EmailResend />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/" element={<Location />} />
       </Routes>
     </div>
   );
