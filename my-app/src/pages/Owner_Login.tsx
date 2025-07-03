@@ -1,7 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../API/TokenConfig';
-import GlobalModal from '../pages/Modal'; // ✅ 모달 import 경로는 실제 위치에 맞게 조정
+import GlobalModal from '../pages/Modal';
 
 interface StoreLoginResponse {
   storeId: number;
@@ -50,7 +50,11 @@ export default function CustomerLogin() {
       }
 
       setAlertMessage('로그인 성공!');
-      setOnConfirm(() => () => navigate(`/owner/dashboard/${data.storeId}`));
+      setOnConfirm(() => () => {
+        setTimeout(() => {
+          navigate(`/owner/dashboard/${data.storeId}`);
+        }, 200); // 200ms 딜레이 후 페이지 이동
+      });
     } catch (err: any) {
       const errorData = err.response?.data;
       const errorCode = errorData?.errorCode;
