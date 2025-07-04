@@ -35,10 +35,10 @@ export default function ReviewListPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-2">
         <h2 className="text-xl md:text-2xl font-bold">주문 내역</h2>
         <button
-          onClick={() => navigate("/")}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm md:text-base"
+          onClick={() => navigate(-1)}
+          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm md:text-base"
         >
-          메뉴로 돌아가기
+          이전 페이지로
         </button>
       </div>
 
