@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useGeolocation } from "../hooks/useGeolocation";
 import api from "../API/TokenConfig";
 import MenuCard from "../Menu/MenuCard";
-import Modal from "../pages/Modal";
 import { useNavigate } from "react-router-dom";
 
 interface Store {
@@ -69,10 +68,6 @@ const LocationSender: React.FC = () => {
     }
   };
 
-  const handleOrderClick = (storeId: number) => {
-    navigate(`/menu/${storeId}`);
-  };
-
   const handleCloseModal = () => {
     setIsMenuModalOpen(false);
     setMenu([]);
@@ -106,20 +101,12 @@ const LocationSender: React.FC = () => {
           <div className="bg-white rounded-lg p-6 w-full max-w-4xl h-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">{selectedStore.storeName}</h2>
-              <div>
-                <button
-                  onClick={() => handleOrderClick(selectedStore.storeId)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg mr-2"
-                >
-                  주문하기
-                </button>
-                <button
-                  onClick={handleCloseModal}
-                  className="text-gray-500 hover:text-gray-800 bg-gray-200 px-4 py-2 rounded-lg"
-                >
-                  닫기
-                </button>
-              </div>
+              <button
+                onClick={handleCloseModal}
+                className="text-gray-500 hover:text-gray-800 bg-gray-200 px-4 py-2 rounded-lg"
+              >
+                닫기
+              </button>
             </div>
             <div className="space-y-6">
               {menu.length > 0 ? (
@@ -127,8 +114,9 @@ const LocationSender: React.FC = () => {
                   <MenuCard
                     key={item.menuId}
                     item={item}
-                    onAdd={() => handleOrderClick(selectedStore.storeId)} // 주문하기 페이지로 이동
-                    onViewReviews={() => {}} // 리뷰보기는 이 모달에서 비활성화
+                    onAdd={() => {}} // No action
+                    onViewReviews={() => {}} // No action
+                    showAddButton={false} // Hide add button
                   />
                 ))
               ) : (

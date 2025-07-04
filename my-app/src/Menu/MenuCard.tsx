@@ -11,9 +11,15 @@ interface Props {
   };
   onAdd: () => void;
   onViewReviews: (menuId: number, menuName: string) => void;
+  showAddButton?: boolean; // Optional prop
 }
 
-export default function MenuCard({ item, onAdd, onViewReviews }: Props) {
+export default function MenuCard({
+  item,
+  onAdd,
+  onViewReviews,
+  showAddButton = true, // Default to true
+}: Props) {
   return (
     <div className="w-full relative flex flex-col md:flex-row gap-4 bg-white rounded shadow p-4">
       {/* 리뷰 보기 버튼 - 우상단 고정 */}
@@ -45,12 +51,14 @@ export default function MenuCard({ item, onAdd, onViewReviews }: Props) {
           </p>
           <p className="text-gray-500 text-sm">{item.description}</p>
         </div>
-        <button
-          onClick={onAdd}
-          className="mt-2 w-full md:w-auto px-3 py-1 bg-orange-500 text-white rounded text-sm"
-        >
-          담기
-        </button>
+        {showAddButton && (
+          <button
+            onClick={onAdd}
+            className="mt-2 w-full md:w-auto px-3 py-1 bg-orange-500 text-white rounded text-sm"
+          >
+            담기
+          </button>
+        )}
       </div>
     </div>
   );
