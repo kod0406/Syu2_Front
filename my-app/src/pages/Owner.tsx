@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import DashboardHeader from "../Owner/DashboardHeader";
@@ -10,26 +9,11 @@ import SalesModal from "../Owner/SalesModal";
 import OrdersModal from "../Owner/OrdersModal";
 import StoreProfileModal from "../Owner/StoreProfileModal";
 import QRModal from "../Owner/QrModal";
+import AIRecommendationSection from "../Owner/AIRecommendationSection";
+import WeatherDashboard from "../Owner/WeatherDashboard"; // ✅ 추가
+import RecommendationHistory from "../Owner/RecommendationHistory"; // ✅ 추가
 import api from "../API/TokenConfig";
-import GlobalModal from "../pages/Modal"; // ✅ 추가
-=======
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import DashboardHeader from '../Owner/DashboardHeader';
-import DashboardMenu from '../Owner/DashboardMenu';
-import MenuList from '../Owner/MenuList';
-import AddMenuModal from '../Owner/MenuAddModal';
-import EditMenuModal from '../Owner/MenuEditModal';
-import SalesModal from '../Owner/SalesModal';
-import OrdersModal from '../Owner/OrdersModal';
-import StoreProfileModal from '../Owner/StoreProfileModal';
-import QRModal from '../Owner/QrModal';
-import AIRecommendationSection from '../Owner/AIRecommendationSection';
-import WeatherDashboard from '../Owner/WeatherDashboard'; // ✅ 추가
-import RecommendationHistory from '../Owner/RecommendationHistory'; // ✅ 추가
-import api from '../API/TokenConfig';
-import GlobalModal from '../pages/Modal';
->>>>>>> 41cc38458c1b036ac5df957cb9577c5235bf12c8
+import GlobalModal from "../pages/Modal";
 
 interface Menu {
   menuId: number;
@@ -62,7 +46,8 @@ export default function OwnerDashboard() {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [onConfirm, setOnConfirm] = useState<(() => void) | null>(null);
   const [showWeatherDashboard, setShowWeatherDashboard] = useState(false); // ✅ 추가
-  const [showRecommendationHistory, setShowRecommendationHistory] = useState(false); // ✅ 추가
+  const [showRecommendationHistory, setShowRecommendationHistory] =
+    useState(false); // ✅ 추가
 
   const navigate = useNavigate();
 
@@ -159,8 +144,18 @@ export default function OwnerDashboard() {
                 onClick={() => setShowWeatherDashboard(false)}
                 className="text-gray-500 hover:text-gray-700"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
                 </svg>
               </button>
             </div>
@@ -174,13 +169,25 @@ export default function OwnerDashboard() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-800">추천 히스토리</h2>
+              <h2 className="text-2xl font-bold text-gray-800">
+                추천 히스토리
+              </h2>
               <button
                 onClick={() => setShowRecommendationHistory(false)}
                 className="text-gray-500 hover:text-gray-700"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
                 </svg>
               </button>
             </div>
@@ -190,9 +197,7 @@ export default function OwnerDashboard() {
       )}
 
       {/* ✅ AI 추천 섹션 */}
-      {storeId && (
-        <AIRecommendationSection storeId={storeId} />
-      )}
+      {storeId && <AIRecommendationSection storeId={storeId} />}
 
       {storeId && (
         <MenuList
