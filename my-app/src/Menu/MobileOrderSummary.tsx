@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { CustomerCoupon } from '../types/coupon';
+import React, { useState } from "react";
+import { CustomerCoupon } from "../types/coupon";
 
 interface OrderItem {
   menuName: string;
@@ -47,10 +47,13 @@ export default function MobileOrderSummary({
   onRemove,
 }: Props) {
   const renderOrderItem = (item: OrderItem, index: number) => {
-    if (item.menuName.startsWith('CouponUsed:')) {
-      const couponName = selectedCoupon?.couponName || '쿠폰 할인';
+    if (item.menuName.startsWith("CouponUsed:")) {
+      const couponName = selectedCoupon?.couponName || "쿠폰 할인";
       return (
-        <li key={index} className="flex justify-between items-center text-sm bg-green-50 p-2 rounded">
+        <li
+          key={index}
+          className="flex justify-between items-center text-sm bg-green-50 p-2 rounded"
+        >
           <div className="flex flex-col">
             <span className="text-green-700 font-medium">🎫 {couponName}</span>
             <span className="text-green-600 text-xs">할인 적용</span>
@@ -62,9 +65,12 @@ export default function MobileOrderSummary({
       );
     }
 
-    if (item.menuName.startsWith('UserPointUsedOrNotUsed')) {
+    if (item.menuName.startsWith("UserPointUsedOrNotUsed")) {
       return (
-        <li key={index} className="flex justify-between items-center text-sm bg-blue-50 p-2 rounded">
+        <li
+          key={index}
+          className="flex justify-between items-center text-sm bg-blue-50 p-2 rounded"
+        >
           <div className="flex flex-col">
             <span className="text-blue-700 font-medium">💰 포인트 사용</span>
             <span className="text-blue-600 text-xs">
@@ -89,9 +95,24 @@ export default function MobileOrderSummary({
           </span>
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={() => onDecrease(index)} className="px-2 bg-gray-200 rounded">-</button>
-          <button onClick={() => onIncrease(index)} className="px-2 bg-gray-200 rounded">+</button>
-          <button onClick={() => onRemove(index)} className="text-red-500 hover:text-red-700 ml-2">X</button>
+          <button
+            onClick={() => onDecrease(index)}
+            className="px-2 bg-gray-200 rounded"
+          >
+            -
+          </button>
+          <button
+            onClick={() => onIncrease(index)}
+            className="px-2 bg-gray-200 rounded"
+          >
+            +
+          </button>
+          <button
+            onClick={() => onRemove(index)}
+            className="text-red-500 hover:text-red-700 ml-2"
+          >
+            X
+          </button>
         </div>
       </li>
     );
@@ -101,14 +122,18 @@ export default function MobileOrderSummary({
     <div className="fixed bottom-0 left-0 w-full bg-white shadow-md p-4 md:hidden z-50">
       <div className="flex justify-between items-center mb-2">
         <p className="text-lg font-bold">총 결제금액</p>
-        <p className="text-lg font-bold text-red-600">₩{totalAmount.toLocaleString()}</p>
+        <p className="text-lg font-bold text-red-600">
+          ₩{totalAmount.toLocaleString()}
+        </p>
       </div>
 
       {isLoggedIn && (
         <div className="flex justify-between gap-2 mb-3">
           {selectedCoupon ? (
             <div className="flex-1 p-2 border rounded-lg bg-green-50 text-center">
-              <p className="text-sm font-semibold truncate">{selectedCoupon.couponName}</p>
+              <p className="text-sm font-semibold truncate">
+                {selectedCoupon.couponName}
+              </p>
               <button
                 onClick={onCancelCoupon}
                 className="text-xs text-gray-500 hover:text-red-500"
@@ -157,7 +182,10 @@ export default function MobileOrderSummary({
           <div className="bg-white w-11/12 max-h-[80vh] overflow-y-auto rounded p-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold">주문 내역</h3>
-              <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-red-500">
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-gray-500 hover:text-red-500"
+              >
                 닫기
               </button>
             </div>

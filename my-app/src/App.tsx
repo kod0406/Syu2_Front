@@ -1,34 +1,30 @@
-import { Routes, Route } from 'react-router-dom';
-import { useSessionNotification } from './hooks/useSessionNotification';
-import SessionNotificationModal from './components/SessionNotificationModal';
-import SessionNotificationToast from './components/SessionNotificationToast';
-import Login from './pages/Login';
-import Menu from './pages/Menu';
-import OwnerDashboard from './pages/Owner';
-import SignUp from './pages/Signup';
-import OwnerLogin from './pages/Owner_Login';
-import Review from './pages/Review';
-import ReviewWrite from './pages/Review_write';
-import Index from './pages/Index';
-import Home from './pages/Home';
-import Coupon from './pages/Coupon';
-import CustomerCouponPage from './pages/CustomerCouponPage';
-import EmailVerification from './pages/EmailVerification';
-import EmailResend from './pages/EmailResend';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import Location from './pages/location';
+import { Routes, Route } from "react-router-dom";
+import { useSessionNotification } from "./hooks/useSessionNotification";
+import SessionNotificationModal from "./components/SessionNotificationModal";
+import SessionNotificationToast from "./components/SessionNotificationToast";
+import Login from "./pages/Login";
+import Menu from "./pages/Menu";
+import OwnerDashboard from "./pages/Owner";
+import SignUp from "./pages/Signup";
+import OwnerLogin from "./pages/Owner_Login";
+import Review from "./pages/Review";
+import ReviewWrite from "./pages/Review_write";
+import Index from "./pages/Index";
+import Home from "./pages/Home";
+import Coupon from "./pages/Coupon";
+import CustomerCouponPage from "./pages/CustomerCouponPage";
+import EmailVerification from "./pages/EmailVerification";
+import EmailResend from "./pages/EmailResend";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import Location from "./pages/location";
 
 function App() {
-
-    // 사용자 정의 훅을 사용하여 세션 알림 및 상태 관리(문제 있으면 .env 파일에서 REACT_APP_API_URL 설정 확인)
+  // 사용자 정의 훅을 사용하여 세션 알림 및 상태 관리(문제 있으면 .env 파일에서 REACT_APP_API_URL 설정 확인)
 
   // 세션 알림 훅 사용
-  const {
-    notification,
-    clearNotification,
-    clearSessionAndRedirect
-  } = useSessionNotification();
+  const { notification, clearNotification, clearSessionAndRedirect } =
+    useSessionNotification();
 
   // 로그인 페이지로 리다이렉트
   const handleLoginRedirect = () => {
@@ -37,12 +33,16 @@ function App() {
 
     // 현재 페이지 경로를 확인하여 적절한 로그인 페이지로 리다이렉트
     const currentPath = window.location.pathname;
-    if (currentPath.includes('/owner/') || currentPath.includes('/dashboard/')) { // 여기에서 추가 가능
+    if (
+      currentPath.includes("/owner/") ||
+      currentPath.includes("/dashboard/")
+    ) {
+      // 여기에서 추가 가능
       // 점주 관련 페이지에서 세션 만료된 경우
-      window.location.href = '/owner/login';
+      window.location.href = "/owner/login";
     } else {
       // 그 외의 경우 (고객 관련 페이지)
-      window.location.href = '/customer/login';
+      window.location.href = "/customer/login";
     }
   };
 
@@ -74,28 +74,32 @@ function App() {
       </Routes>
 
       {/* 세션 알림 모달 - 세션 무효화 및 강제 로그아웃용 */}
-      {notification && (notification.type === 'SESSION_INVALIDATED' || notification.type === 'FORCE_LOGOUT') && (
-        <SessionNotificationModal
-          notification={notification}
-          onClose={clearNotification}
-          onLoginRedirect={handleLoginRedirect}
-          onClearSession={handleClearSession}
-        />
-      )}
+      {notification &&
+        (notification.type === "SESSION_INVALIDATED" ||
+          notification.type === "FORCE_LOGOUT") && (
+          <SessionNotificationModal
+            notification={notification}
+            onClose={clearNotification}
+            onLoginRedirect={handleLoginRedirect}
+            onClearSession={handleClearSession}
+          />
+        )}
 
       {/* 세션 알림 토스트 - 새 기기 로그인 감지용 */}
-      {notification && notification.type === 'NEW_DEVICE_LOGIN' && notification.deviceInfo && (
-        <SessionNotificationToast
-          notification={{
-            type: 'NEW_DEVICE_LOGIN',
-            message: notification.message,
-            deviceInfo: notification.deviceInfo,
-            timestamp: notification.timestamp
-          }}
-          onClose={clearNotification}
-          duration={8000}
-        />
-      )}
+      {notification &&
+        notification.type === "NEW_DEVICE_LOGIN" &&
+        notification.deviceInfo && (
+          <SessionNotificationToast
+            notification={{
+              type: "NEW_DEVICE_LOGIN",
+              message: notification.message,
+              deviceInfo: notification.deviceInfo,
+              timestamp: notification.timestamp,
+            }}
+            onClose={clearNotification}
+            duration={8000}
+          />
+        )}
     </div>
   );
 }

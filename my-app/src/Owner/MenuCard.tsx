@@ -1,7 +1,7 @@
-import React from 'react';
-import ToggleButton from './ToggleButton';
-import api from '../API/TokenConfig';
-import Modal from '../pages/Modal';
+import React from "react";
+import ToggleButton from "./ToggleButton";
+import api from "../API/TokenConfig";
+import Modal from "../pages/Modal";
 interface Menu {
   menuId: number;
   menuName: string;
@@ -20,18 +20,24 @@ interface Props {
   onToggled: () => void;
 }
 
-const MenuCard: React.FC<Props> = ({ menu, storeId, onEdit, onDeleted, onToggled }) => {
+const MenuCard: React.FC<Props> = ({
+  menu,
+  storeId,
+  onEdit,
+  onDeleted,
+  onToggled,
+}) => {
   const [alertMessage, setAlertMessage] = React.useState<string | null>(null);
   const [onConfirm, setOnConfirm] = React.useState<(() => void) | null>(null);
   const handleDelete = () => {
-    setAlertMessage('정말로 이 메뉴를 삭제하시겠습니까?');
+    setAlertMessage("정말로 이 메뉴를 삭제하시겠습니까?");
     setOnConfirm(() => async () => {
       try {
         await api.delete(`/api/store/${storeId}/menus/${menu.menuId}`);
         onDeleted();
       } catch (err) {
-        console.error('❌ 삭제 실패:', err);
-        setAlertMessage('삭제 중 오류 발생');
+        console.error("❌ 삭제 실패:", err);
+        setAlertMessage("삭제 중 오류 발생");
         setOnConfirm(null);
       }
     });
@@ -39,61 +45,61 @@ const MenuCard: React.FC<Props> = ({ menu, storeId, onEdit, onDeleted, onToggled
 
   return (
     <>
-    <li className="flex justify-between gap-6 bg-white/80 backdrop-blur-md border border-gray-200 shadow-xl rounded-3xl p-6 hover:shadow-2xl transition-all duration-200">
-      {/* 왼쪽: 이미지 + 정보 */}
-      <div className="flex gap-5">
-        <img
-          src={menu.imageUrl || ''}
-          alt={menu.menuName}
-          className="w-28 h-24 object-cover rounded-xl shadow-md"
-        />
-        <div className="flex flex-col justify-between">
-          <h3 className="text-xl font-bold text-gray-800">{menu.menuName}</h3>
-          <p className="text-red-500 text-lg font-semibold">
-            ₩{menu.price?.toLocaleString()}
-          </p>
-          <p className="text-gray-500 text-sm">{menu.description}</p>
+      <li className="flex justify-between gap-6 bg-white/80 backdrop-blur-md border border-gray-200 shadow-xl rounded-3xl p-6 hover:shadow-2xl transition-all duration-200">
+        {/* 왼쪽: 이미지 + 정보 */}
+        <div className="flex gap-5">
+          <img
+            src={menu.imageUrl || ""}
+            alt={menu.menuName}
+            className="w-28 h-24 object-cover rounded-xl shadow-md"
+          />
+          <div className="flex flex-col justify-between">
+            <h3 className="text-xl font-bold text-gray-800">{menu.menuName}</h3>
+            <p className="text-red-500 text-lg font-semibold">
+              ₩{menu.price?.toLocaleString()}
+            </p>
+            <p className="text-gray-500 text-sm">{menu.description}</p>
+          </div>
         </div>
-      </div>
 
-      {/* 오른쪽: 버튼들 */}
-      <div className="flex flex-col items-end justify-between gap-2">
-        <button
-          onClick={() => onEdit(menu)}
-          className="px-4 py-1 rounded-full bg-yellow-400 hover:bg-yellow-500 text-white text-sm font-medium shadow-md transition"
-        >
-          ✏️ 수정
-        </button>
-        <button
-          onClick={handleDelete}
-          className="px-4 py-1 rounded-full bg-red-500 hover:bg-red-600 text-white text-sm font-medium shadow-md transition"
-        >
-          🗑️ 삭제
-        </button>
-        <ToggleButton
-          storeId={storeId}
-          menuId={menu.menuId}
-          isAvailable={menu.available}
-          onToggled={async () => {
-            await onToggled();
+        {/* 오른쪽: 버튼들 */}
+        <div className="flex flex-col items-end justify-between gap-2">
+          <button
+            onClick={() => onEdit(menu)}
+            className="px-4 py-1 rounded-full bg-yellow-400 hover:bg-yellow-500 text-white text-sm font-medium shadow-md transition"
+          >
+            ✏️ 수정
+          </button>
+          <button
+            onClick={handleDelete}
+            className="px-4 py-1 rounded-full bg-red-500 hover:bg-red-600 text-white text-sm font-medium shadow-md transition"
+          >
+            🗑️ 삭제
+          </button>
+          <ToggleButton
+            storeId={storeId}
+            menuId={menu.menuId}
+            isAvailable={menu.available}
+            onToggled={async () => {
+              await onToggled();
+            }}
+          />
+        </div>
+      </li>
+      {alertMessage && (
+        <Modal
+          title="알림"
+          message={alertMessage}
+          onClose={() => {
+            setAlertMessage(null);
+            setOnConfirm(null);
           }}
+          onConfirm={onConfirm ?? undefined}
+          confirmText="확인"
+          cancelText={onConfirm ? "취소" : undefined}
         />
-      </div>
-    </li>
-    {alertMessage && (
-  <Modal
-    title="알림"
-    message={alertMessage}
-    onClose={() => {
-      setAlertMessage(null);
-      setOnConfirm(null);
-    }}
-    onConfirm={onConfirm ?? undefined}
-    confirmText="확인"
-    cancelText={onConfirm ? '취소' : undefined}
-  />
-)}
-</>
+      )}
+    </>
   );
 };
 

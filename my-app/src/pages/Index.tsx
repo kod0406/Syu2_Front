@@ -1,16 +1,16 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function IndexPage() {
   const navigate = useNavigate();
 
   const handleGuest = (): void => {
-    const target = sessionStorage.getItem('qr-redirect-url') || '/home';
+    const target = sessionStorage.getItem("qr-redirect-url") || "/home";
     navigate(target);
   };
 
   const handleLogin = (): void => {
-    navigate('/customer/login');
+    navigate("/customer/login");
   };
 
   return (

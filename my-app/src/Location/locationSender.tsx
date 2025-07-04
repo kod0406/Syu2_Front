@@ -34,7 +34,8 @@ const LocationSender: React.FC = () => {
       {!location && !error && <p>📡 위치를 가져오는 중...</p>}
       {location && (
         <p>
-          ✅ 위치 전송 완료 (위도: {location.latitude}, 경도: {location.longitude})
+          ✅ 위치 전송 완료 (위도: {location.latitude}, 경도:{" "}
+          {location.longitude})
         </p>
       )}
     </div>

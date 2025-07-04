@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../API/TokenConfig';
-import Modal from '../pages/Modal';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../API/TokenConfig";
+import Modal from "../pages/Modal";
 
 const DashboardHeader: React.FC = () => {
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
@@ -14,26 +14,26 @@ const DashboardHeader: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-const handleLogout = async () => {
-  try {
-    await api.post('/api/stores/logout');
-    setAlertMessage('로그아웃 되었습니다.');
-    setOnConfirm(() => () => navigate('/owner/login'));
-  } catch (err: any) {
-    console.error('로그아웃 오류:', err);
-    setAlertMessage('❌ 로그아웃에 실패했습니다.');
-    setOnConfirm(null);
-  }
-};
+  const handleLogout = async () => {
+    try {
+      await api.post("/api/stores/logout");
+      setAlertMessage("로그아웃 되었습니다.");
+      setOnConfirm(() => () => navigate("/owner/login"));
+    } catch (err: any) {
+      console.error("로그아웃 오류:", err);
+      setAlertMessage("❌ 로그아웃에 실패했습니다.");
+      setOnConfirm(null);
+    }
+  };
 
-  const formattedDate = currentTime.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    weekday: 'long',
+  const formattedDate = currentTime.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    weekday: "long",
   });
 
-  const formattedTime = currentTime.toLocaleTimeString('ko-KR');
+  const formattedTime = currentTime.toLocaleTimeString("ko-KR");
 
   return (
     <>
@@ -47,7 +47,12 @@ const handleLogout = async () => {
             onClick={handleLogout}
             className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition duration-200 flex items-center"
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

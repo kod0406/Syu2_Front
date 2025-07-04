@@ -1,5 +1,5 @@
 // src/Owner/QRModal.tsx
-import React from 'react';
+import React from "react";
 
 type QRModalProps = {
   base64: string;

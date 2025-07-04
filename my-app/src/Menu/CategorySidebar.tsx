@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface Props {
   categories: string[];
@@ -34,8 +34,8 @@ export default function CategorySidebar({
                 onClick={() => setSelectedCategory(cat)}
                 className={`block text-left px-2 py-1 rounded ${
                   selectedCategory === cat
-                    ? 'bg-red-500 text-white'
-                    : 'text-red-500 hover:font-semibold'
+                    ? "bg-red-500 text-white"
+                    : "text-red-500 hover:font-semibold"
                 }`}
               >
                 {cat}
@@ -71,7 +71,7 @@ export default function CategorySidebar({
             onClick={() => setIsOpen((prev) => !prev)}
             className="text-red-500 font-semibold"
           >
-            {isOpen ? '닫기 ▲' : '카테고리 ▼'}
+            {isOpen ? "닫기 ▲" : "카테고리 ▼"}
           </button>
         </div>
         {isOpen && (
@@ -85,8 +85,8 @@ export default function CategorySidebar({
                 }}
                 className={`block w-full text-left px-2 py-1 rounded ${
                   selectedCategory === cat
-                    ? 'bg-red-500 text-white'
-                    : 'text-red-500 hover:font-semibold'
+                    ? "bg-red-500 text-white"
+                    : "text-red-500 hover:font-semibold"
                 }`}
               >
                 {cat}

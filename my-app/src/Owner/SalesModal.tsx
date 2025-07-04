@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import api from '../API/TokenConfig';
+import React, { useState, useEffect, useMemo } from "react";
+import api from "../API/TokenConfig";
 
 interface SalesItem {
   menuName: string;
@@ -15,20 +15,21 @@ interface Props {
 const SalesModal: React.FC<Props> = ({ onClose }) => {
   const [statistics, setStatistics] = useState<SalesItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+  const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("daily");
 
   const totalRevenueSum = useMemo(() => {
     return statistics.reduce((sum, item) => sum + (item.totalRevenue || 0), 0);
   }, [statistics]);
 
   useEffect(() => {
-    api.get(`/api/statistics/store?period=${period}`)
-      .then(res => {
+    api
+      .get(`/api/statistics/store?period=${period}`)
+      .then((res) => {
         setStatistics(res.data);
         setLoading(false);
       })
-      .catch(err => {
-        console.error('매출 통계 오류:', err);
+      .catch((err) => {
+        console.error("매출 통계 오류:", err);
         setLoading(false);
       });
   }, [period]);
@@ -39,18 +40,20 @@ const SalesModal: React.FC<Props> = ({ onClose }) => {
         <h2 className="text-xl font-bold mb-4">매출 통계</h2>
 
         <div className="flex gap-2 mb-4">
-          {['daily', 'weekly', 'monthly'].map((p) => (
+          {["daily", "weekly", "monthly"].map((p) => (
             <button
               key={p}
               onClick={() => {
-                setPeriod(p as 'daily' | 'weekly' | 'monthly');
+                setPeriod(p as "daily" | "weekly" | "monthly");
                 setLoading(true);
               }}
               className={`px-3 py-1 rounded ${
-                period === p ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'
+                period === p
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 text-black"
               }`}
             >
-              {p === 'daily' ? '오늘' : p === 'weekly' ? '이번 주' : '이번 달'}
+              {p === "daily" ? "오늘" : p === "weekly" ? "이번 주" : "이번 달"}
             </button>
           ))}
         </div>

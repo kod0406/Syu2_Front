@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface AlertModalProps {
   title?: string;
@@ -10,12 +10,12 @@ interface AlertModalProps {
 }
 
 const AlertModal: React.FC<AlertModalProps> = ({
-  title = '알림',
+  title = "알림",
   message,
   onClose,
   onConfirm,
-  confirmText = '확인',
-  cancelText = '취소',
+  confirmText = "확인",
+  cancelText = "취소",
 }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
@@ -24,10 +24,7 @@ const AlertModal: React.FC<AlertModalProps> = ({
         <p className="mb-4">{message}</p>
         <div className="flex justify-end space-x-2">
           {onConfirm && (
-            <button
-              className="px-4 py-2 bg-gray-300 rounded"
-              onClick={onClose}
-            >
+            <button className="px-4 py-2 bg-gray-300 rounded" onClick={onClose}>
               {cancelText}
             </button>
           )}

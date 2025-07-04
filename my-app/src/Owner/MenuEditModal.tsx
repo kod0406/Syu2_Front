@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import api from '../API/TokenConfig';
-import Modal from '../pages/Modal';
+import React, { useState } from "react";
+import api from "../API/TokenConfig";
+import Modal from "../pages/Modal";
 
 interface Props {
   storeId: number;
@@ -15,7 +15,12 @@ interface Props {
   onUpdated: (updatedMenus: any[]) => void;
 }
 
-const EditMenuModal: React.FC<Props> = ({ storeId, menu, onClose, onUpdated }) => {
+const EditMenuModal: React.FC<Props> = ({
+  storeId,
+  menu,
+  onClose,
+  onUpdated,
+}) => {
   const [form, setForm] = useState({
     menuName: menu.menuName,
     description: menu.description,
@@ -29,93 +34,102 @@ const EditMenuModal: React.FC<Props> = ({ storeId, menu, onClose, onUpdated }) =
 
   const handleSubmit = async () => {
     const formData = new FormData();
-    formData.append('menuName', form.menuName);
-    formData.append('description', form.description);
-    formData.append('price', form.price.toString());
-    formData.append('category', form.category);
-    if (image) formData.append('image', image);
+    formData.append("menuName", form.menuName);
+    formData.append("description", form.description);
+    formData.append("price", form.price.toString());
+    formData.append("category", form.category);
+    if (image) formData.append("image", image);
 
     try {
-      await api.put(`/api/store/${storeId}/menus/${menu.menuId}`, formData, { headers: {
-        'Content-Type': 'multipart/form-data'
-        }
-    });
+      await api.put(`/api/store/${storeId}/menus/${menu.menuId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-
-      const res = await api.get(
-        `/api/Store/Menu?StoreNumber=${storeId}`
-      );
+      const res = await api.get(`/api/Store/Menu?StoreNumber=${storeId}`);
       const updatedMenus = res.data;
 
-      setAlertMessage('✅ 메뉴가 수정되었습니다.');
+      setAlertMessage("✅ 메뉴가 수정되었습니다.");
       setOnConfirm(() => () => {
         onUpdated(updatedMenus);
         onClose();
       });
     } catch (err) {
-      console.error('❌ 메뉴 수정 실패:', err);
-      setAlertMessage('❌ 메뉴 수정 중 오류가 발생했습니다.');
+      console.error("❌ 메뉴 수정 실패:", err);
+      setAlertMessage("❌ 메뉴 수정 중 오류가 발생했습니다.");
       setOnConfirm(null);
     }
   };
 
   return (
     <>
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded shadow w-96">
-        <h2 className="text-lg font-bold mb-4">메뉴 수정</h2>
-        <div className="space-y-2">
-          <input
-            className="w-full border p-2 rounded"
-            placeholder="이름"
-            value={form.menuName}
-            onChange={e => setForm({ ...form, menuName: e.target.value })}
-          />
-          <input
-            className="w-full border p-2 rounded"
-            placeholder="설명"
-            value={form.description}
-            onChange={e => setForm({ ...form, description: e.target.value })}
-          />
-          <input
-            className="w-full border p-2 rounded"
-            placeholder="가격"
-            type="number"
-            value={form.price}
-            onChange={e => setForm({ ...form, price: Number(e.target.value) })}
-          />
-          <input
-            className="w-full border p-2 rounded"
-            placeholder="카테고리"
-            value={form.category}
-            onChange={e => setForm({ ...form, category: e.target.value })}
-          />
-          <input
-            className="w-full border p-2 rounded"
-            type="file"
-            accept="image/*"
-            onChange={e => setImage(e.target.files?.[0] || null)}
-          />
-        </div>
-        <div className="flex justify-end gap-2 mt-4">
-          <button className="px-4 py-2 bg-gray-300 rounded" onClick={onClose}>취소</button>
-          <button className="px-4 py-2 bg-blue-500 text-white rounded" onClick={handleSubmit}>수정</button>
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded shadow w-96">
+          <h2 className="text-lg font-bold mb-4">메뉴 수정</h2>
+          <div className="space-y-2">
+            <input
+              className="w-full border p-2 rounded"
+              placeholder="이름"
+              value={form.menuName}
+              onChange={(e) => setForm({ ...form, menuName: e.target.value })}
+            />
+            <input
+              className="w-full border p-2 rounded"
+              placeholder="설명"
+              value={form.description}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
+            />
+            <input
+              className="w-full border p-2 rounded"
+              placeholder="가격"
+              type="number"
+              value={form.price}
+              onChange={(e) =>
+                setForm({ ...form, price: Number(e.target.value) })
+              }
+            />
+            <input
+              className="w-full border p-2 rounded"
+              placeholder="카테고리"
+              value={form.category}
+              onChange={(e) => setForm({ ...form, category: e.target.value })}
+            />
+            <input
+              className="w-full border p-2 rounded"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files?.[0] || null)}
+            />
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
+            <button className="px-4 py-2 bg-gray-300 rounded" onClick={onClose}>
+              취소
+            </button>
+            <button
+              className="px-4 py-2 bg-blue-500 text-white rounded"
+              onClick={handleSubmit}
+            >
+              수정
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-    {alertMessage && (
-  <Modal
-    title="알림"
-    message={alertMessage}
-    onClose={() => {
-      setAlertMessage(null);
-      setOnConfirm(null);
-    }}
-    onConfirm={onConfirm ?? undefined}
-    confirmText="확인"
-  />
-)}
-  </>
+      {alertMessage && (
+        <Modal
+          title="알림"
+          message={alertMessage}
+          onClose={() => {
+            setAlertMessage(null);
+            setOnConfirm(null);
+          }}
+          onConfirm={onConfirm ?? undefined}
+          confirmText="확인"
+        />
+      )}
+    </>
   );
 };
 

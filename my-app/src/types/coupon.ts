@@ -2,7 +2,7 @@ export interface CustomerCoupon {
   id: string; // UUID
   couponId: number;
   couponName: string;
-  discountType: 'PERCENTAGE' | 'FIXED_AMOUNT';
+  discountType: "PERCENTAGE" | "FIXED_AMOUNT";
   discountValue: number;
   minimumOrderAmount?: number;
   discountLimit?: number;
@@ -12,4 +12,3 @@ export interface CustomerCoupon {
   isUsed: boolean;
   storeName: string;
 }
-

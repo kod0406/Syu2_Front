@@ -1,5 +1,5 @@
-import React from 'react';
-import { CustomerCoupon } from '../types/coupon';
+import React from "react";
+import { CustomerCoupon } from "../types/coupon";
 
 interface Props {
   coupons: CustomerCoupon[];
@@ -8,9 +8,14 @@ interface Props {
   currentOrderAmount: number;
 }
 
-export default function CouponPopup({ coupons, onSelect, onClose, currentOrderAmount }: Props) {
+export default function CouponPopup({
+  coupons,
+  onSelect,
+  onClose,
+  currentOrderAmount,
+}: Props) {
   const getDiscountText = (coupon: CustomerCoupon) => {
-    if (coupon.discountType === 'PERCENTAGE') {
+    if (coupon.discountType === "PERCENTAGE") {
       return `${coupon.discountValue}% 할인`;
     }
     return `${coupon.discountValue.toLocaleString()}원 할인`;
@@ -26,7 +31,7 @@ export default function CouponPopup({ coupons, onSelect, onClose, currentOrderAm
         <h2 className="text-base md:text-xl font-bold mb-4">쿠폰 선택</h2>
         <ul className="space-y-3 max-h-80 overflow-y-auto">
           {coupons.length > 0 ? (
-            coupons.map(coupon => {
+            coupons.map((coupon) => {
               const usable = isCouponUsable(coupon);
               return (
                 <li
@@ -34,18 +39,23 @@ export default function CouponPopup({ coupons, onSelect, onClose, currentOrderAm
                   onClick={() => usable && onSelect(coupon)}
                   className={`p-4 border rounded-lg cursor-pointer transition-all text-sm ${
                     usable
-                      ? 'hover:bg-gray-100 hover:border-blue-500'
-                      : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                      ? "hover:bg-gray-100 hover:border-blue-500"
+                      : "bg-gray-200 text-gray-500 cursor-not-allowed"
                   }`}
                 >
-                  <div className="font-semibold text-sm md:text-base">{coupon.couponName}</div>
-                  <div className="text-red-500 font-bold text-lg md:text-xl">{getDiscountText(coupon)}</div>
+                  <div className="font-semibold text-sm md:text-base">
+                    {coupon.couponName}
+                  </div>
+                  <div className="text-red-500 font-bold text-lg md:text-xl">
+                    {getDiscountText(coupon)}
+                  </div>
                   <div className="text-xs text-gray-600 mt-1">
                     {new Date(coupon.expiresAt).toLocaleDateString()}까지
                   </div>
                   {coupon.minimumOrderAmount && (
                     <div className="text-xs text-gray-500">
-                      {coupon.minimumOrderAmount.toLocaleString()}원 이상 주문 시
+                      {coupon.minimumOrderAmount.toLocaleString()}원 이상 주문
+                      시
                     </div>
                   )}
                   {!usable && (
@@ -57,7 +67,9 @@ export default function CouponPopup({ coupons, onSelect, onClose, currentOrderAm
               );
             })
           ) : (
-            <p className="text-sm text-center text-gray-500">사용 가능한 쿠폰이 없습니다.</p>
+            <p className="text-sm text-center text-gray-500">
+              사용 가능한 쿠폰이 없습니다.
+            </p>
           )}
         </ul>
         <button

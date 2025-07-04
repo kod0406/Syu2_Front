@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface Props {
   availablePoints: number;
@@ -24,7 +24,7 @@ export default function PointPopup({
           type="number"
           min="0"
           max={availablePoints}
-          value={usedPoints === 0 ? '' : usedPoints}
+          value={usedPoints === 0 ? "" : usedPoints}
           onChange={(e) =>
             setUsedPoints(Math.min(availablePoints, Number(e.target.value)))
           }
