@@ -19,7 +19,9 @@ interface StoreWithCoupons {
 const LocationPage: React.FC = () => {
   const { location } = useGeolocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [storesWithCoupons, setStoresWithCoupons] = useState<StoreWithCoupons[]>([]);
+  const [storesWithCoupons, setStoresWithCoupons] = useState<
+    StoreWithCoupons[]
+  >([]);
 
   const handleFetchAvailableCoupons = async () => {
     if (!location) {
@@ -34,7 +36,31 @@ const LocationPage: React.FC = () => {
           longitude: location.longitude,
         },
       });
-      setStoresWithCoupons(response.data);
+
+      const rawCoupons = response.data;
+
+      // storeId 기준으로 쿠폰을 그룹화
+      const groupedMap = new Map<number, StoreWithCoupons>();
+
+      rawCoupons.forEach((c: any) => {
+        if (!groupedMap.has(c.storeId)) {
+          groupedMap.set(c.storeId, {
+            storeId: c.storeId,
+            storeName: c.storeName,
+            coupons: [],
+          });
+        }
+
+        groupedMap.get(c.storeId)!.coupons.push({
+          couponName: c.couponName,
+          discountValue: c.discountValue,
+          discountType: c.discountType,
+        });
+      });
+
+      const transformed = Array.from(groupedMap.values());
+
+      setStoresWithCoupons(transformed);
       setIsModalOpen(true);
     } catch (error) {
       console.error("사용 가능 쿠폰 조회 실패:", error);
