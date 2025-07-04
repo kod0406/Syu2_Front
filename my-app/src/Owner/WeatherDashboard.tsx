@@ -50,7 +50,7 @@ const WeatherDashboard: React.FC<Props> = ({ storeId }) => {
     try {
       // console.log('[WeatherDashboard] 요청 URL:', `/api/stores/${storeId}/recommendations/weather`);
       const response = await api.get(`/api/stores/${storeId}/recommendations/weather`);
-      // console.log('[WeatherDashboard] 응답 데이터:', response.data);
+      console.log('[WeatherDashboard] 응답 데이터:', response.data);
       const data = response.data;
       const weatherData = data.weather;
       if (!weatherData || !weatherData.main || !weatherData.weather || !Array.isArray(weatherData.weather) || !weatherData.weather[0]) {
@@ -69,17 +69,17 @@ const WeatherDashboard: React.FC<Props> = ({ storeId }) => {
         visibility: weatherData.visibility,
       };
       const location: LocationInfo = {
-        latitude: data.location?.latitude || 0,
-        longitude: data.location?.longitude || 0,
-        city: data.location?.city || '',
-        district: data.location?.district || '',
-        fullAddress: data.location?.fullAddress || '',
-        weatherRegionCode: data.location?.weatherRegionCode || '',
+        latitude: data.weather?.coord?.lat || 0,
+        longitude: data.weather?.coord?.lon || 0,
+        city: data.city || '',
+        district: data.district || '',
+        fullAddress: data.locationSummary || '',
+        weatherRegionCode: '',
       };
       const store: StoreInfo = {
-        storeId: data.store?.storeId || storeId,
-        storeName: data.store?.storeName || '',
-        storeAddress: data.location?.fullAddress || '',
+        storeId: data.storeId || storeId,
+        storeName: data.storeName || '',
+        storeAddress: data.locationSummary || '',
       };
       const weatherType = data.weatherType || 'CLOUDY';
       const season = data.season || 'SPRING';

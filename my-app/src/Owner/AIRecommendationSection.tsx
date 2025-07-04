@@ -49,7 +49,7 @@ const AIRecommendationSection: React.FC<Props> = ({ storeId }) => {
     setError(null);
     try {
       const response = await api.get(`/api/stores/${storeId}/recommendations`);
-      //console.log('AIRecommendationSection - 날씨/추천 응답:', response.data);
+      console.log('AIRecommendationSection - 날씨/추천 응답:', response.data);
       setRecommendation(response.data);
     } catch (err) {
       setError('AI 추천 정보를 불러오는데 실패했습니다.');
