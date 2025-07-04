@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useGeolocation } from "../hooks/useGeolocation";
 import api from "../API/TokenConfig";
 import MenuCard from "../Menu/MenuCard";
-import { useNavigate } from "react-router-dom";
+import ReviewModal from "../Menu/ReviewModal"; // Import ReviewModal
 
 interface Store {
   storeId: number;
@@ -29,7 +29,11 @@ const LocationSender: React.FC = () => {
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
-  const navigate = useNavigate();
+
+  // State for Review Modal
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedMenuName, setSelectedMenuName] = useState("");
+  const [selectedReviews, setSelectedReviews] = useState([]);
 
   useEffect(() => {
     const sendLocation = async () => {
@@ -74,6 +78,21 @@ const LocationSender: React.FC = () => {
     setSelectedStore(null);
   };
 
+  // Function to handle viewing reviews
+  const handleViewReviews = async (menuId: number, menuName: string) => {
+    try {
+      const res = await api.get(`api/review/show?menuId=${menuId}`);
+      if (res.status !== 200) throw new Error("리뷰 불러오기 실패");
+      const data = res.data;
+      setSelectedMenuName(menuName);
+      setSelectedReviews(data);
+      setReviewModalOpen(true);
+    } catch (err) {
+      console.error("❌ 리뷰 보기 실패:", err);
+      // You can add user-facing error handling here if needed
+    }
+  };
+
   return (
     <div className="p-4">
       {error && <p className="text-red-500">❌ 위치 에러: {error}</p>}
@@ -115,7 +134,7 @@ const LocationSender: React.FC = () => {
                     key={item.menuId}
                     item={item}
                     onAdd={() => {}} // No action
-                    onViewReviews={() => {}} // No action
+                    onViewReviews={handleViewReviews} // Connect the review function
                     showAddButton={false} // Hide add button
                   />
                 ))
@@ -126,6 +145,14 @@ const LocationSender: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Review Modal Component */}
+      <ReviewModal
+        open={reviewModalOpen}
+        menuName={selectedMenuName}
+        reviews={selectedReviews}
+        onClose={() => setReviewModalOpen(false)}
+      />
     </div>
   );
 };
