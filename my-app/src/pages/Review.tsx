@@ -38,7 +38,7 @@ export default function ReviewListPage() {
           onClick={() => navigate(-1)}
           className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm md:text-base"
         >
-          이전 페이지로
+          메뉴로 돌아가기
         </button>
       </div>
 
