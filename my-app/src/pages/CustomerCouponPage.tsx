@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import api from "../API/TokenConfig";
 import MyCouponList, { MyCoupon } from "../Customer/MyCouponList";
 import AvailableCouponList, {
@@ -84,6 +85,9 @@ export default function CustomerCouponPage() {
 
   return (
     <>
+      <Helmet>
+        <title>내 쿠폰함 - Syu2</title>
+      </Helmet>
       <div className="max-w-2xl mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4 text-center">🎟️ 내 쿠폰함</h1>
 

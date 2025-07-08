@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Helmet } from "react-helmet";
 import LocationSender from "../Location/locationSender";
 import AvailableCouponModal from "../components/AvailableCouponModal";
 import api from "../API/TokenConfig";
@@ -69,25 +70,30 @@ const LocationPage: React.FC = () => {
   };
 
   return (
-    <main className="p-6 text-center">
-      <button
-        className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700 transition"
-        onClick={handleFetchAvailableCoupons}
-        disabled={!location}
-      >
-        🎟️ 사용 가능 쿠폰 보기
-      </button>
+    <>
+      <Helmet>
+        <title>위치 서비스 - Syu2</title>
+      </Helmet>
+      <main className="p-6 text-center">
+        <button
+          className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700 transition"
+          onClick={handleFetchAvailableCoupons}
+          disabled={!location}
+        >
+          🎟️ 사용 가능 쿠폰 보기
+        </button>
 
-      <div className="mt-6">
-        <LocationSender />
-      </div>
+        <div className="mt-6">
+          <LocationSender />
+        </div>
 
-      <AvailableCouponModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        storesWithCoupons={storesWithCoupons}
-      />
-    </main>
+        <AvailableCouponModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          storesWithCoupons={storesWithCoupons}
+        />
+      </main>
+    </>
   );
 };
 

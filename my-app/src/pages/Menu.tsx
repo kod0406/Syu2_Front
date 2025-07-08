@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import CategorySidebar from "../Menu/CategorySidebar";
 import MenuCard from "../Menu/MenuCard";
 import OrderSummary from "../Menu/OrderSummary";
@@ -50,6 +51,7 @@ export default function CustomerMenuPage() {
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [onConfirm, setOnConfirm] = useState<(() => void) | null>(null);
+  const [storeName, setStoreName] = useState<string>(""); // 상점 이름 상태 추가
 
   const handleViewReviews = async (menuId: number, menuName: string) => {
     try {
@@ -77,6 +79,21 @@ export default function CustomerMenuPage() {
   }, [navigate]);
 
   useEffect(() => {
+    // 상점 정보 가져오기
+    const fetchStoreInfo = async () => {
+      try {
+        const storeResponse = await api.get(
+          `/api/stores/${numericStoreId}/info`
+        );
+        setStoreName(storeResponse.data.storeName || "매장");
+      } catch (error) {
+        console.error("❌ 상점 정보 불러오기 실패:", error);
+        setStoreName("매장"); // 기본값 설정
+      }
+    };
+
+    fetchStoreInfo();
+
     api
       .get("/auth/me")
       .then((res) => {
@@ -273,6 +290,9 @@ export default function CustomerMenuPage() {
 
   return (
     <div className="md:flex h-screen bg-gray-50 relative">
+      <Helmet>
+        <title>{storeName ? `${storeName} 메뉴 주문` : "메뉴 주문"} - Syu2</title>
+      </Helmet>
       <CategorySidebar
         categories={categories}
         selectedCategory={selectedCategory}
