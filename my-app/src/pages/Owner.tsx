@@ -26,16 +26,9 @@ interface Menu {
   available: boolean;
 }
 
-interface StoreInfo {
-  id: number;
-  storeName: string;
-  ownerEmail: string;
-}
-
 export default function OwnerDashboard() {
   const { storeId: storeIdFromURL } = useParams();
   const [storeId, setStoreId] = useState<number | null>(null);
-  const [storeInfo, setStoreInfo] = useState<StoreInfo | null>(null);
   const [menus, setMenus] = useState<Menu[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingMenu, setEditingMenu] = useState<Menu | null>(null);
@@ -96,11 +89,6 @@ export default function OwnerDashboard() {
         }
         const storeData = res.data.data;
         setStoreId(storeData.id);
-        setStoreInfo({
-          id: storeData.id,
-          storeName: storeData.storeName,
-          ownerEmail: storeData.ownerEmail,
-        });
       })
       .catch(() => {
         setAlertMessage("로그인이 필요합니다."); // ✅ alert → modal
