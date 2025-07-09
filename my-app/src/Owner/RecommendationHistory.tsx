@@ -23,6 +23,17 @@ const RecommendationHistory: React.FC<Props> = ({ storeId }) => {
   const [selectedDays, setSelectedDays] = useState(7);
   const [selectedItem, setSelectedItem] = useState<RecommendationHistoryItem | null>(null);
 
+  // 컴포넌트가 마운트될 때 body 스크롤 방지
+  useEffect(() => {
+    // 컴포넌트 마운트 시 스크롤 막기
+    document.body.style.overflow = 'hidden';
+
+    // 컴포넌트 언마운트 시 스크롤 복구
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   const fetchHistory = React.useCallback(async (days: number) => {
     setLoading(true);
     setError(null);
