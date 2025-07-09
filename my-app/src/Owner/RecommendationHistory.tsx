@@ -63,6 +63,8 @@ const RecommendationHistory: React.FC<Props> = ({ storeId }) => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
+    // DB 시간에 9시간을 더해줌 (KST 보정)
+    date.setHours(date.getHours() + 9);
     return date.toLocaleDateString('ko-KR', {
       year: 'numeric',
       month: 'long',
