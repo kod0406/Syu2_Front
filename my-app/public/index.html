@@ -25,6 +25,29 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Syu2 - 스마트 주문 서비스</title>
+
+    <!-- 동적 title 업데이트를 위한 스크립트 -->
+    <script>
+      // 페이지 로드 후 title 업데이트를 위한 MutationObserver
+      document.addEventListener('DOMContentLoaded', function() {
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList' && mutation.target.tagName === 'TITLE') {
+              console.log('Title updated:', document.title);
+            }
+          });
+        });
+
+        // title 태그 변경 감지
+        const titleElement = document.querySelector('title');
+        if (titleElement) {
+          observer.observe(titleElement, { childList: true, subtree: true });
+        }
+
+        // head 태그 전체 변경 감지 (Helmet이 title을 추가/제거할 때)
+        observer.observe(document.head, { childList: true, subtree: true });
+      });
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
