@@ -34,7 +34,7 @@ export default function ReviewListPage() {
   return (
     <>
       <Helmet>
-        <title>내 리뷰 관리 - Syu2</title>
+        <title>내 맛있는 추억들 - 리뷰 관리 WTE</title>
       </Helmet>
       <div className="p-4 md:p-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-2">

@@ -210,7 +210,7 @@ export default function ResetPassword() {
   return (
     <>
       <Helmet>
-        <title>비밀번호 재설정 - Syu2</title>
+        <title>새로운 비밀번호로 와따잇! - WTE</title>
       </Helmet>
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-2xl">

@@ -291,7 +291,7 @@ export default function CustomerMenuPage() {
   return (
     <div className="md:flex h-screen bg-gray-50 relative">
       <Helmet>
-        <title>{storeName ? `${storeName} 메뉴 주문` : "메뉴 주문"} - Syu2</title>
+        <title>{storeName ? `${storeName}에서 뭐 먹지? 주문은 와따잇(WTE)!`: "오늘 뭐 먹지? 주문은 와따잇(WTE)!"}</title>
       </Helmet>
       <CategorySidebar
         categories={categories}

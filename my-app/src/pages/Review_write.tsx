@@ -87,7 +87,7 @@ export default function ReviewWritePage() {
   return (
     <>
       <Helmet>
-        <title>리뷰 작성 - Syu2</title>
+        <title>맛있었나요? 리뷰 작성 - WTE</title>
       </Helmet>
       <div className="w-full max-w-xl mx-auto p-4 md:p-6 bg-white shadow rounded">
         <div className="flex justify-between items-center mb-4">
@@ -137,7 +137,7 @@ export default function ReviewWritePage() {
 
         <div className="mb-4">
           <label className="block font-semibold mb-1 text-sm">
-            음식 사진 첨부 (1장만)
+            음식 사진 첨부 (1장만 첨부 가능합니다.)
           </label>
           <input type="file" accept="image/*" onChange={handleImageChange} />
           <div className="flex gap-2 mt-2 flex-wrap">

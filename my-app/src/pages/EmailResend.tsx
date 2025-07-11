@@ -51,7 +51,7 @@ export default function EmailResend() {
   return (
     <>
       <Helmet>
-        <title>이메일 재인증 - Syu2</title>
+        <title>이메일 재인증도 와따잇(WTE)에서!</title>
       </Helmet>
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">

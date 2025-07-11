@@ -17,7 +17,7 @@ export default function IndexPage() {
   return (
     <>
       <Helmet>
-        <title>시작하기 - Syu2</title>
+        <title>오늘 뭐 먹지? 시작은 와따잇(WTE)!</title>
       </Helmet>
       <div className="flex flex-col items-center justify-center h-screen gap-6">
         <h1 className="text-2xl font-bold">접속 유형 선택</h1>

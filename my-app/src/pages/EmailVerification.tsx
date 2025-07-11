@@ -73,7 +73,7 @@ export default function EmailVerification() {
   return (
     <>
       <Helmet>
-        <title>이메일 인증 - Syu2</title>
+        <title>이메일 인증은 와따잇(WTE)에서!</title>
       </Helmet>
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
         <div className="w-full max-w-lg bg-white p-8 rounded-2xl shadow-2xl">
