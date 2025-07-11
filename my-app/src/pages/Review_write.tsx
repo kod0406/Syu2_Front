@@ -102,7 +102,7 @@ export default function ReviewWritePage() {
 
         {user && (
           <div className="mb-4 text-sm text-gray-600">
-            ✍️ 작성자: <span className="font-medium">{user.name}</span>
+            {/*✍️ 작성자: <span className="font-medium">{user.name}</span> */}
           </div>
         )}
 
