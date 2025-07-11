@@ -21,6 +21,17 @@ const SalesModal: React.FC<Props> = ({ onClose }) => {
     return statistics.reduce((sum, item) => sum + (item.totalRevenue || 0), 0);
   }, [statistics]);
 
+  // 모달이 열릴 때 body 스크롤 방지
+  useEffect(() => {
+    // 컴포넌트 마운트 시 스크롤 막기
+    document.body.style.overflow = 'hidden';
+
+    // 컴포넌트 언마운트 시 스크롤 복구
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   useEffect(() => {
     api
       .get(`/api/statistics/store?period=${period}`)

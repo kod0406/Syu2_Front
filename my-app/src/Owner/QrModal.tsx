@@ -1,5 +1,4 @@
-// src/Owner/QRModal.tsx
-import React from "react";
+import React, { useEffect } from "react";
 
 type QRModalProps = {
   base64: string;
@@ -7,6 +6,17 @@ type QRModalProps = {
 };
 
 const QRModal: React.FC<QRModalProps> = ({ base64, onClose }) => {
+  // 모달이 열릴 때 body 스크롤 방지
+  useEffect(() => {
+    // 컴포넌트 마운트 시 스크롤 막기
+    document.body.style.overflow = 'hidden';
+
+    // 컴포넌트 언마운트 시 스크롤 복구
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg text-center">

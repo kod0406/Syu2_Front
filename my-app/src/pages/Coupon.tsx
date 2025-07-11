@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import CouponCreateModal from "../Coupon/CouponCreateModal";
 import CouponEditModal, {
   CouponForm as CouponEditForm,
@@ -187,6 +188,9 @@ export default function CouponPage() {
 
   return (
     <div className="p-4">
+      <Helmet>
+        <title>쿠폰 관리 - Syu2</title>
+      </Helmet>
       <h1 className="text-2xl font-bold mb-4">🎟️ 쿠폰 관리</h1>
 
       <div className="flex items-center gap-2 mb-6">

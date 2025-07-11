@@ -2,6 +2,7 @@ import { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../API/TokenConfig";
 import GlobalModal from "../pages/Modal";
+import { Helmet } from "react-helmet";
 
 interface StoreLoginResponse {
   storeId: number;
@@ -102,140 +103,145 @@ export default function CustomerLogin() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">로그인</h1>
-          <p className="text-gray-500 text-sm">
-            계정에 로그인하여 서비스를 이용하세요
-          </p>
-        </div>
+    <>
+      <Helmet>
+        <title>사장님 로그인 - Syu2</title>
+      </Helmet>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+        <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">로그인</h1>
+            <p className="text-gray-500 text-sm">
+              계정에 로그인하여 서비스를 이용하세요
+            </p>
+          </div>
 
-        <form onSubmit={handleEmailLogin} className="space-y-5 mb-6">
-          <input
-            type="email"
-            placeholder="이메일 주소"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-blue-500"
-            required
-            autoComplete="username"
-          />
-          <input
-            type="password"
-            placeholder="비밀번호"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-blue-500"
-            required
-            autoComplete="current-password"
-          />
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-4 rounded-xl hover:bg-blue-700"
-          >
-            로그인
-          </button>
-        </form>
-
-        <div className="space-y-4">
-          <div className="flex justify-between text-sm px-4">
-            <button onClick={handleSignUp} className="text-blue-600">
-              회원가입
-            </button>
+          <form onSubmit={handleEmailLogin} className="space-y-5 mb-6">
+            <input
+              type="email"
+              placeholder="이메일 주소"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-blue-500"
+              required
+              autoComplete="username"
+            />
+            <input
+              type="password"
+              placeholder="비밀번호"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-blue-500"
+              required
+              autoComplete="current-password"
+            />
             <button
-              onClick={() => navigate("/forgot-password")}
-              className="text-gray-600"
+              type="submit"
+              className="w-full bg-blue-600 text-white py-4 rounded-xl hover:bg-blue-700"
             >
-              비밀번호 찾기
+              로그인
             </button>
-          </div>
+          </form>
 
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t" />
+          <div className="space-y-4">
+            <div className="flex justify-between text-sm px-4">
+              <button onClick={handleSignUp} className="text-blue-600">
+                회원가입
+              </button>
+              <button
+                onClick={() => navigate("/forgot-password")}
+                className="text-gray-600"
+              >
+                비밀번호 찾기
+              </button>
             </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-white px-2 text-gray-400">또는</span>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="bg-white px-2 text-gray-400">또는</span>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <button
+                onClick={handleGoToResendPage}
+                className="text-sm text-gray-500 underline"
+              >
+                이메일 재인증이 필요하신가요?
+              </button>
             </div>
           </div>
 
-          <div className="text-center">
-            <button
-              onClick={handleGoToResendPage}
-              className="text-sm text-gray-500 underline"
-            >
-              이메일 재인증이 필요하신가요?
-            </button>
-          </div>
-        </div>
-
-        {showEmailVerificationAlert && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
-              <div className="text-center">
-                <div className="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-yellow-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                    ></path>
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  이메일 인증 필요
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  로그인하려면 이메일 인증을 완료해주세요.
-                  <br />
-                  <span className="text-sm text-gray-500">
-                    ({verificationEmail})
-                  </span>
-                </p>
-                <div className="space-y-3">
-                  <button
-                    onClick={handleResendVerification}
-                    className="w-full bg-blue-500 text-white py-2 rounded"
-                  >
-                    인증 메일 재발송
-                  </button>
-                  <button
-                    onClick={handleGoToResendPage}
-                    className="w-full bg-gray-500 text-white py-2 rounded"
-                  >
-                    인증 페이지로 이동
-                  </button>
-                  <button
-                    onClick={handleCloseAlert}
-                    className="w-full border py-2 rounded text-gray-700"
-                  >
-                    닫기
-                  </button>
+          {showEmailVerificationAlert && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+                <div className="text-center">
+                  <div className="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <svg
+                      className="w-8 h-8 text-yellow-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    이메일 인증 필요
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    로그인하려면 이메일 인증을 완료해주세요.
+                    <br />
+                    <span className="text-sm text-gray-500">
+                      ({verificationEmail})
+                    </span>
+                  </p>
+                  <div className="space-y-3">
+                    <button
+                      onClick={handleResendVerification}
+                      className="w-full bg-blue-500 text-white py-2 rounded"
+                    >
+                      인증 메일 재발송
+                    </button>
+                    <button
+                      onClick={handleGoToResendPage}
+                      className="w-full bg-gray-500 text-white py-2 rounded"
+                    >
+                      인증 페이지로 이동
+                    </button>
+                    <button
+                      onClick={handleCloseAlert}
+                      className="w-full border py-2 rounded text-gray-700"
+                    >
+                      닫기
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {alertMessage && (
-          <GlobalModal
-            message={alertMessage}
-            onClose={() => {
-              setAlertMessage(null);
-              setOnConfirm(null);
-            }}
-            onConfirm={onConfirm ?? undefined}
-            confirmText="확인"
-          />
-        )}
+          {alertMessage && (
+            <GlobalModal
+              message={alertMessage}
+              onClose={() => {
+                setAlertMessage(null);
+                setOnConfirm(null);
+              }}
+              onConfirm={onConfirm ?? undefined}
+              confirmText="확인"
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

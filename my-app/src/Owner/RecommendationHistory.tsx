@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../API/TokenConfig';
 
-interface StoreInfo {
-  storeId: number;
-  storeName: string;
-}
-
-interface RecommendationHistory {
+interface RecommendationHistoryItem {
   id: number;
   storeId: number;
   storeName: string;
@@ -22,13 +17,24 @@ interface Props {
 }
 
 const RecommendationHistory: React.FC<Props> = ({ storeId }) => {
-  const [history, setHistory] = useState<RecommendationHistory[]>([]);
+  const [history, setHistory] = useState<RecommendationHistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedDays, setSelectedDays] = useState(7);
-  const [selectedItem, setSelectedItem] = useState<RecommendationHistory | null>(null);
+  const [selectedItem, setSelectedItem] = useState<RecommendationHistoryItem | null>(null);
 
-  const fetchHistory = async (days: number) => {
+  // 컴포넌트가 마운트될 때 body 스크롤 방지
+  useEffect(() => {
+    // 컴포넌트 마운트 시 스크롤 막기
+    document.body.style.overflow = 'hidden';
+
+    // 컴포넌트 언마운트 시 스크롤 복구
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
+  const fetchHistory = React.useCallback(async (days: number) => {
     setLoading(true);
     setError(null);
     try {
@@ -39,13 +45,13 @@ const RecommendationHistory: React.FC<Props> = ({ storeId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [storeId]);
 
   useEffect(() => {
     if (storeId) {
       fetchHistory(selectedDays);
     }
-  }, [storeId, selectedDays]);
+  }, [storeId, selectedDays, fetchHistory]);
 
   // 상세보기 모달이 열릴 때 데이터 확인
   useEffect(() => {
@@ -57,6 +63,8 @@ const RecommendationHistory: React.FC<Props> = ({ storeId }) => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
+    // DB 시간에 9시간을 더해줌 (KST 보정)
+    date.setHours(date.getHours() + 9);
     return date.toLocaleDateString('ko-KR', {
       year: 'numeric',
       month: 'long',
@@ -94,11 +102,6 @@ const RecommendationHistory: React.FC<Props> = ({ storeId }) => {
       default:
         return '🌤️';
     }
-  };
-
-  const parseRecommendation = (aiAdvice: string) => {
-    // aiAdvice는 이미 처리된 HTML 텍스트이므로 그대로 반환
-    return { aiAdvice };
   };
 
   const daysOptions = [
@@ -181,45 +184,42 @@ const RecommendationHistory: React.FC<Props> = ({ storeId }) => {
         </div>
       ) : (
         <div className="space-y-4">
-          {history.map((item) => {
-            const recommendation = parseRecommendation(item.aiAdvice);
-            return (
-              <div
-                key={item.id}
-                className="border rounded-lg p-4 hover:bg-gray-50 transition duration-200"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-2xl">{getWeatherIcon(item.weatherCondition)}</span>
-                    <span className="text-2xl">{getSeasonIcon(item.season)}</span>
-                    <div>
-                      <div className="font-medium text-gray-800">
-                        {item.weatherCondition} · {item.season}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {formatDate(item.createdAt)}
-                      </div>
+          {history.map((item) => (
+            <div
+              key={item.id}
+              className="border rounded-lg p-4 hover:bg-gray-50 transition duration-200"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl">{getWeatherIcon(item.weatherCondition)}</span>
+                  <span className="text-2xl">{getSeasonIcon(item.season)}</span>
+                  <div>
+                    <div className="font-medium text-gray-800">
+                      {item.weatherCondition} · {item.season}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {formatDate(item.createdAt)}
                     </div>
                   </div>
-                  <button
-                    onClick={() => setSelectedItem(item)}
-                    className="px-3 py-1 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition duration-200 text-sm"
-                  >
-                    상세보기
-                  </button>
                 </div>
-
-                {item.aiAdvice && (
-                  <div className="bg-indigo-50 border-l-4 border-indigo-400 p-3 rounded-r-lg">
-                    <div
-                      className="text-gray-700 text-sm line-clamp-2"
-                      dangerouslySetInnerHTML={{ __html: item.aiAdvice }}
-                    />
-                  </div>
-                )}
+                <button
+                  onClick={() => setSelectedItem(item)}
+                  className="px-3 py-1 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition duration-200 text-sm"
+                >
+                  상세보기
+                </button>
               </div>
-            );
-          })}
+
+              {item.aiAdvice && (
+                <div className="bg-indigo-50 border-l-4 border-indigo-400 p-3 rounded-r-lg">
+                  <div
+                    className="text-gray-700 text-sm line-clamp-2"
+                    dangerouslySetInnerHTML={{ __html: item.aiAdvice }}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
@@ -259,14 +259,6 @@ const RecommendationHistory: React.FC<Props> = ({ storeId }) => {
                   className="text-sm text-gray-700 whitespace-pre-wrap prose prose-sm max-w-none"
                   dangerouslySetInnerHTML={{ __html: selectedItem.aiAdvice }}
                 />
-                {selectedItem.rawAiAdvice && (
-                  <details className="mt-4">
-                    <summary className="cursor-pointer text-gray-600 hover:text-gray-800">원본 텍스트 보기</summary>
-                    <pre className="mt-2 text-xs text-gray-600 whitespace-pre-wrap bg-gray-100 p-2 rounded">
-                      {selectedItem.rawAiAdvice}
-                    </pre>
-                  </details>
-                )}
               </div>
             </div>
           </div>

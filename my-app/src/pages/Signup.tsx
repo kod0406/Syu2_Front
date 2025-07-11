@@ -4,6 +4,8 @@ import api from "../API/TokenConfig"; // api 인스턴스 임포트
 import Modal from "../pages/Modal";
 import KakaoMapScript from "../components/KakaoMapScript";
 import AddressSearch from "../components/AddressSearch";
+import React from "react";
+import { Helmet } from "react-helmet";
 
 interface SignupResponse {
   error?: string;
@@ -112,6 +114,9 @@ export default function Signup() {
 
   return (
     <>
+      <Helmet>
+        <title>회원가입 - Syu2</title>
+      </Helmet>
       <div className="flex items-center justify-center min-h-screen bg-green-100">
         <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
           {/* 헤더 영역 */}

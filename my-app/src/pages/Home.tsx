@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
+import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 
 export default function Home() {
@@ -14,8 +15,13 @@ export default function Home() {
   }, [navigate]);
 
   return (
-    <div className="text-center p-10">
-      <p>로그인 완료. 페이지 이동 중...</p>
-    </div>
+    <>
+      <Helmet>
+        <title>Syu2 - 스마트 주문 서비스</title>
+      </Helmet>
+      <div className="text-center p-10">
+        <p>로그인 완료. 페이지 이동 중...</p>
+      </div>
+    </>
   );
 }

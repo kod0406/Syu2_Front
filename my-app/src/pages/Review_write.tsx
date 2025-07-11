@@ -3,6 +3,7 @@ import React, { useState, useEffect, ChangeEvent } from "react";
 import api from "../API/TokenConfig";
 import { useParams, useNavigate } from "react-router-dom";
 import Modal from "../pages/Modal";
+import { Helmet } from "react-helmet";
 
 interface UserInfo {
   id: number;
@@ -85,6 +86,9 @@ export default function ReviewWritePage() {
 
   return (
     <>
+      <Helmet>
+        <title>리뷰 작성 - Syu2</title>
+      </Helmet>
       <div className="w-full max-w-xl mx-auto p-4 md:p-6 bg-white shadow rounded">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl md:text-2xl font-bold">리뷰 작성</h2>

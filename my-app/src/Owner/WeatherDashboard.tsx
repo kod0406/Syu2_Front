@@ -98,6 +98,16 @@ const WeatherDashboard: React.FC<Props> = ({ storeId }) => {
     }
   }, [storeId]);
 
+  // 모달이 열릴 때 body 스크롤 방지
+  useEffect(() => {
+    // WeatherDashboard가 마운트될 때 스크롤 방지
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
