@@ -201,21 +201,71 @@ export default function CustomerMenuPage() {
         discount = Math.min(discount, selectedCoupon.discountLimit);
       }
     } else {
-      discount = selectedCoupon.discountValue;
+      // 정액 할인: 적용 가능한 금액을 초과할 수 없음 (마이너스 방지)
+      discount = Math.min(selectedCoupon.discountValue, applicableAmount);
       //discount = applicableAmount - selectedCoupon.discountValue; -> 추후 (월) 수정 에정
     }
 
-    return Math.floor(discount);
+    // 최종 할인 금액이 음수가 되지 않도록 보장
+    return Math.max(0, Math.floor(discount));
   }, [orderItems, selectedCoupon]);
 
-  const totalAmount = subtotal - couponDiscount - usedPoints;
+  // 총 금액 계산 시 마이너스 방지
+  const totalAmount = Math.max(0, subtotal - couponDiscount - usedPoints);
 
   const handleSelectCoupon = (coupon: CustomerCoupon) => {
-    if (subtotal < (coupon.minimumOrderAmount || 0)) {
-      setAlertMessage("최소 주문 금액을 충족하지 않습니다.");
+    // 카테고리별 적용 가능 여부 확인
+    if (coupon.applicableCategories?.length) {
+      const hasApplicableCategory = orderItems.some((item) =>
+        coupon.applicableCategories?.includes(item.category)
+      );
+
+      if (!hasApplicableCategory) {
+        setAlertMessage(
+          `이 쿠폰은 ${coupon.applicableCategories.join(
+            ", "
+          )} 카테고리에만 적용 가능합니다.`
+        );
+        setOnConfirm(null);
+        return;
+      }
+    }
+
+    // 적용 가능한 메뉴들의 금액으로 최소 주문 금액 확인
+    const applicableItems = coupon.applicableCategories?.length
+      ? orderItems.filter((item) =>
+          coupon.applicableCategories?.includes(item.category)
+        )
+      : orderItems;
+
+    const applicableAmount = applicableItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    if (applicableAmount < (coupon.minimumOrderAmount || 0)) {
+      setAlertMessage("쿠폰 적용 가능한 메뉴의 최소 주문 금액을 충족하지 않습니다.");
       setOnConfirm(null);
       return;
     }
+
+    // 실제 할인 금액이 0보다 큰지 확인 (정액 할인 시 적용 가능 금액 부족 방지)
+    let actualDiscount = 0;
+    if (coupon.discountType === "PERCENTAGE") {
+      actualDiscount = applicableAmount * (coupon.discountValue / 100);
+      if (coupon.discountLimit) {
+        actualDiscount = Math.min(actualDiscount, coupon.discountLimit);
+      }
+    } else {
+      actualDiscount = Math.min(coupon.discountValue, applicableAmount);
+    }
+
+    if (actualDiscount <= 0) {
+      setAlertMessage("할인 적용이 불가능합니다 (적용 가능 금액 부족).");
+      setOnConfirm(null);
+      return;
+    }
+
     setSelectedCoupon(coupon);
     setShowCouponPopup(false);
   };
@@ -288,6 +338,66 @@ export default function CustomerMenuPage() {
       setOnConfirm(null);
     }
   };
+
+  // 선택된 쿠폰의 유효성을 검사하는 effect 추가
+  useEffect(() => {
+    if (selectedCoupon && orderItems.length > 0) {
+      // 카테고리별 적용 가능 여부 확인 - 일부만 적용 가능해도 OK
+      if (selectedCoupon.applicableCategories?.length) {
+        const hasApplicableCategory = orderItems.some((item) =>
+          selectedCoupon.applicableCategories?.includes(item.category)
+        );
+
+        // 적용 가능한 메뉴가 하나도 없을 때만 해제
+        if (!hasApplicableCategory) {
+          setSelectedCoupon(null);
+          setAlertMessage(
+            `선택하신 쿠폰은 ${selectedCoupon.applicableCategories.join(
+              ", "
+            )} 카테고리에만 적용 가능하여 자동으로 해제되었습니다.`
+          );
+          setOnConfirm(null);
+          return;
+        }
+      }
+
+      // 최소 주문 금액 확인 - 적용 가능한 메뉴들의 합계로 계산
+      const applicableItems = selectedCoupon.applicableCategories?.length
+        ? orderItems.filter((item) =>
+            selectedCoupon.applicableCategories?.includes(item.category)
+          )
+        : orderItems;
+
+      const applicableAmount = applicableItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+
+      if (applicableAmount < (selectedCoupon.minimumOrderAmount || 0)) {
+        setSelectedCoupon(null);
+        setAlertMessage("쿠폰 적용 가능한 메뉴의 최소 주문 금액 미달로 쿠폰이 자동 해제되었습니다.");
+        setOnConfirm(null);
+        return;
+      }
+
+      // 실제 할인 금액이 0인지 확인 (정액 할인 시 적용 가능 금액 부족 방지)
+      let actualDiscount = 0;
+      if (selectedCoupon.discountType === "PERCENTAGE") {
+        actualDiscount = applicableAmount * (selectedCoupon.discountValue / 100);
+        if (selectedCoupon.discountLimit) {
+          actualDiscount = Math.min(actualDiscount, selectedCoupon.discountLimit);
+        }
+      } else {
+        actualDiscount = Math.min(selectedCoupon.discountValue, applicableAmount);
+      }
+
+      if (actualDiscount <= 0) {
+        setSelectedCoupon(null);
+        setAlertMessage("적용 가능 금액 부족으로 쿠폰이 자동 해제되었습니다.");
+        setOnConfirm(null);
+      }
+    }
+  }, [orderItems, selectedCoupon]);
 
   return (
     <div className="md:flex h-screen bg-gray-50 relative">
@@ -377,6 +487,7 @@ export default function CustomerMenuPage() {
           onSelect={handleSelectCoupon}
           onClose={() => setShowCouponPopup(false)}
           currentOrderAmount={subtotal}
+          orderItems={orderItems}
         />
       )}
 
