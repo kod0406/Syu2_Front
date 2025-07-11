@@ -39,10 +39,10 @@ export default function CouponPopup({
       if (coupon.discountLimit) {
         discount = Math.min(discount, coupon.discountLimit);
       }
-      return Math.floor(discount);
+      return Math.max(0, Math.floor(discount)); // 마이너스 방지
     } else {
-      // 정액 할인: 적용 가능한 금액을 초과할 수 없음
-      return Math.min(coupon.discountValue, applicableAmount);
+      // 정액 할인: 적용 가능한 금액을 초과할 수 없음 (마이너스 방지)
+      return Math.max(0, Math.min(coupon.discountValue, applicableAmount));
     }
   };
 
@@ -59,7 +59,10 @@ export default function CouponPopup({
     const applicableAmount = getApplicableAmount(coupon);
     const meetsMinimumOrder = applicableAmount >= (coupon.minimumOrderAmount || 0);
 
-    return meetsMinimumOrder;
+    // 실제 할인 금액이 0보다 큰지 확인 (정액 할인 시 적용 가능 금액 부족 방지)
+    const actualDiscount = getActualDiscount(coupon);
+
+    return meetsMinimumOrder && actualDiscount > 0;
   };
 
   const getCouponAvailabilityText = (coupon: CustomerCoupon) => {
@@ -75,6 +78,11 @@ export default function CouponPopup({
 
     if (!meetsMinimumOrder) {
       return "쿠폰 적용 가능한 메뉴의 최소 주문 금액 미달";
+    }
+
+    const actualDiscount = getActualDiscount(coupon);
+    if (actualDiscount <= 0) {
+      return "할인 적용 불가 (적용 가능 금액 부족)";
     }
 
     return "";
