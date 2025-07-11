@@ -201,7 +201,8 @@ export default function CustomerMenuPage() {
         discount = Math.min(discount, selectedCoupon.discountLimit);
       }
     } else {
-      discount = selectedCoupon.discountValue;
+      // 정액 할인: 적용 가능한 금액을 초과할 수 없음
+      discount = Math.min(selectedCoupon.discountValue, applicableAmount);
     }
 
     return Math.floor(discount);
@@ -376,6 +377,7 @@ export default function CustomerMenuPage() {
           onSelect={handleSelectCoupon}
           onClose={() => setShowCouponPopup(false)}
           currentOrderAmount={subtotal}
+          orderItems={orderItems}
         />
       )}
 
