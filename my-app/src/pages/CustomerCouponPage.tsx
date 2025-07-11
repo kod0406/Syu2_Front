@@ -86,7 +86,7 @@ export default function CustomerCouponPage() {
   return (
     <>
       <Helmet>
-        <title>내 쿠폰함 - Syu2</title>
+        <title>내 쿠폰함관리는 와따잇(WTE)에서! 🎟️</title>
       </Helmet>
       <div className="max-w-2xl mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4 text-center">🎟️ 내 쿠폰함</h1>

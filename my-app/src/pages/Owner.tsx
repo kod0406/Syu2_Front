@@ -112,7 +112,7 @@ export default function OwnerDashboard() {
   return (
     <>
       <Helmet>
-        <title>사장님 대시보드 - Syu2</title>
+        <title>사장님 대시보드 - 매출도 맛도 와따잇! - WTE</title>
       </Helmet>
       <div className="p-4">
         <DashboardHeader />

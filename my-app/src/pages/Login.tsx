@@ -12,7 +12,7 @@ export default function CustomerLogin() {
   return (
     <>
       <Helmet>
-        <title>로그인 - Syu2</title>
+        <title>와따잇!</title>
       </Helmet>
       <div className="flex items-center justify-center min-h-screen bg-blue-100">
         <div className="w-full max-w-sm space-y-6 bg-white p-6 rounded shadow">

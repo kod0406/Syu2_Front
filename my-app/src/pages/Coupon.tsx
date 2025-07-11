@@ -189,7 +189,7 @@ export default function CouponPage() {
   return (
     <div className="p-4">
       <Helmet>
-        <title>쿠폰 관리 - Syu2</title>
+        <title>내 가게 쿠폰은 와따잇(WTE)에서! 🎟️</title>
       </Helmet>
       <h1 className="text-2xl font-bold mb-4">🎟️ 쿠폰 관리</h1>
 

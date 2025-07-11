@@ -115,7 +115,7 @@ export default function Signup() {
   return (
     <>
       <Helmet>
-        <title>회원가입 - Syu2</title>
+        <title>와따잇과 함께 시작해요! 회원가입 - WTE</title>
       </Helmet>
       <div className="flex items-center justify-center min-h-screen bg-green-100">
         <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
@@ -123,7 +123,7 @@ export default function Signup() {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">회원가입</h1>
             <p className="text-gray-500 text-sm">
-              새로운 계정을 만들어 서비스를 시작하세요
+              새로운 계정을 만들어 와따잇! 의 맛있는 여정을 함께해요!
             </p>
           </div>
 

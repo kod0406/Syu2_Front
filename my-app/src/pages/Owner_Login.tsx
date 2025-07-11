@@ -105,14 +105,14 @@ export default function CustomerLogin() {
   return (
     <>
       <Helmet>
-        <title>사장님 로그인 - Syu2</title>
+        <title>사장님도 와따잇! 로그인하세요 - WTE</title>
       </Helmet>
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-4">
         <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">로그인</h1>
             <p className="text-gray-500 text-sm">
-              계정에 로그인하여 서비스를 이용하세요
+              계정에 로그인하여 WTE로 맛있는 매출을 관리하세요
             </p>
           </div>
 

@@ -72,7 +72,7 @@ const LocationPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>위치 서비스 - Syu2</title>
+        <title>내 주변 맛집 쿠폰 찾기 - 와따잇(WTE)</title>
       </Helmet>
       <main className="p-6 text-center">
         <button
