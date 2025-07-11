@@ -203,6 +203,7 @@ export default function CustomerMenuPage() {
     } else {
       // 정액 할인: 적용 가능한 금액을 초과할 수 없음 (마이너스 방지)
       discount = Math.min(selectedCoupon.discountValue, applicableAmount);
+      //discount = applicableAmount - selectedCoupon.discountValue; -> 추후 (월) 수정 에정
     }
 
     // 최종 할인 금액이 음수가 되지 않도록 보장
