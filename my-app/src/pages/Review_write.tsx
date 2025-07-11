@@ -75,7 +75,7 @@ export default function ReviewWritePage() {
       if (res.status !== 200) throw new Error("서버 오류");
       setAlertMessage("리뷰가 등록되었습니다.");
       setOnConfirm(() => () => {
-        window.location.href = "/review";
+        navigate("/review");
       });
     } catch (err) {
       console.error("❌ 리뷰 전송 실패:", err);
