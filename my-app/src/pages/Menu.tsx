@@ -202,6 +202,7 @@ export default function CustomerMenuPage() {
       }
     } else {
       discount = selectedCoupon.discountValue;
+      //discount = applicableAmount - selectedCoupon.discountValue; -> 추후 (월) 수정 에정
     }
 
     return Math.floor(discount);
