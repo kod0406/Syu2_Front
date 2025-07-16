@@ -30,7 +30,6 @@ const LocationSender: React.FC = () => {
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
 
-  // State for Review Modal
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedMenuName, setSelectedMenuName] = useState("");
   const [selectedReviews, setSelectedReviews] = useState([]);
@@ -132,7 +131,10 @@ const LocationSender: React.FC = () => {
                 menu.map((item) => (
                   <MenuCard
                     key={item.menuId}
-                    item={item}
+                    item={{
+                      ...item,
+                      category: item.category, // 카테고리 필드 전달
+                    }}
                     onAdd={() => {}} // No action
                     onViewReviews={handleViewReviews} // Connect the review function
                     showAddButton={false} // Hide add button
@@ -158,3 +160,4 @@ const LocationSender: React.FC = () => {
 };
 
 export default LocationSender;
+

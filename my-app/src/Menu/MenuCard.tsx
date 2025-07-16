@@ -8,6 +8,7 @@ interface Props {
     description: string;
     imageUrl: string;
     rating: number;
+    category?: string;
   };
   onAdd: () => void;
   onViewReviews: (menuId: number, menuName: string) => void;
@@ -46,6 +47,11 @@ export default function MenuCard({
               ⭐ {item.rating.toFixed(1)} / 5
             </span>
           </div>
+          {item.category && (
+            <p className="text-sm text-blue-600 mb-1">
+              카테고리: {item.category}
+            </p>
+          )}
           <p className="text-red-600 font-semibold text-sm md:text-base">
             ₩{item.price.toLocaleString()}
           </p>

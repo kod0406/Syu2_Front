@@ -9,6 +9,9 @@ interface Coupon {
   couponName: string;
   discountValue: number;
   discountType: "PERCENTAGE" | "AMOUNT";
+  expiresAt: string;
+  applicableCategories: string[]; // 적용 가능한 카테고리
+  expiryDate?: string;
 }
 
 interface StoreWithCoupons {
@@ -56,6 +59,9 @@ const LocationPage: React.FC = () => {
           couponName: c.couponName,
           discountValue: c.discountValue,
           discountType: c.discountType,
+          expiresAt: c.expiresAt || c.expiryDate,
+          applicableCategories: c.applicableCategories || [],
+          expiryDate: c.expiryDate,
         });
       });
 

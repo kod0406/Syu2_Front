@@ -4,7 +4,9 @@ interface Coupon {
   couponName: string;
   discountValue: number;
   discountType: 'PERCENTAGE' | 'AMOUNT';
-  // Add other coupon properties as needed
+  expiresAt: string;
+  applicableCategories: string[];
+  expiryDate?: string;
 }
 
 interface StoreWithCoupons {
@@ -45,6 +47,18 @@ const AvailableCouponModal: React.FC<AvailableCouponModalProps> = ({ isOpen, onC
                           ? `${coupon.discountValue}% 할인`
                           : `${coupon.discountValue.toLocaleString()}원 할인`}
                       </p>
+                      {/* 적용 가능 카테고리 표시 */}
+                      {coupon.applicableCategories && coupon.applicableCategories.length > 0 && (
+                        <p className="text-sm text-blue-600">
+                          적용 카테고리: {coupon.applicableCategories.join(', ')}
+                        </p>
+                      )}
+                      {/* 사용 기한 표시 */}
+                      {(coupon.expiryDate || coupon.expiresAt) && (
+                        <p className="text-sm text-gray-600">
+                          사용 기한: {new Date(coupon.expiryDate || coupon.expiresAt).toLocaleDateString('ko-KR')}
+                        </p>
+                      )}
                     </li>
                   ))}
                 </ul>
