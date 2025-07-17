@@ -236,8 +236,8 @@ Syu2_Back/
 
 1.  [시스템 요구사항](#시스템-요구사항)
 2.  [실행 방법](#실행-방법)
-    -   [Back-end](#1-back-end-실행)
-    -   [Front-end](#2-front-end-실행)
+    -   [Front-end](#1-front-end-실행)
+    -   [Back-end](#2-back-end-실행)
 3.  [데이터베이스 접속](#데이터베이스-접속-mysql-workbench)
 4.  [API 문서 확인](#api-문서-swagger-ui)
 5.  [환경 변수 설정](#환경-변수-설정-applicationproperties)
