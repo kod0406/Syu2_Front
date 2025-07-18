@@ -46,11 +46,8 @@
 
 사용자 위치를 중심으로 주변의 맛집과 혜택을 한눈에 보여줍니다.
 
--   **내 주변 맛집과 생생한 리뷰 탐색**  
-    `Geolocation API`를 활용해 현재 위치를 기반으로 가장 가까운 상점들을 지도 위에 표시합니다. 단순히 위치만 보여주는 것이 아니라, 다른 사용자들이 남긴 실시간 리뷰와 평점을 함께 제공하여 실패 없는 맛집 선택을 돕습니다.
-
 -   **지도에서 바로 찾는 2km 내 할인 쿠폰**  
-    현재 위치 기준으로 반경 2km 이내의 상점들과 상점들의 메뉴 리뷰, 해당 상점들이 제공하는 사용 가능한 할인 쿠폰을 즉시 확인할 수 있습니다. 현명하고 합리적인 소비를 위한 최고의 가이드가 되어줍니다.
+    `Geolocation API`를 활용해 현재 위치 기준으로 반경 2km 이내의 상점들과 상점들의 메뉴 리뷰, 해당 상점들이 제공하는 사용 가능한 할인 쿠폰을 즉시 확인할 수 있습니다. 현명하고 합리적인 소비를 위한 최고의 가이드가 되어줍니다.
 
     > **🤔 왜 2km 인가요?**  
     > 프로젝트를 기획할 때, '걸어서 갈 만한 맛집'의 기준을 고민했습니다. 저희가 학교 실습관에서 후문 식당 거리까지 걸어갈 때 보통 10분에서 15분 정도 걸렸는데, 이 거리가 약 1.5km 정도 되더라고요. 하지만 서비스 범위를 너무 좁게 설정하면 선택권이 제한되고, 너무 넓게 하면 걸어가기 부담스러워집니다. 성인 평균 도보 속도를 고려했을 때 2km는 25분 내외로 '점심 뭐 먹지?' 할 때 부담 없이 고려할 수 있는 '슬세권(슬리퍼 신고 갈 수 있는 상권)'의 현실적인 범위라고 판단해서 2km로 설정하게 되었습니다.
@@ -207,29 +204,74 @@
 
 ## 📁 프로젝트 구조
 ```
-Syu2_Back/
-├── 📂 src/main/java/com/example/demo/
-│   ├── 🎁 benefit/                  # 혜택(쿠폰, 포인트) 관리
-│   ├── ⚙️ config/                   # WebClient 등 설정
-│   ├── 👤 customer/                 # 고객 기능
-│   ├── 🌐 external/                 # 외부 API 연동
-│   ├── 📍 geolocation/              # 위치 기반 서비스
-│   ├── 💳 KakaoPay/                 # 카카오페이 결제
-│   ├── 🛒 order/                    # 주문 관리
-│   ├── 🤖 recommendation/           # 메뉴 추천 및 분석
-│   ├── 📊 setting/                  # Spring Security, JWT, WebSocket 등
-│   ├── 🔐 socialLogin/              # 소셜 로그인
-│   ├── 🏪 store/                    # 상점 관리
-│   └── 👥 user/                     # 사용자 공통
+Syu2_Front/
+├── 📂 .github/ # GitHub Actions 워크플로우 설정
+│ └── workflows/
+│ └── main.yml # CI/CD 자동화 스크립트
 │
-├── 📂 src/main/resources/
-│   ├── application.properties       # 환경 설정
-│   └── logback-spring.xml           # 로깅 설정
+├── 📂 my-app/ # 프론트엔드 메인 애플리케이션
+│ ├── 📄 package.json # 의존성 및 실행 스크립트
+│ ├── 📄 tsconfig.json # TypeScript 설정
+│ ├── 📄 tailwind.config.js # TailwindCSS 설정
+│ ├── 📄 .gitignore # Git 제외 파일 목록
 │
-├── 📂 sequence/                     # 시퀀스 다이어그램
-├── 📂 diagram/                      # 아키텍처 다이어그램
-├── 📄 build.gradle                  # 빌드 스크립트
-└── 📄 README.md                     # 프로젝트 문서
+│ ├── 📂 public/ # 정적 파일
+│ │ ├── index.html # 앱 진입 HTML
+│ │ ├── favicon.ico # 파비콘
+│ │ └── manifest.json 등 # 기타 PWA 관련 설정
+│
+│ ├── 📂 src/ # 소스 코드 전체
+│ │ ├── App.tsx # 루트 컴포넌트
+│ │ ├── index.tsx # 앱 진입점
+│ │ ├── index.css / App.css # 전역 스타일
+│
+│ │ ├── 📂 API/ # API 관련 설정 (예: 토큰 처리 등)
+│ │ │ └── TokenConfig.js
+│
+│ │ ├── 📂 Coupon/ # 쿠폰 관련 UI 및 로직
+│ │ │ ├── CouponList.tsx
+│ │ │ └── CouponCreateModal.tsx 등
+│
+│ │ ├── 📂 Customer/ # 고객이 소유한 쿠폰 보기 등
+│ │ │ ├── MyCouponList.tsx
+│
+│ │ ├── 📂 Location/ # 위치 관련 기능
+│ │ │ └── locationSender.tsx
+│
+│ │ ├── 📂 Menu/ # 메뉴 UI 구성
+│ │ │ ├── MenuCard.tsx
+│ │ │ └── OrderSummary.tsx 등
+│
+│ │ ├── 📂 Owner/ # 사장님용 대시보드
+│ │ │ ├── DashboardMenu.tsx
+│ │ │ ├── MenuList.tsx
+│ │ │ ├── SalesModal.tsx
+│ │ │ └── WeatherDashboard.tsx 등
+│
+│ │ ├── 📂 components/ # 공통 컴포넌트
+│ │ │ ├── AddressSearch.tsx
+│ │ │ ├── KakaoMapScript.tsx
+│ │ │ └── SessionNotificationToast.tsx 등
+│
+│ │ ├── 📂 hooks/ # 커스텀 훅
+│ │ │ ├── useGeolocation.ts
+│ │ │ └── useOrderWebSocket.js 등
+│
+│ │ ├── 📂 pages/ # 페이지 컴포넌트들 (라우트 연결)
+│ │ │ ├── Login.tsx, Signup.tsx
+│ │ │ ├── Owner.tsx, Menu.tsx
+│ │ │ └── Home.tsx 등
+│
+│ │ ├── 📂 types/ # 전역 타입 정의
+│ │ │ ├── coupon.ts
+│ │ │ └── review.ts
+│
+│ │ ├── App.test.js # 테스트 파일
+│ │ ├── reportWebVitals.js # 성능 측정
+│ │ └── setupTests.js # 테스트 환경 설정
+│
+├── 📄 README.md # 프로젝트 설명 문서
+├── 📄 package-lock.json # 의존성 잠금 파일
 ```
 
 <br>
